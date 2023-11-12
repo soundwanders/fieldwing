@@ -1,171 +1,235 @@
 <!-- Selector.svelte -->
 
 <script lang="ts">
-	import { selectedTeams } from '$lib/stores/store';
-	import { theme } from '$lib/stores/theme';
-	import { onMount } from 'svelte';
+  import { selectedTeams } from '$lib/stores/store';
+  import { theme } from '$lib/stores/theme';
+  import { onMount } from 'svelte';
 
-	export let leagues: string[];
-	export let selectedLeague: string;
+  export let leagues: string[];
+  export let selectedLeague: string;
 
-	let teams: any[] = [];
-	let selectedTeam = '';
-	let selectedTeamsArray = $selectedTeams;
+  let selectedTeamsArray = $selectedTeams;
+	let teams: string[] = [];
 
-	function loadTeams() {
-		if (selectedLeague === 'All') {
-			import('../data/fbs.json').then((fbsData) => {
-				import('../data/fcs.json').then((fcsData) => {
-					teams = [...fbsData.default, ...fcsData.default];
-				});
-			});
-		} else if (selectedLeague === 'FBS') {
-			import('../data/fbs.json').then((data) => {
-				teams = data.default;
-			});
-		} else if (selectedLeague === 'FCS') {
-			import('../data/fcs.json').then((data) => {
-				teams = data.default;
-			});
-		} else {
-			teams = [];
-		}
-	}
+  function loadTeams() {
+    if (selectedLeague === 'All') {
+      import('../data/fbs.json').then((fbsData) => {
+        import('../data/fcs.json').then((fcsData) => {
+          teams = [...fbsData.default, ...fcsData.default];
+        });
+      });
+    } else if (selectedLeague === 'FBS') {
+      import('../data/fbs.json').then((data) => {
+        teams = data.default;
+      });
+    } else if (selectedLeague === 'FCS') {
+      import('../data/fcs.json').then((data) => {
+        teams = data.default;
+      });
+    } else {
+      teams = [];
+    }
+  }
 
-	const toggleSelection = () => {
-		if (selectedTeamsArray.includes(selectedTeam)) {
-			selectedTeams.update((teams) => teams.filter((t) => t !== selectedTeam));
-		} else {
-			selectedTeams.update((teams) => [...teams, selectedTeam]);
-		}
-	};
+  const toggleSelection = (team: string) => {
+    if (selectedTeamsArray.includes(team)) {
+      selectedTeams.update((teams) => teams.filter((t) => t !== team));
+    } else {
+      selectedTeams.update((teams) => [...teams, team]);
+    }
+  };
 
-	onMount(() => {
-		selectedTeamsArray = $selectedTeams;
-	});
+  onMount(() => {
+    selectedTeamsArray = $selectedTeams;
+  });
 
-	$: {
-		selectedTeamsArray = $selectedTeams;
-	}
+  $: {
+    selectedTeamsArray = $selectedTeams;
+  }
 </script>
 
 <section class="select-section" class:light={!$theme} class:dark={$theme}>
-	<div class="container">
-		<form class="selector-form" class:light={!$theme} class:dark={$theme}>
-			<h2>Select Teams</h2>
+  <div class="container">
+    <form class="selector-form" class:light={!$theme} class:dark={$theme}>
+      <h2>Select Teams</h2>
 
-			<select id="leagueSelect" bind:value={selectedLeague} on:change={loadTeams}>
-				{#each leagues as league}
-					<option value={league}>{league}</option>
-				{/each}
-			</select>
+      <div class="select-container">
+				<select 
+					id="league-select" 
+					bind:value={selectedLeague} 
+					on:change={loadTeams}
+				>
+					<option value="" disabled>Select a Conference</option>
+					{#each leagues as league}
+						<option value={league}>{league}</option>
+					{/each}
+				</select>
+				
 
-			<select class="teams-container" bind:value={selectedTeam} aria-hidden="true" tabindex="-1">
-				<option value="" />
-				{#each teams as team}
-					<option value={team}>{team}</option>
-				{/each}
-			</select>
+				<div class="teams-container">
+					<ul>
+						{#if teams.length > 0}
+							{#each teams as team}
+								<li>
+									<button
+										on:click={() => toggleSelection(team)}
+										class:selected={$selectedTeams.includes(team)}
+										tabindex="0"
+									>
+										{team}
+									</button>
+								</li>
+							{/each}
+						{:else}
+							<p id="select-conference">
+								🏈 Select a conference to view teams
+							</p>
+						{/if}
+					</ul>
+				</div>
+				
+      </div>
+    </form>
 
-			<button
-				class="submit-team-button"
-				type="button"
-				on:click={toggleSelection}
-				aria-label={`Toggle selection for ${selectedTeam}`}
-			>
-				{selectedTeamsArray.includes(selectedTeam) ? 'Remove' : 'Add'}
-			</button>
-		</form>
-
-		<div class="selected-teams mt-10">
-			<h2>Selected Items</h2>
-			<ul>
-				{#each selectedTeamsArray as selectedTeam}
-					<li>{selectedTeam}</li>
-				{/each}
-			</ul>
-		</div>
-	</div>
+    <div class="selected-teams" class:light={!$theme} class:dark={$theme}>
+      <h2>Selected Teams</h2>
+      <ul>
+        {#each selectedTeamsArray as selectedTeam}
+          <li>
+            <button on:click={() => toggleSelection(selectedTeam)}>
+              {selectedTeam}
+            </button>
+          </li>
+        {/each}
+      </ul>
+    </div>
+  </div>
 </section>
 
 <style>
-	.select-section {
-		width: 100vw;
-		min-height: 100vh;
-		background-color: var(--background-color);
-		color: var(--text-color);
-	}
+  /* Root Color Variables */
+  :root {
+    --primary-color: #4299e1;
+    --background-color: #f9f9f9;
+    --text-color: #1a202c;
+    --form-background-color: #f9f9f9;
+    --form-text-color: #1a202c;
+    --button-background-color: #8346ff;
+		--highlight-color: #4666ff;
+  }
 
-	.container {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		width: 100%;
-		min-height: 90vh;
-		padding: 2.5rem;
-	}
+  .select-section {
+    width: 100vw;
+    min-height: 70vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--background-color);
+    color: var(--text-color);
+  }
 
-	.selector-form {
-		width: 100%;
-		max-width: 20rem;
-		border-radius: 0.375rem;
-		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-		padding: 1.5rem;
-		background-color: var(--form-background-color);
-		color: var(--form-text-color);
-	}
+  .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 100%;
+    padding: 0 2.5rem;
+  }
 
-	.selector-form h2 {
-		font-size: 1.5rem;
-		line-height: 2rem;
-		font-weight: 600;
-		text-align: center;
-		margin-bottom: 1.5rem;
-		color: #f9f9f9;
-	}
+  /* Form Styles */
+  .selector-form {
+    width: 100%;
+    max-width: 20rem;
+    border-radius: 0.375rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    padding: 1.5rem;
+    background-color: var(--form-background-color);
+    color: var(--form-text-color);
+  }
 
-	.teams-container {
-		max-height: 200px;
-		width: 600px;
-		max-width: 600px;
-		padding: 1rem 0.3rem;
-		overflow-y: auto; /* Enable vertical scrolling due to list being longer than parent container */
-	}
+  .selector-form h2 {
+    font-size: 1.5rem;
+    line-height: 2rem;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 2rem;
+		margin-top: -4rem;
+    color: var(--text-color);
+  }
 
-	.submit-team-button {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		border-radius: 0.375rem;
-		font-size: 0.875rem;
-		line-height: 1.25rem;
-		font-weight: 500;
-		transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out;
-		outline: none;
-		cursor: pointer;
-		background-color: var(--button-background-color);
-		color: var(--text-color);
-	}
+  /* Select Container Styles */
+  .select-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
 
-	.submit-team-button:disabled {
-		pointer-events: none;
-		opacity: 0.5;
-	}
+  /* Select Element Styles */
+  select {
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.25rem;
+    background-color: var(--form-background-color);
+    color: var(--form-text-color);
+  }
 
-	.submit-team-button:hover {
-		background-color: #4299e1;
-		color: var(--text-color);
-	}
+  /* Teams Container Styles */
+  .teams-container {
+		min-height: 200px;
+    max-height: 200px;
+    width: 100%;
+    padding: 0.3rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.25rem;
+    overflow-y: auto;
+  }
 
+  .teams-container ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .teams-container li {
+    padding: 0.5rem;
+    border-bottom: 1px solid #d1d5db;
+  }
+
+  .teams-container button {
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    padding: 0.5rem;
+    background-color: inherit;
+    border: none;
+    color: inherit;
+    transition: background-color 0.2s ease-in-out;
+  }
+
+  .teams-container button:hover {
+    background-color: var(--highlight-color);
+  }
+
+  .teams-container button.selected {
+    background-color: var(--highlight-color);
+  }
+
+	/* Selected Teams Styles */
 	.selected-teams {
 		width: 100%;
 		max-width: 20rem;
+    background-color: var(--form-background-color);
+    color: var(--form-text-color);
+		border: 1px solid #d1d5db;
 		border-radius: 0.375rem;
 		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 		padding: 1.5rem;
-		background-color: var(--form-background-color);
-		color: var(--form-text-color);
+		margin-top: 2rem;
 	}
 
 	.selected-teams h2 {
@@ -174,36 +238,60 @@
 		font-weight: 600;
 		text-align: center;
 		margin-bottom: 1.5rem;
-		background-color: var(--form-background-color);
-		color: var(--form-text-color);
+		color: inherit;
+	}
+
+	.selected-teams ul {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+		color: inherit;
 	}
 
 	.selected-teams li {
-		border-bottom: 1px solid #e2e8f0;
-		padding: 0.5rem 1rem;
-		background-color: var(--form-background-color);
-		color: var(--form-text-color);
-    list-style-type: none;
+		padding: 0.5rem;
+		border-bottom: 1px solid #d1d5db;
+	}
+	
+  .selected-teams li:last-child {
+    border-bottom: none;
+  }
+
+	.selected-teams button {
+		cursor: pointer;
+		width: 100%;
+		text-align: left;
+		padding: 0.5rem;
+		background-color: inherit;
+		border: none;
+		color: inherit;
+		transition: background-color 0.2s ease-in-out;
 	}
 
-	.selected-teams li:last-child {
-		border-bottom: none;
+	.selected-teams button:hover {
+		background-color: var(--highlight-color);
 	}
 
-	.light {
-		background-color: #f9f9f9;
-		color: #1a202c;
+	#select-conference {
+		padding: 0 0.25rem;
 	}
 
-	.dark {
-		background-color: #1a202c;
-		color: #f9f9f9;
-	}
+  .light {
+    background-color: #f9f9f9;
+    color: #1a202c;
+  }
 
-	:root {
-		--form-background-color-light: #94a3b8;
-		--form-background-color-dark: #1e293b;
-		--form-text-color-light: #09090b;
-		--form-text-color-dark: #f9f9f9;
+  .dark {
+    background-color: #1a202c;
+    color: #f9f9f9;
+  }
+
+
+	/* Media query for mobile devices */
+	@media (max-width: 768px) {
+		.select-section {
+			width: 100%;
+			margin: 0 auto;
+		}
 	}
 </style>

@@ -1,5 +1,9 @@
+<script>
+	import { theme } from "$lib/stores/theme";
+</script>
+
 <footer class="footer">
-	<nav>
+	<nav class:light={!$theme} class:dark={$theme}>
 		<a href="#tos">Terms of Service</a>
 		<a href="#github">Github</a>
 		<a href="#faq">FAQ</a>
@@ -15,7 +19,7 @@
 
 <style module>
 	.footer {
-		border-top: 1px solid #4a5568;
+		border-top: 1px solid #9ca3af;
 		padding: 2rem;
 	}
 
@@ -24,6 +28,7 @@
 		flex-wrap: wrap;
 		justify-content: center;
 		gap: 1rem;
+		color: inherit;
 	}
 
 	.footer a {
@@ -31,7 +36,7 @@
 		line-height: 1.25rem;
 		text-decoration: none;
 		transition: color 0.2s ease-in-out;
-		color: var(--text-color);
+		color: inherit;
 	}
 
 	.footer a:hover {

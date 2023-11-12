@@ -11,7 +11,7 @@
 	}
 </script>
 
-<div>
+<div class="nav-container">
 	<nav class="navbar" class:light={!$theme} class:dark={$theme}>
 		<a
 			id="home-shortcut"
@@ -48,6 +48,10 @@
 </div>
 
 <style>
+	.nav-container {
+		max-height: 128px;
+	}
+
 	.navbar {
 		transition: all 0.2s ease-in-out;
 		padding: 2rem;

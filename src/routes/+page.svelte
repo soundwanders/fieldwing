@@ -11,7 +11,7 @@
 				<h2>Stay Updated With Live Scores</h2>
 				<p>Get real-time updates on your favorite sports teams</p>
 				<a href="/selection" role="button" aria-label="Get Started">
-					<button type="button" class="sign-up" class:light={!$theme} class:dark={$theme}>
+					<button type="button" class="get-started" class:light={!$theme} class:dark={$theme}>
 						Get Started
 					</button>
 				</a>
@@ -125,23 +125,25 @@
 		line-height: 1.75rem;
 	}
 
-	.sign-up {
+	.get-started {
 		border: none;
 		outline: none;
 		background-color: var(--background-color);
 		color: var(--text-color);
-		cursor: pointer;
-		padding: 3px 5px;
-		border-radius: 0.5rem;
+		font-size: 1.125rem;
+		line-height: 1.75rem;
 		font-weight: bold;
+		cursor: pointer;
+		padding: 4px 8px;
+		border-radius: 0.5rem;
 	}
 
-	.sign-up.light {
+	.get-started.light {
 		background-color: var(--signup-background-color-light);
 		color: var(--signup-text-color-light);
 	}
 
-	.sign-up.dark {
+	.get-started.dark {
 		background-color: var(--signup-background-color-dark);
 		color: var(--signup-text-color-dark);
 	}
@@ -222,7 +224,9 @@
 			line-height: 1.25rem;
 		}
 
-		.sign-up {
+		.get-started {
+			font-size: 1rem;
+			line-height: 1.5rem;
 			margin-bottom: 1rem;
 		}
 	}

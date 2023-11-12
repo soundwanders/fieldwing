@@ -6,7 +6,10 @@
 	</nav>
 
 	<div id="made-with-love">
-		<p>Made with ❤️</p>
+		<p>
+			made with
+			<span style:font-size="0.7rem" style:padding="0 1px"> ❤️ </span>
+		</p>
 	</div>
 </footer>
 
@@ -25,6 +28,7 @@
 
 	.footer a {
 		font-size: 0.875rem;
+		line-height: 1.25rem;
 		text-decoration: none;
 		transition: color 0.2s ease-in-out;
 		color: var(--text-color);
@@ -40,5 +44,7 @@
 		display: flex;
 		justify-content: center;
 		padding: 1rem 0;
+		font-size: 0.75rem;
+		line-height: 1rem;
 	}
 </style>

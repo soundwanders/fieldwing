@@ -1,13 +1,10 @@
 <!-- ThemeIcons.svelte -->
 <script>
-	/**
-	 * @type {any}
-	 */
-	export let theme;
+	import { theme } from '$lib/stores/theme';
 </script>
 
 <div class="theme-icons">
-	{#if theme}
+	{#if $theme}
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
 			class="icon icon-tabler icon-tabler-moon-stars"
@@ -51,3 +48,12 @@
 		</svg>
 	{/if}
 </div>
+
+<style>
+	@media screen and (max-width: 768px) {
+		.theme-icons svg {
+			width: 18px;
+			height: 18px;
+		}
+	}
+</style>

@@ -13,7 +13,14 @@
 
 <div>
 	<nav class="navbar" class:light={!$theme} class:dark={$theme}>
-		<a id="home-shortcut" class="link" class:light={!$theme} class:dark={$theme} href="/">
+		<a
+			id="home-shortcut"
+			class="link"
+			class:light={!$theme}
+			class:dark={$theme}
+			href="/"
+			aria-label="Go to Home"
+		>
 			Fieldwing
 		</a>
 
@@ -23,12 +30,19 @@
 			class:light={!$theme}
 			class:dark={$theme}
 			href="/selection"
+			aria-label="Go to Team Selection page"
 		>
 			Selection
 		</a>
 
-		<button id="theme" class:light={!$theme} class:dark={$theme} on:click={toggleTheme}>
-			<ThemeIcons {theme} />
+		<button
+			id="theme"
+			class:light={!$theme}
+			class:dark={$theme}
+			on:click={toggleTheme}
+			aria-label={`Toggle ${$theme ? 'light' : 'dark'} theme`}
+		>
+			<ThemeIcons />
 		</button>
 	</nav>
 </div>
@@ -46,6 +60,7 @@
 	#selection-shortcut {
 		padding: 1rem;
 		font-size: 1.5rem;
+		line-height: 2rem;
 		font-weight: bold;
 		background: transparent;
 	}
@@ -79,6 +94,19 @@
 		opacity: 0.8;
 	}
 
+	@media screen and (max-width: 768px) {
+		.link {
+			font-size: 0.875rem !important;
+			line-height: 1.25rem !important;
+		}
+		button {
+			width: 1.5rem;
+			height: 1.5rem;
+			padding: 3px;
+			align-self: center;
+		}
+	}
+
 	.light {
 		background-color: #f9f9f9;
 		color: #1a202c;
@@ -90,15 +118,15 @@
 	}
 
 	#theme.light {
-		background-color: var(--button-background-color-light);
+		background-color: var(--theme-background-color-light);
 	}
 
 	#theme.dark {
-		background-color: var(--button-background-color-dark);
+		background-color: var(--theme-background-color-dark);
 	}
 
 	:root {
-		--button-background-color-light: #fac668;
-		--button-background-color-dark: #3730a3;
+		--theme-background-color-light: #fac668;
+		--theme-background-color-dark: #3730a3;
 	}
 </style>

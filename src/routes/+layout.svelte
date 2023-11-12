@@ -1,18 +1,11 @@
 <script>
 	import Navbar from '../lib/Navbar.svelte';
-
-	/**
-	 * @type {boolean}
-	 */
-	let theme;
-	if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
-		theme = localStorage.getItem('theme') === 'dark' ? true : false;
-	}
+	import { theme } from '$lib/stores/theme';
 </script>
 
 <Navbar />
 
-<div class="app-container" class:light={!theme} class:dark={theme}>
+<div class="app-container" class:light={!$theme} class:dark={$theme}>
 	<div class="content-container">
 		<slot />
 	</div>
@@ -21,6 +14,8 @@
 <style>
 	.app-container {
 		width: 100%;
+		background-color: var(--background-color);
+		color: var(--text-color);
 	}
 
 	.light {

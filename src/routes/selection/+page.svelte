@@ -1,20 +1,15 @@
 <script>
-	import Selector from '../../components/Selector.svelte';
-
-	let leagues = ['All', 'FBS', 'FCS'];
-	let selectedLeague = '';
+	import Selections from '../../components/Selections.svelte';
+	import Footer from '../../components/Footer.svelte';
+	import '../../styles/main.css';
 </script>
 
-<main>
-	<h1>Fieldwing</h1>
+<div class="selection-page">
+	<main>
+		<section>
+			<Selections />
+		</section>
+	</main>
 
-	<section>
-		<Selector {leagues} {selectedLeague} />
-	</section>
-</main>
-
-<footer>
-	<div id="footer-container">
-		<p>Made with ❤️</p>
-	</div>
-</footer>
+	<Footer />
+</div>

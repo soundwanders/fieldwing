@@ -1,14 +1,14 @@
 <script>
-  import { theme } from '$lib/stores/theme.js';
-  import ThemeIcons from '../components/ThemeIcons.svelte';
+	import { theme } from '$lib/stores/theme.js';
+	import ThemeIcons from '../components/ThemeIcons.svelte';
 
-  function toggleTheme() {
-    theme.update((currentTheme) => {
-      const newTheme = !currentTheme;
-      localStorage.setItem('theme', newTheme ? 'dark' : 'light');
-      return newTheme;
-    });
-  }
+	function toggleTheme() {
+		theme.update((currentTheme) => {
+			const newTheme = !currentTheme;
+			localStorage.setItem('theme', newTheme ? 'dark' : 'light');
+			return newTheme;
+		});
+	}
 </script>
 
 <div>
@@ -16,7 +16,17 @@
 		<a id="home-shortcut" class="link" class:light={!$theme} class:dark={$theme} href="/">
 			Fieldwing
 		</a>
-		
+
+		<a
+			id="selection-shortcut"
+			class="link"
+			class:light={!$theme}
+			class:dark={$theme}
+			href="/selection"
+		>
+			Selection
+		</a>
+
 		<button id="theme" class:light={!$theme} class:dark={$theme} on:click={toggleTheme}>
 			<ThemeIcons {theme} />
 		</button>
@@ -32,13 +42,14 @@
 		justify-content: space-around;
 	}
 
-	#home-shortcut {
+	#home-shortcut,
+	#selection-shortcut {
 		padding: 1rem;
 		font-size: 1.5rem;
 		font-weight: bold;
 		background: transparent;
 	}
-	
+
 	.link {
 		display: flex;
 		align-items: center;

@@ -1,6 +1,7 @@
 <script>
-  import { theme } from '$lib/stores/theme.js';
-  import '../styles/main.css';
+	import { theme } from '$lib/stores/theme.js';
+	import Footer from '../components/Footer.svelte';
+	import '../styles/main.css';
 </script>
 
 <div class="landing-page" class:light={!$theme} class:dark={$theme}>
@@ -8,11 +9,13 @@
 		<div class="landing-hero">
 			<h2>Stay Updated With Live Scores</h2>
 			<p>Get real-time updates on your favorite sports teams</p>
-			<button class="sign-up">Sign Up Now</button>
+			<button type="button" class="sign-up" class:light={!theme} class:dark={theme}>
+				Sign Up Now
+			</button>
 		</div>
 
-		<div class="landing-updates">
-			<div>
+		<div class="landing-details">
+			<div class="landing-updates">
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
 					width="24"
@@ -67,22 +70,12 @@
 					/>
 				</svg>
 				<h3>Favorites</h3>
-				<p>Mark your favorite teams and get personalized updates.</p>
+				<p>Follow your favorite teams and get personalized updates.</p>
 			</div>
 		</div>
 	</main>
 
-	<footer class="landing-footer">
-		<nav>
-			<a href="#tos">Terms of Service</a>
-			<a href="#github">Github</a>
-			<a href="#contact">Contact</a>
-		</nav>
-
-		<div id="made-with-love">
-			<p>Made with ❤️</p>
-		</div>
-	</footer>
+	<Footer />
 </div>
 
 <style>
@@ -122,61 +115,33 @@
 	.sign-up {
 		border: none;
 		outline: none;
+		background-color: var(--background-color);
+		color: var(--text-color);
 	}
 
-	.landing-updates {
+	.landing-details {
 		width: 100%;
-		display: grid;
-		grid-template-columns: repeat(1, minmax(0, 1fr));
+		display: flex;
+		justify-content: space-between;
 		gap: 2rem;
 	}
 
-	.landing-updates > div {
+	.landing-details > div {
+		flex: 1;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
 		gap: 1rem;
 	}
 
-	.landing-favorites {
-    padding-bottom: 2rem;
-  }
-
-	.landing-updates svg {
+	.landing-details svg {
 		height: 3rem;
 		width: 3rem;
 		opacity: 0.75;
 	}
 
-	.landing-footer {
-		border-top: 1px solid #4a5568;
-    padding: 2rem;
-	}
-
-	.landing-footer nav {
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: center;
-		gap: 1rem;
-	}
-
-	.landing-footer a {
-		font-size: 0.875rem;
-		text-decoration: none;
-		transition: color 0.2s ease-in-out;
-		color: var(--text-color);
-	}
-
-	.landing-footer a:hover {
-		text-decoration: underline;
-		color: #3c89d0;
-	}
-
-	#made-with-love {
-		width: 100%;
-		display: flex;
-		justify-content: center;
-		padding: 1rem 0;
+	.landing-favorites {
+		padding-bottom: 2rem;
 	}
 
 	.light {

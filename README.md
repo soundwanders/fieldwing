@@ -1,38 +1,100 @@
-# create-svelte
+# Fieldwing
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
+## Description
 
-## Creating a project
+Fieldwing is a web application built with SvelteKit, allowing users to seamlessly select their favorite college football teams and get weekly updates on their game results!
 
-If you're seeing this, you've probably already done this step. Congrats!
+## Features
 
-```bash
-# create a new project in the current directory
-npm create svelte@latest
+### Conference Selection
 
-# create a new project in my-app
-npm create svelte@latest my-app
-```
+- Users can select a college football conference from a dropdown list, or view all FBS and FCS teams at once.
+- A dropdown list selection dynamically populates the teams container, allowing user to scroll through and select their favorite teams.
 
-## Developing
+### Team Selection
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+- The teams are displayed in a scrollable container to prevent any excessively long lists.
+- Each team is presented as a clickable element. Select or de-select teams by clicking teams (or touching, if on a mobile device).
+- A visual highlight is applied to the selected teams for clear identification.
+- Teams are listed alphabetically, improving readability and user experience.
 
-```bash
-npm run dev
+### Selected Teams Container
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
+- A separate container displays the teams that the user has selected, for easy tracking of selected teams.
+- The selected teams are listed in alphabetical order for easy reference.
+- De-selecting teams remove them from this container.
+- Choices in selected teams container will be used to fetch relevant data such as game results.
 
-## Building
+### Theming
 
-To create a production version of your app:
+- Theme is tracked in a Svelte `store` as well as the use of `localStorage`` if available.
+- The application supports light and dark themes, allowing user to toggle their preferred theme.
+- Theme changes are applied consistently throughout the UI for a cohesive user experience.
 
-```bash
-npm run build
-```
+## Accessibility
 
-You can preview the production build with `npm run preview`.
+- Accessibility is important! Conscious effort to make our application screen-reader friendly.
+- Interactive elements such as buttons and links are appropriately handled for keyboard and mouse users.
+- Focus on use of semantic HTML, as well as ARIA to provide additional semantics and improve accessibility.
 
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+## Aesthetic Design
+
+- The UI design is intended to be modern, responsive, and visually appealing.
+- Several design elements have been inspired by Tailwind.
+- Aesthetic choices are intended to improve the overall user experience without over-complicating things.
+
+## Roadmap
+
+- Explore refinements to the UI and UX to create a unique, enjoyable experience
+- Integration of additional features, such as data fetching from APIs.
+- Investigate the feasability of user authentication and user profiles to allow users to manage and update their favorite teams.
+- Implement unit testing with Vitest.
+- Create a Github Actions or similar workflow for testing and deployment on codebase updates.
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js and npm installed on your PC or virtual machine.
+
+### Installation
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/your-username/project-name.git
+   ```
+
+2. Navigate to the project directory:
+
+   ```bash
+   cd project-name
+   ```
+
+3. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+### Development
+
+1. Start the development server:
+
+   ```bash
+   npm run dev
+   ```
+
+2. Open your browser and visit [http://localhost:5000](http://localhost:5000) to view the application.
+
+## Contribution
+
+Contributions are welcome! Fork the repository and create a pull request with your enhancements.
+
+## Issues
+
+If you encounter any issues or have suggestions, please open an issue on the [Issues](https://github.com/your-username/project-name/issues) page.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).

@@ -27,7 +27,7 @@ Fieldwing is a web application built with SvelteKit, allowing users to seamlessl
 
 ### Theming
 
-- Theme is tracked in a Svelte `store` as well as the use of `localStorage`` if available.
+- Theme is tracked in a Svelte store as well as the use of localStorage if available.
 - The application supports light and dark themes, allowing user to toggle their preferred theme.
 - Theme changes are applied consistently throughout the UI for a cohesive user experience.
 

@@ -32,9 +32,11 @@
   }
 
   const toggleSelection = (team: string) => {
-    if (selectedTeamsArray.includes(team)) {
+    if ($selectedTeams.includes(team)) {
+      // If the team is already selected, remove it from selected teams
       selectedTeams.update((teams) => teams.filter((t) => t !== team));
     } else {
+      // If the team is not selected, add it to selected teams list
       selectedTeams.update((teams) => [...teams, team]);
     }
   };
@@ -147,6 +149,7 @@
     padding: 1.5rem;
     background-color: var(--form-background-color);
     color: var(--form-text-color);
+    border: 1px solid #d1d5db;
   }
 
   .selector-form h2 {
@@ -184,7 +187,6 @@
     max-height: 200px;
     width: 100%;
     padding: 0.3rem;
-    border: 1px solid #d1d5db;
     border-radius: 0.25rem;
     overflow-y: auto;
   }

@@ -55,20 +55,20 @@ Fieldwing is a web application built with SvelteKit, allowing users to seamlessl
 
 ### Prerequisites
 
-- Node.js and npm installed on your PC or virtual machine.
+- Node.js and npm (or equivalent such as yarn, bun) installed on your PC or virtual machine.
 
 ### Installation
 
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/your-username/project-name.git
+   git clone https://github.com/soundwanders/fieldwing.git
    ```
 
 2. Navigate to the project directory:
 
    ```bash
-   cd project-name
+   cd fieldwing
    ```
 
 3. Install dependencies:
@@ -86,10 +86,6 @@ Fieldwing is a web application built with SvelteKit, allowing users to seamlessl
    ```
 
 2. Open your browser and visit [http://localhost:5000](http://localhost:5000) to view the application.
-
-## Contribution
-
-Contributions are welcome! Fork the repository and create a pull request with your enhancements.
 
 ## Issues
 

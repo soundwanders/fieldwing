@@ -35,15 +35,17 @@
 			Selection
 		</a>
 
-		<button
-			id="theme"
-			class:light={!$theme}
-			class:dark={$theme}
-			on:click={toggleTheme}
-			aria-label={`Toggle ${$theme ? 'light' : 'dark'} theme`}
-		>
-			<ThemeIcons />
-		</button>
+		<span id="button-wrapper">
+			<button
+				id="theme"
+				class:light={!$theme}
+				class:dark={$theme}
+				on:click={toggleTheme}
+				aria-label={`Toggle ${$theme ? 'light' : 'dark'} theme`}
+			>
+				<ThemeIcons />
+			</button>
+		</span>
 	</nav>
 </div>
 
@@ -83,19 +85,28 @@
 		cursor: pointer;
 	}
 
+	#button-wrapper {
+		display: flex;
+    align-items: center;
+    justify-content: center;
+	}
+
 	button {
 		width: 2rem;
-		height: 2rem;
+		height: auto;
 		border: none;
 		outline: none;
 		cursor: pointer;
 		border-radius: 50%;
-		padding: 6px 6px 3px 6px;
 		background-color: var(--button-background-color);
 	}
 
 	button:hover {
-		opacity: 0.8;
+		opacity: 0.9;
+	}
+
+	button:active {
+		transform: translateY(1px);
 	}
 
 	@media screen and (max-width: 768px) {
@@ -103,6 +114,7 @@
 			font-size: 0.875rem !important;
 			line-height: 1.25rem !important;
 		}
+		
 		button {
 			width: 1.5rem;
 			height: 1.5rem;
@@ -130,7 +142,7 @@
 	}
 
 	:root {
-		--theme-background-color-light: #fac668;
+		--theme-background-color-light: #ffd586;
 		--theme-background-color-dark: #3730a3;
 	}
 </style>

@@ -132,7 +132,6 @@
 		color: var(--text-color);
 		font-size: 1.125rem;
 		line-height: 1.75rem;
-		font-weight: bold;
 		cursor: pointer;
 		padding: 4px 8px;
 		border-radius: 0.5rem;
@@ -146,6 +145,10 @@
 	.get-started.dark {
 		background-color: var(--signup-background-color-dark);
 		color: var(--signup-text-color-dark);
+	}
+
+	.get-started:active {
+		transform: translateY(1px);
 	}
 
 	.landing-details {

@@ -32,11 +32,9 @@
   }
 
   const toggleSelection = (team: string) => {
-    if ($selectedTeams.includes(team)) {
-      // If the team is already selected, remove it from selected teams
+    if (selectedTeamsArray.includes(team)) {
       selectedTeams.update((teams) => teams.filter((t) => t !== team));
     } else {
-      // If the team is not selected, add it to selected teams list
       selectedTeams.update((teams) => [...teams, team]);
     }
   };
@@ -53,7 +51,7 @@
 <section class="select-section" class:light={!$theme} class:dark={$theme}>
   <div class="container">
     <form class="selector-form" class:light={!$theme} class:dark={$theme}>
-      <h2>Select Teams</h2>
+      <h2>Select Your Teams</h2>
 
       <div class="select-container">
 				<select 
@@ -68,13 +66,13 @@
 				</select>
 				
 
-				<div class="teams-container">
+				<div class="teams-container" class:light={!$theme} class:dark={$theme}>
 					<ul>
 						{#if teams.length > 0}
 							{#each teams as team}
 								<li>
 									<button
-										on:click={() => toggleSelection(team)}
+										on:mousedown={() => toggleSelection(team)}
 										class:selected={$selectedTeams.includes(team)}
 										tabindex="0"
 									>
@@ -97,7 +95,7 @@
       <h2>Selected Teams</h2>
       <ul>
         {#each selectedTeamsArray as selectedTeam}
-          <li>
+          <li class="selected-teams-list-items">
             <button on:click={() => toggleSelection(selectedTeam)}>
               {selectedTeam}
             </button>
@@ -116,8 +114,8 @@
     --text-color: #1a202c;
     --form-background-color: #f9f9f9;
     --form-text-color: #1a202c;
-    --button-background-color: #8346ff;
-		--highlight-color: #4666ff;
+		--highlight-color: #f2b0d5;
+    --highlight-color-dark: #d9017a;
   }
 
   .select-section {
@@ -137,7 +135,7 @@
     justify-content: center;
     width: 100%;
     min-height: 100%;
-    padding: 0 2.5rem;
+    padding: 0.5rem 2.5rem;
   }
 
   /* Form Styles */
@@ -158,7 +156,6 @@
     font-weight: 600;
     text-align: center;
     margin-bottom: 2rem;
-		margin-top: -4rem;
     color: var(--text-color);
   }
 
@@ -200,6 +197,7 @@
   .teams-container li {
     padding: 0.5rem;
     border-bottom: 1px solid #d1d5db;
+    font-weight: bold;
   }
 
   .teams-container button {
@@ -213,25 +211,32 @@
     transition: background-color 0.2s ease-in-out;
   }
 
-  .teams-container button:hover {
+  .teams-container button.selected {
     background-color: var(--highlight-color);
   }
 
-  .teams-container button.selected {
-    background-color: var(--highlight-color);
+  .teams-container.dark button.selected {
+    background-color: var(--highlight-color-dark);
+  }
+
+  .teams-container.dark button:hover {
+    background-color: var(--highlight-color-dark);
   }
 
 	/* Selected Teams Styles */
 	.selected-teams {
 		width: 100%;
 		max-width: 20rem;
+		min-height: 200px;
+    max-height: 200px;
     background-color: var(--form-background-color);
     color: var(--form-text-color);
 		border: 1px solid #d1d5db;
 		border-radius: 0.375rem;
 		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 		padding: 1.5rem;
-		margin-top: 2rem;
+		margin: 2rem 0 4rem 0;
+    overflow-y: auto;
 	}
 
 	.selected-teams h2 {
@@ -270,9 +275,13 @@
 		transition: background-color 0.2s ease-in-out;
 	}
 
-	.selected-teams button:hover {
+	.selected-teams li:hover {
 		background-color: var(--highlight-color);
-	}
+  }
+
+	.selected-teams.dark li:hover {
+    background-color: var(--highlight-color-dark);
+  }
 
 	#select-conference {
 		padding: 0 0.25rem;

@@ -1,5 +1,6 @@
 <script>
 	import { theme } from '$lib/stores/theme.js';
+	import { onMount } from 'svelte';
 	import ThemeIcons from '../components/ThemeIcons.svelte';
 
 	function toggleTheme() {
@@ -124,14 +125,14 @@
 	}
 
 	.light {
-		background-color: #f9f9f9;
-		color: #1a202c;
-	}
+    background-color: #f9f9f9;
+    color: #1a202c;
+  }
 
-	.dark {
-		background-color: #1a202c;
-		color: #f9f9f9;
-	}
+  .dark {
+    background-color: #1a202c;
+    color: #f9f9f9;
+  }
 
 	#theme.light {
 		background-color: var(--theme-background-color-light);

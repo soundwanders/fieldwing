@@ -110,20 +110,14 @@
   /* Root Color Variables */
   :root {
     --primary-color: #4299e1;
-    --background-color: #f9f9f9;
-    --text-color: #1a202c;
-    --form-background-color: #f9f9f9;
-    --form-text-color: #1a202c;
 		--highlight-color: #f2b0d5;
     --highlight-color-dark: #d9017a;
   }
 
   .select-section {
     width: 100vw;
-    min-height: 70vh;
+    min-height: 100vh;
     display: flex;
-    justify-content: center;
-    align-items: center;
     background-color: var(--background-color);
     color: var(--text-color);
   }
@@ -133,8 +127,9 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    align-content: center;
     width: 100%;
-    min-height: 100%;
+    min-height: 70vh;
     padding: 0.5rem 2.5rem;
   }
 

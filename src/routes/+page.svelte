@@ -1,6 +1,6 @@
 <script>
 	import { theme } from '$lib/stores/theme.js';
-	import Footer from '../components/Footer.svelte';
+	import Footer from '$lib/Footer.svelte';
 	import '../styles/main.css';
 </script>
 

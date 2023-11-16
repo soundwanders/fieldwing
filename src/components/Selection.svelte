@@ -73,6 +73,7 @@
 								<li>
 									<button
 										on:mousedown={() => toggleSelection(team)}
+                    class="teams-button"
 										class:selected={$selectedTeams.includes(team)}
 										tabindex="0"
 									>
@@ -110,8 +111,8 @@
   /* Root Color Variables */
   :root {
     --primary-color: #4299e1;
-		--highlight-color: #f2b0d5;
-    --highlight-color-dark: #d9017a;
+		--highlight-color: #80ffc0;
+    --highlight-color-dark: #008241;
   }
 
   .select-section {
@@ -190,7 +191,7 @@
   }
 
   .teams-container li {
-    padding: 0.5rem;
+    padding: 0.3rem 0.5rem;
     border-bottom: 1px solid #d1d5db;
     font-weight: bold;
   }
@@ -251,7 +252,7 @@
 	}
 
 	.selected-teams li {
-		padding: 0.5rem;
+		padding: 0.2rem 0.5rem;
 		border-bottom: 1px solid #d1d5db;
 	}
 	
@@ -278,6 +279,10 @@
     background-color: var(--highlight-color-dark);
   }
 
+  .teams-button {
+    padding: 0 2px;
+  }
+
 	#select-conference {
 		padding: 0 0.25rem;
 	}
@@ -292,9 +297,8 @@
     color: #f9f9f9;
   }
 
-
 	/* Media query for mobile devices */
-	@media (max-width: 768px) {
+	@media screen and (max-width: 768px) {
 		.select-section {
 			width: 100%;
 			margin: 0 auto;

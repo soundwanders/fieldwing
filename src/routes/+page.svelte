@@ -165,7 +165,7 @@
 		flex-direction: column;
 		align-items: center;
 		gap: 1rem;
-		padding: 0 3rem;
+		padding: 0 2rem;
 		margin-top: 2rem;
 	}
 

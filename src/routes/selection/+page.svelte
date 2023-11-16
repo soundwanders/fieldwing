@@ -1,5 +1,5 @@
 <script>
-	import Selections from '../../components/Selections.svelte';
+	import Selection from '../../components/Selection.svelte';
 	import Footer from '$lib/Footer.svelte';
 	import Searchbar from '../../components/Searchbar.svelte';
 	import '../../styles/main.css';
@@ -11,7 +11,11 @@
 <div class="selection-page">
 	<main>		
 		<section>
-			<Selections {leagues} {selectedLeague} />
+			<Searchbar />
+		</section>
+
+		<section>
+			<Selection {leagues} {selectedLeague} />
 		</section>
 	</main>
 

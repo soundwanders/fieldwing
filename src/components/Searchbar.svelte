@@ -134,7 +134,6 @@
     color: inherit;
     border: none;
     font: inherit;
-    cursor: pointer;
     outline: inherit;
   }
 

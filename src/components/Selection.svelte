@@ -215,10 +215,6 @@
     background-color: var(--highlight-color-dark);
   }
 
-  .teams-container.dark button:hover {
-    background-color: var(--highlight-color-dark);
-  }
-
 	/* Selected Teams Styles */
 	.selected-teams {
 		width: 100%;
@@ -279,6 +275,10 @@
     background-color: var(--highlight-color-dark);
   }
 
+  .teams-container.dark button:hover {
+    background-color: var(--highlight-color-dark);
+  }
+  
   .teams-button {
     padding: 0 2px;
   }

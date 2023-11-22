@@ -46,15 +46,6 @@
   $: {
     selectedTeamsArray = $selectedTeams;
   }
-
-  const submitForm = () => {
-    // Fetch data based on selected teams, for example
-    const teams = $selectedTeams;
-    
-    // Navigate to the teams page with selected teams as a parameter
-    const url = `/results/${teams.join(',')}`;
-    window.location.href = url;
-  };
 </script>
 
 <section class="select-section" class:light={!$theme} class:dark={$theme}>
@@ -114,8 +105,8 @@
       </ul>
     </div>
 
-    <a data-sveltekit-preload-data="tap" href="/results">
-      <button type="button" class="submit-button" on:click={submitForm}>
+    <a href={`/results?teams=${selectedTeamsArray.join(',')}`} data-sveltekit-prefetch>
+      <button type="button" class="submit-button">
         Submit
       </button>
     </a>
@@ -142,11 +133,11 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
     align-content: center;
     width: 100%;
     min-height: 70vh;
     padding: 0.5rem 2.5rem;
+    margin-top: 2rem;
   }
 
   /* Form Styles */
@@ -331,6 +322,11 @@
 
 	/* Media query for mobile devices */
 	@media screen and (max-width: 768px) {
+
+    .container {
+      margin-top: 1rem;
+    }
+    
 		.select-section {
 			width: 100%;
 			margin: 0 auto;

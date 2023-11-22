@@ -19,7 +19,6 @@
   });
 </script>
 
-
 <section class="team-details">
   <h1>{team}</h1>
   {#if games && games.length > 0}

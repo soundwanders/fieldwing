@@ -8,8 +8,8 @@
 	<div class="landing-page" class:light={!$theme} class:dark={$theme}>
 		<main class="landing-main">
 			<div class="landing-hero">
-				<h2>Stay Updated With Live Scores</h2>
-				<p>Get real-time updates on your favorite sports teams</p>
+				<h2>Get the Latest College Football Scores</h2>
+				<p>Stay informed and updated on all your favorite teams</p>				
 				<a href="/selection" role="button" aria-label="Get Started">
 					<button type="button" class="get-started" class:light={!$theme} class:dark={$theme}>
 						Get Started
@@ -128,8 +128,8 @@
 	.get-started {
 		border: none;
 		outline: none;
-		background-color: var(--background-color);
-		color: var(--text-color);
+		background-color: var(--get-started-background-color);
+		color: var(--get-started-text-color);
 		font-size: 1.125rem;
 		line-height: 1.75rem;
 		cursor: pointer;
@@ -138,13 +138,13 @@
 	}
 
 	.get-started.light {
-		background-color: var(--signup-background-color-light);
-		color: var(--signup-text-color-light);
+		background-color: var(--get-started-background-color-light);
+		color: var(--get-started-text-color-light);
 	}
 
 	.get-started.dark {
-		background-color: var(--signup-background-color-dark);
-		color: var(--signup-text-color-dark);
+		background-color: var(--get-started-background-color-dark);
+		color: var(--get-started-text-color-dark);
 	}
 
 	.get-started:active {
@@ -195,10 +195,10 @@
 	}
 
 	:root {
-		--signup-background-color-light: #1e293b;
-		--signup-background-color-dark: #cbd5e1;
-		--signup-text-color-light: #f9f9f9;
-		--signup-text-color-dark: #09090b;
+		--get-started-background-color-light: #293545;
+		--get-started-background-color-dark: #cbd5e1;
+		--get-started-text-color-light: #f9f9f9;
+		--get-started-text-color-dark: #09090b;
 	}
 
 	/* Media query for mobile devices */

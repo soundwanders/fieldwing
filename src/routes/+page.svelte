@@ -34,7 +34,7 @@
 						<polyline points="12 6 12 12 16 14" />
 					</svg>
 					<h3>Weekly Updates</h3>
-					<p>Stay in the game with your favorite teams!</p>
+					<p>Stay in the game each week with your favorite teams.</p>
 				</div>
 
 				<div class="landing-notifications">
@@ -53,7 +53,7 @@
 						<path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
 					</svg>
 					<h3>Notifications</h3>
-					<p>Receive weekly notifications, straight from the sideline.</p>
+					<p>Get real-time data straight from the sideline.</p>
 				</div>
 
 				<div class="landing-favorites">
@@ -73,7 +73,7 @@
 						/>
 					</svg>
 					<h3>Favorites</h3>
-					<p>Follow your favorite teams and get personalized updates.</p>
+					<p>Receive personalized content curated just for you.</p>
 				</div>
 			</div>
 		</main>
@@ -107,6 +107,7 @@
 		justify-content: center;
 		padding: 1rem;
 		gap: 2rem;
+		margin-top: -2rem;
 	}
 
 	.landing-hero {
@@ -166,7 +167,7 @@
 		align-items: center;
 		gap: 1rem;
 		padding: 0 2rem;
-		margin-top: 2rem;
+		margin-top: 2.5rem;
 	}
 
 	.landing-details > div > p {
@@ -208,12 +209,15 @@
 			min-height: 100%;
 		}
 
+		.landing-main {
+			margin-top: 0;
+		}
 		.landing-page {
 			min-height: 100%;
 		}
 
 		.landing-details {
-			margin: 0 auto;
+			margin: 0.5rem auto;
 			flex-direction: column;
 			align-items: center;
 		}

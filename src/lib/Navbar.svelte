@@ -51,25 +51,39 @@
 </div>
 
 <style>
+	:root {
+		--theme-background-color-light: #ffd586;
+		--theme-background-color-dark: #3730a3;
+	}
+	
+	.light {
+    background-color: #f9f9f9;
+    color: #1a202c;
+  }
+
+  .dark {
+    background-color: #1a202c;
+    color: #f9f9f9;
+  }
+
+	#theme.light {
+		background-color: var(--theme-background-color-light);
+	}
+
+	#theme.dark {
+		background-color: var(--theme-background-color-dark);
+	}
+
 	.nav-container {
 		max-height: 128px;
 	}
 
 	.navbar {
 		transition: all 0.2s ease-in-out;
-		padding: 2rem;
+		padding: 2rem 10rem;
 		display: flex;
 		flex-direction: row;
 		justify-content: space-around;
-	}
-
-	#home-shortcut,
-	#selection-shortcut {
-		padding: 1rem;
-		font-size: 1.5rem;
-		line-height: 2rem;
-		font-weight: bold;
-		background: transparent;
 	}
 
 	.link {
@@ -81,6 +95,20 @@
 		text-decoration: none;
 	}
 
+	#home-shortcut,
+	#selection-shortcut {
+		padding: 1rem;
+		font-size: 1.5rem;
+		line-height: 2rem;
+		font-weight: bold;
+		background: transparent;
+	}
+
+	#selection-shortcut {
+		margin-left: 2rem;
+		margin-right: auto;
+	}
+	
 	a:hover {
 		text-decoration: underline;
 		cursor: pointer;
@@ -111,6 +139,10 @@
 	}
 
 	@media screen and (max-width: 768px) {
+		.navbar {
+			padding: 2rem;
+		}
+
 		.link {
 			font-size: 0.875rem !important;
 			line-height: 1.25rem !important;
@@ -122,28 +154,5 @@
 			padding: 3px;
 			align-self: center;
 		}
-	}
-
-	.light {
-    background-color: #f9f9f9;
-    color: #1a202c;
-  }
-
-  .dark {
-    background-color: #1a202c;
-    color: #f9f9f9;
-  }
-
-	#theme.light {
-		background-color: var(--theme-background-color-light);
-	}
-
-	#theme.dark {
-		background-color: var(--theme-background-color-dark);
-	}
-
-	:root {
-		--theme-background-color-light: #ffd586;
-		--theme-background-color-dark: #3730a3;
 	}
 </style>

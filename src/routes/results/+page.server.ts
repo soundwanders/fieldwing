@@ -20,7 +20,9 @@ export const load: PageServerLoad = async () => {
     // Make multiple API calls concurrently
     const fetchGameResultsPromises = teamArray.map(async (team: string) => {
       const url = `https://api.collegefootballdata.com/games?year=${currentYear}&week=${currentWeek}&team=${team}`;
-
+      
+      console.log('URL', url);
+      
       const res = await fetch(url, {
         headers: {
           'Authorization': `Bearer ${CFBD_API_KEY}`,
@@ -32,6 +34,10 @@ export const load: PageServerLoad = async () => {
       }
 
       const data = await res.json();
+
+      console.log('team', team);
+      console.log('data', data);
+
       return { team, data };
     });
 

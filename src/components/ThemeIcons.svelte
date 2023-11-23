@@ -50,6 +50,11 @@
 </div>
 
 <style>
+	.theme-icons {
+		padding: 0.6rem;
+		margin: -0.6rem;
+	}
+
 	.theme-icons svg {
 		width: 90%;
   	height: auto;
@@ -57,7 +62,10 @@
 	}
 
 	@media screen and (max-width: 768px) {
+
 		.theme-icons {
+			padding: 0;
+			margin: 0;
 			margin-top: -2px;
 		}
 	}

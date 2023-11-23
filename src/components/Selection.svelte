@@ -324,9 +324,8 @@
 
 	/* Media query for mobile devices */
 	@media screen and (max-width: 768px) {
-
     .container {
-      margin-top: 1.25rem;
+      margin-top: 1rem;
     }
     
 		.select-section {

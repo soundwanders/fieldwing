@@ -31,7 +31,9 @@
     }
   }
 
-  const toggleSelection = (team: string) => {
+  const toggleSelection = (event: Event, team: string) => {
+    event.preventDefault();
+
     if (selectedTeamsArray.includes(team)) {
       selectedTeams.update((teams) => teams.filter((t) => t !== team));
     } else {
@@ -72,7 +74,7 @@
 							{#each teams as team}
 								<li>
 									<button
-										on:mousedown={() => toggleSelection(team)}
+                    on:mousedown={(event) => toggleSelection(event, team)}
                     class="teams-button"
 										class:selected={$selectedTeams.includes(team)}
 										tabindex="0"
@@ -97,7 +99,7 @@
       <ul>
         {#each selectedTeamsArray as selectedTeam}
           <li class="selected-teams-list-items">
-            <button on:click={() => toggleSelection(selectedTeam)}>
+            <button on:mousedown={(event) => toggleSelection(event, selectedTeam)}>
               {selectedTeam}
             </button>
           </li>
@@ -117,8 +119,8 @@
   /* Root Color Variables */
   :root {
     --primary-color: #4299e1;
-		--highlight-color: #80ffc0;
-    --highlight-color-dark: #008241;
+		--highlight-color: #9fe2bf;
+    --highlight-color-dark: #41826c;
   }
 
   .select-section {
@@ -255,7 +257,7 @@
 	}
 
 	.selected-teams li {
-		padding: 0.2rem 0.5rem;
+		padding: 0 0.5rem;
 		border-bottom: 1px solid #d1d5db;
 	}
 	
@@ -267,7 +269,7 @@
 		cursor: pointer;
 		width: 100%;
 		text-align: left;
-		padding: 0.5rem;
+		padding: 0.5rem 0;
 		background-color: inherit;
 		border: none;
 		color: inherit;
@@ -307,7 +309,7 @@
   /* Submit Button Styles */
   .submit-button {
     cursor: pointer;
-    padding: 0.75rem 1rem;
+    padding: 0.5rem 1rem;
     background-color: var(--primary-color);
     color: #fff;
     border: none;
@@ -324,7 +326,7 @@
 	@media screen and (max-width: 768px) {
 
     .container {
-      margin-top: 1rem;
+      margin-top: 1.25rem;
     }
     
 		.select-section {

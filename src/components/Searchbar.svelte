@@ -26,7 +26,9 @@
     }
   }
 
-  function selectTeam(team: string) {
+  function selectTeam(event: Event, team: string) {
+    event.preventDefault();
+
     // Toggle selected team in the selectedTeams store
     selectedTeams.update((selectedTeams: string[]) => {
       if (selectedTeams.includes(team)) {
@@ -63,7 +65,7 @@
           <li class="team-list-items">
             <button
               class="teams-button"
-              on:click={() => selectTeam(team)}
+              on:mousedown={(event) => selectTeam(event, team)}
               class:selected={$selectedTeams.includes(team)}
               class:light={!$theme} class:dark={$theme}
               tabindex="0"
@@ -100,7 +102,7 @@
     width: 100%;
     padding: 10px 0;
     padding-left: 10px;
-    margin: 10px 0;
+    margin: 0.75rem 0;
     border: 1px solid #ccc;
     border-radius: 0.25rem;
     background-color: var(--background-color);
@@ -121,7 +123,7 @@
 
   .team-list-items {
     list-style-type: none;
-    padding: 0.375rem 0.5rem;
+    padding: 0.4rem 0.5rem;
   }
 
   .query-result{

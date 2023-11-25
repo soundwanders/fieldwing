@@ -149,6 +149,11 @@
 
   /* Media query for mobile devices */
 	@media screen and (max-width: 768px) {
+    .team-list {
+      font-size: 0.875rem;
+      line-height: 1.25rem;
+    }
+    
     .search-results {
       margin-bottom: 1.25rem;
 		}

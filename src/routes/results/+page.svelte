@@ -1,13 +1,13 @@
 <!-- +page.svelte -->
 <script lang="ts">
   import { page } from '$app/stores';
-  import { selectedTeams } from '$lib/stores/store';
   import { theme } from '$lib/stores/theme';
+
+  let teamNames = $page.data.teams.join(', ');
+  console.log ('teamnames', teamNames);
 
   export let data: { gameResults?: any[] };
   const { gameResults } = data;
-
-  $: teamNames = $selectedTeams.join(', ');
 
   console.log('gameResults CFBD API data', gameResults);
 </script>

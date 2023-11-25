@@ -4,6 +4,7 @@
   import { selectedTeams } from '$lib/stores/store';
   import { theme } from '$lib/stores/theme';
   import { onMount } from 'svelte';
+  import { goto } from '$app/navigation';
 
   export let leagues: string[];
   export let selectedLeague: string;
@@ -25,19 +26,24 @@
     } else if (selectedLeague === 'FCS') {
       import('../data/fcs.json').then((data) => {
         teams = data.default;
+        selectedTeamsArray = $selectedTeams
       });
     } else {
       teams = [];
     }
   }
 
+  // Toggle selection / deselection of teams
+  // Update UI and ensure that selectedTeamsArray is updated on each selection
   const toggleSelection = (event: Event, team: string) => {
     event.preventDefault();
 
     if (selectedTeamsArray.includes(team)) {
       selectedTeams.update((teams) => teams.filter((t) => t !== team));
+      selectedTeamsArray = $selectedTeams;
     } else {
       selectedTeams.update((teams) => [...teams, team]);
+      selectedTeamsArray = $selectedTeams;
     }
   };
 
@@ -48,8 +54,15 @@
   $: {
     selectedTeamsArray = $selectedTeams;
   }
-</script>
 
+  async function handleSubmit() {
+    // Encode the selected teams to ensure URL safety
+    const encodedTeams = selectedTeamsArray.map(team => encodeURIComponent(team)).join('+');
+
+    // Use goto to navigate to the results page with the selected teams as a query parameter
+    await goto(`/results?teams=${encodedTeams}`);
+  }
+</script>
 <section class="select-section" class:light={!$theme} class:dark={$theme}>
   <div class="container">
     <form class="selector-form" class:light={!$theme} class:dark={$theme}>

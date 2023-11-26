@@ -28,7 +28,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
     // Make multiple API calls concurrently
     const fetchGameResultsPromises = schoolNamesArray.map(async (team: string) => {
       const url = `https://api.collegefootballdata.com/games?year=${currentYear}&week=${currentWeek}&team=${team}`;
-      
+
       console.log('URL', url);
       
       const res = await fetch(url, {
@@ -51,11 +51,11 @@ export const load: PageServerLoad = async ({ params, url }) => {
 
     return {
       gameResults: results,
-    };
+    }
   } catch (error) {
     console.error(error);
     return {
       error: 'Internal Server Error',
-    };
+    }
   }
 };

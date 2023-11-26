@@ -1,11 +1,12 @@
-<!-- Searchbar.svelte -->
+<!-- ResubmitSearch.svelte -->
 
 <script lang="ts">
-	import { onMount } from 'svelte';
+  import { onMount } from 'svelte';
   import fbsData from '../data/fbs.json';
   import fcsData from '../data/fcs.json';
   import { selectedTeams } from '$lib/stores/store';
   import { theme } from '$lib/stores/theme';
+  import { goto } from '$app/navigation';
 
   let searchQuery: string = '';
   let searchResults: string[] = [];
@@ -43,17 +44,22 @@
     // Trigger a re-render to update searchResults and highlight selected team
     searchTeams();
   }
+
+  function reSubmit() {
+    // Use goto to navigate to the results page with the selected teams as a query parameter in the URL
+    goto(`/results?teams=${selectedTeams}`);
+  }
 </script>
 
 <div class="search-container">
   <div class="container">
-    <label for="teamSearch">Search for a Team:</label>
-    <input 
-      type="text" 
-      id="teamSearch" 
-      bind:value={searchQuery} 
-      placeholder="Enter team name" on:input={searchTeams} 
-    />
+    <label for="teamSearch">Search for a Different Team:</label>
+      <input 
+        type="text" 
+        id="teamSearch" 
+        bind:value={searchQuery} 
+        placeholder="Enter team name" on:input={searchTeams} 
+      />
 
     <p id="search-query">
       You searched for:
@@ -81,16 +87,28 @@
         <p>No teams found!</p>
       {/if}
     </div>
+
+    <button on:click={reSubmit} class="resubmit-button">
+      Re-Submit
+    </button>
   </div>
 </div>
 
+
 <style module>
+  :root {
+    --primary-color: #4299e1;
+		--highlight-color: #9fe2bf;
+    --highlight-color-dark: #41826c;
+  }
+
   .search-container {
     width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
+    padding: 1.25rem;
     background-color: var(--background-color);
     color: var(--text-color);
   }
@@ -101,8 +119,8 @@
   }
 
   input[type='text'] {
-    width: 100%;
-    padding: 10px 0;
+    width: 85%;
+    padding: 10px 0.5rem;
     padding-left: 10px;
     margin: 0.75rem 0;
     border: 1px solid #ccc;
@@ -112,13 +130,14 @@
   }
 
   .search-results {
-    width: 100%;
+    width: 90%;
     min-height: 130px;
     max-height: 130px;
     padding: 0;
     border: 1px solid #ccc;
     border-radius: 0.25rem;
     margin-top: 0.5rem;
+    margin-bottom: 1rem;
     border-bottom: 1px solid #d1d5db;
     overflow-y: auto;
   }
@@ -132,13 +151,20 @@
     font-weight: bold;
   }
 
-  button {
+  /* Submit Button Styles */
+  .resubmit-button {
     cursor: pointer;
-    background: none;
-    color: inherit;
+    background-color: var(--primary-color);
+    color: #fff;
     border: none;
-    font: inherit;
-    outline: inherit;
+    border-radius: 0.25rem;
+    font-size: 1rem;
+    padding: 0.25rem 0.75rem;
+    transition: background-color 0.2s ease-in-out;
+  }
+
+  .resubmit-button:hover {
+    background-color: var(--highlight-color);
   }
 
   button.selected {

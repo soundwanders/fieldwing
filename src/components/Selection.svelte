@@ -54,15 +54,8 @@
   $: {
     selectedTeamsArray = $selectedTeams;
   }
-
-  async function handleSubmit() {
-    // Encode the selected teams to ensure URL safety
-    const encodedTeams = selectedTeamsArray.map(team => encodeURIComponent(team)).join('+');
-
-    // Use goto to navigate to the results page with the selected teams as a query parameter
-    await goto(`/results?teams=${encodedTeams}`);
-  }
 </script>
+
 <section class="select-section" class:light={!$theme} class:dark={$theme}>
   <div class="container">
     <form class="selector-form" class:light={!$theme} class:dark={$theme}>
@@ -136,6 +129,16 @@
     --highlight-color-dark: #41826c;
   }
 
+  .light {
+    background-color: #f9f9f9;
+    color: #1a202c;
+  }
+
+  .dark {
+    background-color: #1a202c;
+    color: #f9f9f9;
+  }
+  
   .select-section {
     width: 100vw;
     min-height: 100vh;
@@ -309,25 +312,15 @@
 		padding: 0 0.25rem;
 	}
 
-  .light {
-    background-color: #f9f9f9;
-    color: #1a202c;
-  }
-
-  .dark {
-    background-color: #1a202c;
-    color: #f9f9f9;
-  }
-
   /* Submit Button Styles */
   .submit-button {
     cursor: pointer;
-    padding: 0.5rem 1rem;
     background-color: var(--primary-color);
     color: #fff;
     border: none;
     border-radius: 0.25rem;
     font-size: 1rem;
+    padding: 0.5rem 1rem;
     transition: background-color 0.2s ease-in-out;
   }
 

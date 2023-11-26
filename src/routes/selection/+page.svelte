@@ -12,9 +12,6 @@
 	<main>		
 		<section>
 			<Searchbar />
-		</section>
-
-		<section>
 			<Selection {leagues} {selectedLeague} />
 		</section>
 	</main>

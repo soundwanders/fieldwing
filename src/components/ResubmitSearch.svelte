@@ -51,7 +51,7 @@
   }
 </script>
 
-<div class="search-container">
+<div class="resubmit-container" class:light={!$theme} class:dark={$theme}>
   <div class="container">
     <label for="teamSearch">Search for a Different Team:</label>
       <input 
@@ -89,20 +89,13 @@
     </div>
 
     <button on:click={reSubmit} class="resubmit-button">
-      Re-Submit
+      Submit
     </button>
   </div>
 </div>
 
-
 <style module>
-  :root {
-    --primary-color: #4299e1;
-		--highlight-color: #9fe2bf;
-    --highlight-color-dark: #41826c;
-  }
-
-  .search-container {
+  .resubmit-container {
     width: 100%;
     display: flex;
     justify-content: center;
@@ -131,8 +124,8 @@
 
   .search-results {
     width: 90%;
-    min-height: 130px;
-    max-height: 130px;
+    min-height: 80px;
+    max-height: 80px;
     padding: 0;
     border: 1px solid #ccc;
     border-radius: 0.25rem;
@@ -151,6 +144,15 @@
     font-weight: bold;
   }
 
+  button {
+    cursor: pointer;
+    background: none;
+    color: inherit;
+    border: none;
+    font: inherit;
+    outline: inherit;
+  }
+
   /* Submit Button Styles */
   .resubmit-button {
     cursor: pointer;
@@ -164,7 +166,7 @@
   }
 
   .resubmit-button:hover {
-    background-color: var(--highlight-color);
+    opacity: 0.9;
   }
 
   button.selected {
@@ -175,6 +177,16 @@
     background-color: var(--highlight-color-dark);
   }
 
+  .light {
+    background-color: #f9f9f9;
+    color: #1a202c;
+  }
+
+  .dark {
+    background-color: #1a202c;
+    color: #f9f9f9;
+  }
+  
   /* Media query for mobile devices */
 	@media screen and (max-width: 768px) {
     .team-list {

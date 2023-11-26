@@ -195,13 +195,6 @@
 		color: #f9f9f9;
 	}
 
-	:root {
-		--get-started-background-color-light: #293545;
-		--get-started-background-color-dark: #cbd5e1;
-		--get-started-text-color-light: #f9f9f9;
-		--get-started-text-color-dark: #09090b;
-	}
-
 	/* Media query for mobile devices */
 	@media (max-width: 768px) {
 		.container {

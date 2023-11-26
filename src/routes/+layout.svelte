@@ -11,7 +11,21 @@
 	</div>
 </div>
 
-<style>
+<style>  
+	:root {
+		--primary-color: #424ae1;
+		--highlight-color: #9fe2bf;
+		--highlight-color-dark: #3a7561;
+
+		--get-started-background-color-light: #293545;
+		--get-started-background-color-dark: #cbd5e1;
+		--get-started-text-color-light: #f9f9f9;
+		--get-started-text-color-dark: #09090b;
+
+		--teams-color: #bb0000;
+    --teams-color-dark: #ff9195;
+	}
+	
 	.app-container {
 		width: 100%;
 		background-color: var(--background-color);

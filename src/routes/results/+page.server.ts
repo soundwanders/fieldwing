@@ -1,6 +1,6 @@
 // +page.server.ts
 import type { PageServerLoad } from './$types';
-import CFBD_API_KEY from '$env/static/private';
+import { CFBD_API_KEY } from '$env/static/private';
 
 export const load: PageServerLoad = async ({ params, url }) => {
   try {

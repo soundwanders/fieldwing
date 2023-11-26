@@ -4,7 +4,6 @@
   import { selectedTeams } from '$lib/stores/store';
   import { theme } from '$lib/stores/theme';
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
 
   export let leagues: string[];
   export let selectedLeague: string;
@@ -113,8 +112,9 @@
       </ul>
     </div>
 
-    <a href={`/results?teams=${selectedTeamsArray.join(',')}`} data-sveltekit-prefetch>
-      <button type="button" class="submit-button">
+    <!-- Only enable submit button to redirect to results page if there are selected teams -->
+    <a href={selectedTeamsArray.length > 0 ? `/results?teams=${selectedTeamsArray.join(',')}` : '#'} data-sveltekit-prefetch>
+      <button type="button" class="submit-button" disabled={selectedTeamsArray.length === 0}>
         Submit
       </button>
     </a>
@@ -122,23 +122,6 @@
 </section>
 
 <style>
-  /* Root Color Variables */
-  :root {
-    --primary-color: #4299e1;
-		--highlight-color: #9fe2bf;
-    --highlight-color-dark: #41826c;
-  }
-
-  .light {
-    background-color: #f9f9f9;
-    color: #1a202c;
-  }
-
-  .dark {
-    background-color: #1a202c;
-    color: #f9f9f9;
-  }
-  
   .select-section {
     width: 100vw;
     min-height: 100vh;
@@ -252,7 +235,7 @@
 		border-radius: 0.375rem;
 		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 		padding: 1.5rem;
-		margin: 2rem 0 4rem 0;
+		margin: 2rem 0 2rem 0;
     overflow-y: auto;
 	}
 
@@ -325,9 +308,19 @@
   }
 
   .submit-button:hover {
-    background-color: var(--highlight-color);
+    opacity: 0.9;
   }
 
+  .light {
+    background-color: #f9f9f9;
+    color: #1a202c;
+  }
+
+  .dark {
+    background-color: #1a202c;
+    color: #f9f9f9;
+  }
+  
 	/* Media query for mobile devices */
 	@media screen and (max-width: 768px) {
     .container {

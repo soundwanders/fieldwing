@@ -5,16 +5,17 @@
 	import ResubmitSearch from '../../components/ResubmitSearch.svelte';
 	import '../../styles/main.css';
 
-  export let data: { gameResults?: any[] };
-  const { gameResults } = data;
-
+  let teamNames: string;
   $: teamNames = $selectedTeams.join(', ');
 
-  console.log('gameResults data', gameResults);
+  export let data: { gameResults?: any[] };
+  const { gameResults } = data;
+  
+  console.log('gameResults', gameResults);
 </script>
 
-<section class="results-section">
-  <main>
+<section class="wrapper">
+  <section class="results-section">
     <div class="results-container">
       <h1>This Week's Results for 
         <span class="team-names" class:light={!$theme} class:dark={$theme}>
@@ -39,27 +40,17 @@
         {/each}
       {/if}
     </div>
+  </section>
 
-    <section>
-			<ResubmitSearch />
-		</section>
-  </main>
+  <section class="search-section">
+    <ResubmitSearch />
+  </section>
 </section>
 
 <style>
   :root {
 		--teams-color: #bb0000;
     --teams-color-dark: #ff9195;
-  }
-
-  .light {
-    background-color: #f9f9f9;
-    color: #1a202c;
-  }
-
-  .dark {
-    background-color: #1a202c;
-    color: #f9f9f9;
   }
 
   h1 {
@@ -77,11 +68,15 @@
     text-decoration-thickness: 1px;
   }
 
+  .wrapper {
+    width: 100vw;
+    height: 100vh;
+  }
+
   .results-section {
     display: flex;
     justify-content: center;
     width: 100vw;
-    min-height: 100vh;
     margin: 0;
     padding: 0;
     background-color: var(--background-color);
@@ -94,7 +89,7 @@
     align-items: center;
     justify-content: center;
     width: 100vw;
-    height: 62vh;
+    height: 100%;
   }
 
   .game-results {
@@ -120,6 +115,16 @@
     margin-bottom: 5px;
   }
 
+  .light {
+    background-color: #f9f9f9;
+    color: #1a202c;
+  }
+
+  .dark {
+    background-color: #1a202c;
+    color: #f9f9f9;
+  }
+  
 	/* Media query for mobile devices */
 	@media (max-width: 768px) {
     .results-section {

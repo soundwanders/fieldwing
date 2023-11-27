@@ -127,9 +127,14 @@
   
 	/* Media query for mobile devices */
 	@media (max-width: 768px) {
-    .results-section {
+    .wrapper {
       width: 100%;
-      min-height: 100vh;
+      height: 100%;
+    }
+
+    .results-section {
+			width: 100%;
+			margin: 0 auto;
     }
 
 		.results-container {

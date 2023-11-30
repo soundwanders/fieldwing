@@ -10,6 +10,7 @@
 
   let selectedTeamsArray = $selectedTeams;
 	let teams: string[] = [];
+  let selectedWeek: number = 1;
 
   function loadTeams() {
     if (selectedLeague === 'All') {
@@ -29,7 +30,8 @@
       });
     } else {
       teams = [];
-    }
+    }    
+    selectedWeek = 1;
   }
 
   // Toggle selection / deselection of teams
@@ -72,6 +74,13 @@
 					{/each}
 				</select>
 				
+        <!-- Dropdown container for choosing which week to fetch -->
+        <label for="week-select">Select Week:</label>
+        <select id="select-week" bind:value={selectedWeek}>
+          {#each [...Array(17).keys()] as week}
+            <option value={week + 1}>{week + 1}</option>
+          {/each}
+        </select>
 
 				<div class="teams-container" class:light={!$theme} class:dark={$theme}>
 					<ul>
@@ -102,7 +111,7 @@
     <div class="selected-teams" class:light={!$theme} class:dark={$theme}>
       <h2>Selected Teams</h2>
       <ul>
-        {#each selectedTeamsArray as selectedTeam}
+        {#each selectedTeamsArray.filter(Boolean) as selectedTeam (selectedTeam)}
           <li class="selected-teams-list-items">
             <button on:mousedown={(event) => toggleSelection(event, selectedTeam)}>
               {selectedTeam}
@@ -113,7 +122,7 @@
     </div>
 
     <!-- Only enable submit button to redirect to results page if there are selected teams -->
-    <a href={selectedTeamsArray.length > 0 ? `/results?teams=${selectedTeamsArray.join(',')}` : '#'} data-sveltekit-prefetch>
+    <a href={selectedTeamsArray.length > 0 ? `/results?teams=${selectedTeamsArray.join(',')}&week=${selectedWeek}` : '#'} data-sveltekit-prefetch>
       <button type="button" class="submit-button" disabled={selectedTeamsArray.length === 0}>
         Submit
       </button>

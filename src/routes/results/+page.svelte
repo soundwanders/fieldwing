@@ -5,12 +5,13 @@
 	import ResubmitSearch from '../../components/ResubmitSearch.svelte';
 	import '../../styles/main.css';
 
+  export let data: { gameResults?: any[] };
+
   let teamNames: string;
   $: teamNames = $selectedTeams.join(', ');
 
-  export let data: { gameResults?: any[] };
   const { gameResults } = data;
-  
+
   console.log('gameResults', gameResults);
 </script>
 
@@ -24,7 +25,8 @@
       </h1>
 
       {#if gameResults}
-        {#each gameResults as gameResult (gameResult.id)}
+        {#each gameResults as { team, data } (team)}
+          {#each data as gameResult (gameResult.id)}
           <div class="game-results" class:light={!$theme} class:dark={$theme}>
             <h2>Week {gameResult.week} - {gameResult.season_type}</h2>
             <p class="game-info">Start Date: {gameResult.start_date}</p>
@@ -37,6 +39,7 @@
             <p class="game-info">Away Points: {gameResult.away_points}</p>
             <!-- Add more fields as needed -->
           </div>
+          {/each}
         {/each}
       {/if}
     </div>

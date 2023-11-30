@@ -4,18 +4,16 @@
   import { onMount } from 'svelte';
   import fbsData from '../data/fbs.json';
   import fcsData from '../data/fcs.json';
-  import { selectedTeams } from '$lib/stores/store';
+  import { searchedTeams, selectedTeams } from '$lib/stores/store';
   import { theme } from '$lib/stores/theme';
+  import { getCurrentWeek } from '$lib/utils/getCurrentWeek';
   import { goto } from '$app/navigation';
 
   let searchQuery: string = '';
   let searchResults: string[] = [];
   const minQueryLength: number = 2;
 
-  // Update searchResults when the component mounts to handle pre-selected teams
-  onMount(() => {
-    searchTeams();
-  });
+  let selectedWeek: number = 1;
 
   function searchTeams() {
     const query: string = searchQuery.toLowerCase();
@@ -32,12 +30,12 @@
   function selectTeam(event: Event, team: string) {
     event.preventDefault();
 
-    // Toggle selected team in the selectedTeams store
-    selectedTeams.update((selectedTeams: string[]) => {
-      if (selectedTeams.includes(team)) {
-        return selectedTeams.filter((selectedTeam) => selectedTeam !== team);
+    // Toggle selected team in the searchedTeams store
+    searchedTeams.update((searchedTeams: string[]) => {
+      if (searchedTeams.includes(team)) {
+        return searchedTeams.filter((searchedTeam) => searchedTeam !== team);
       } else {
-        return [...selectedTeams, team];
+        return [...searchedTeams, team];
       }
     });
 
@@ -45,21 +43,46 @@
     searchTeams();
   }
 
-  function reSubmit() {
-    // Use goto to navigate to the results page with the selected teams as a query parameter in the URL
-    goto(`/results?teams=${selectedTeams}`);
+  // Update searchResults when the component mounts to handle pre-selected teams
+  onMount(() => {
+    searchTeams();
+    
+    // Check if there's a week parameter in the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const weekParam = urlParams.get('week');
+
+    // Set selectedWeek based on the URL parameter or the current week
+    selectedWeek = weekParam ? parseInt(weekParam, 10) : getCurrentWeek();
+  });
+
+  function handleResubmit() {
+    // Use goto to navigate to the results page with the selected teams and week as query parameters
+    const selectedTeamsForSubmit = [...$selectedTeams, ...$searchedTeams];
+    goto(`/results?teams=${selectedTeamsForSubmit}&week=${selectedWeek}`);
   }
 </script>
 
 <div class="resubmit-container" class:light={!$theme} class:dark={$theme}>
   <div class="container">
-    <label for="teamSearch">Search for a Different Team:</label>
+    <div>
+      <label for="teamSearch">Search for a Different Team:</label>
       <input 
         type="text" 
         id="teamSearch" 
         bind:value={searchQuery} 
         placeholder="Enter team name" on:input={searchTeams} 
       />
+    </div>
+
+    <div>
+      <!-- Dropdown container for choosing which week to fetch -->
+      <label for="resubmit-week">Select Week:</label>
+      <select id="resubmit-week" bind:value={selectedWeek}>
+        {#each [...Array(17).keys()] as week}
+          <option value={week + 1}>{week + 1}</option>
+        {/each}
+      </select>
+    </div>
 
     <p id="search-query">
       You searched for:
@@ -83,12 +106,13 @@
           </li>
         {/each}
       </ul>
+
       {:else if searchQuery.length >= minQueryLength}
         <p>No teams found!</p>
       {/if}
     </div>
 
-    <button on:click={reSubmit} class="resubmit-button">
+    <button on:click={handleResubmit} class="resubmit-button">
       Submit
     </button>
   </div>
@@ -111,7 +135,7 @@
     font-weight: bold;
   }
 
-  input[type='text'] {
+  input {
     width: 85%;
     padding: 10px 0.5rem;
     padding-left: 10px;
@@ -142,6 +166,12 @@
 
   .query-result{
     font-weight: bold;
+  }
+
+  #resubmit-week {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    padding: 3px;
   }
 
   button {

@@ -4,7 +4,7 @@
   import { onMount } from 'svelte';
   import fbsData from '../data/fbs.json';
   import fcsData from '../data/fcs.json';
-  import { searchedTeams, selectedTeams } from '$lib/stores/store';
+  import { selectedTeams } from '$lib/stores/store';
   import { theme } from '$lib/stores/theme';
   import { getCurrentWeek } from '$lib/utils/getCurrentWeek';
   import { goto } from '$app/navigation';
@@ -26,16 +26,16 @@
       searchResults = [];
     }
   }
-
+  
   function selectTeam(event: Event, team: string) {
     event.preventDefault();
 
-    // Toggle selected team in the searchedTeams store
-    searchedTeams.update((searchedTeams: string[]) => {
-      if (searchedTeams.includes(team)) {
-        return searchedTeams.filter((searchedTeam) => searchedTeam !== team);
+    // Toggle selected team in the selectedTeams store
+    selectedTeams.update((selectedTeams: string[]) => {
+      if (selectedTeams.includes(team)) {
+        return selectedTeams.filter((selectedTeam) => selectedTeam !== team);
       } else {
-        return [...searchedTeams, team];
+        return [...selectedTeams, team];
       }
     });
 
@@ -56,9 +56,8 @@
   });
 
   function handleResubmit() {
-    // Use goto to navigate to the results page with the selected teams and week as query parameters
-    const selectedTeamsForSubmit = [...$selectedTeams, ...$searchedTeams];
-    goto(`/results?teams=${selectedTeamsForSubmit}&week=${selectedWeek}`);
+    // Use goto to navigate to the results page with the selected teams as a query parameter in the URL
+    goto(`/results?teams=${selectedTeams}`);
   }
 </script>
 

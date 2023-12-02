@@ -9,7 +9,7 @@
 		<main class="landing-main">
 			<div class="landing-hero">
 				<h2>Get the Latest College Football Scores</h2>
-				<p>Stay informed and updated on all your favorite teams</p>				
+				<p>Stay informed and updated on all your favorite teams</p>
 				<a href="/selection" role="button" aria-label="Get Started">
 					<button type="button" class="get-started" class:light={!$theme} class:dark={$theme}>
 						Get Started

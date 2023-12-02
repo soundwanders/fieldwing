@@ -11,7 +11,7 @@
 	</div>
 </div>
 
-<style>  
+<style>
 	:root {
 		--primary-color: #424ae1;
 		--highlight-color: #9fe2bf;
@@ -23,9 +23,9 @@
 		--get-started-text-color-dark: #09090b;
 
 		--teams-color: #bb0000;
-    --teams-color-dark: #ff9195;
+		--teams-color-dark: #ff9195;
 	}
-	
+
 	.app-container {
 		width: 100%;
 		background-color: var(--background-color);

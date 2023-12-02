@@ -9,7 +9,7 @@
 </script>
 
 <div class="selection-page">
-	<main>		
+	<main>
 		<section>
 			<Searchbar />
 			<Selection {leagues} {selectedLeague} />

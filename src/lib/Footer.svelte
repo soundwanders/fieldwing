@@ -1,5 +1,5 @@
 <script>
-	import { theme } from "$lib/stores/theme";
+	import { theme } from '$lib/stores/theme';
 </script>
 
 <footer class="footer">

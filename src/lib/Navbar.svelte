@@ -55,16 +55,16 @@
 		--theme-background-color-light: #ffd586;
 		--theme-background-color-dark: #3730a3;
 	}
-	
-	.light {
-    background-color: #f9f9f9;
-    color: #1a202c;
-  }
 
-  .dark {
-    background-color: #1a202c;
-    color: #f9f9f9;
-  }
+	.light {
+		background-color: #f9f9f9;
+		color: #1a202c;
+	}
+
+	.dark {
+		background-color: #1a202c;
+		color: #f9f9f9;
+	}
 
 	#theme.light {
 		background-color: var(--theme-background-color-light);
@@ -108,7 +108,7 @@
 		margin-left: 2rem;
 		margin-right: auto;
 	}
-	
+
 	a:hover {
 		text-decoration: underline;
 		cursor: pointer;
@@ -116,8 +116,8 @@
 
 	#button-wrapper {
 		display: flex;
-    align-items: center;
-    justify-content: center;
+		align-items: center;
+		justify-content: center;
 	}
 
 	button {
@@ -147,7 +147,7 @@
 			font-size: 0.875rem !important;
 			line-height: 1.25rem !important;
 		}
-		
+
 		button {
 			width: 1.5rem;
 			height: 1.5rem;

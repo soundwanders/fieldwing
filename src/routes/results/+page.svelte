@@ -6,11 +6,10 @@
 	import '../../styles/main.css';
 
 	export let data: { gameResults?: any[] };
+	const { gameResults } = data;
 
 	let teamNames: string;
 	$: teamNames = $selectedTeams.join(', ');
-
-	const { gameResults } = data;
 
 	console.log('gameResults', gameResults);
 </script>

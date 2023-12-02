@@ -26,7 +26,7 @@
 		} else {
 			searchResults = [];
 		}
-	};
+	}
 
 	function selectTeam(event: Event, team: string) {
 		event.preventDefault();
@@ -42,7 +42,7 @@
 
 		// Trigger a re-render to update searchResults and highlight selected team
 		searchTeams();
-	};
+	}
 
 	// Update searchResults when the component mounts to handle pre-selected teams
 	onMount(() => {
@@ -59,7 +59,7 @@
 	function handleResubmit() {
 		// Use goto to navigate to the results page with the selected teams as a query parameter in the URL
 		goto(`/results?teams=${selectedTeams}`);
-	};
+	}
 </script>
 
 <div class="resubmit-container" class:light={!$theme} class:dark={$theme}>

@@ -81,4 +81,4 @@ function getSchoolName(fullTeamName: string): string {
 	}
 
 	return filteredParts.join(' ');
-};
+}

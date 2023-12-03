@@ -8,8 +8,8 @@
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
 			class="icon icon-tabler icon-tabler-moon-stars"
-			width="24"
-			height="24"
+			width="18"
+			height="18"
 			viewBox="0 0 24 24"
 			stroke-width="1.5"
 			stroke="currentColor"
@@ -26,8 +26,8 @@
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
 			class="icon icon-tabler icon-tabler-sun-high"
-			width="24"
-			height="24"
+			width="18"
+			height="18"
 			viewBox="0 0 24 24"
 			stroke-width="1.5"
 			stroke="currentColor"
@@ -51,13 +51,14 @@
 
 <style>
 	.theme-icons {
-		padding: 0.6rem;
-		margin: -0.6rem;
+		padding: 0.4rem;
+		margin: -0.4rem;
 	}
 
 	.theme-icons svg {
 		width: 90%;
 		height: auto;
+		margin: 0 auto;
 		padding-top: 3px;
 	}
 

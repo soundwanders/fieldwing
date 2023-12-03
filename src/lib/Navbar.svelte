@@ -9,7 +9,7 @@
 			localStorage.setItem('theme', newTheme ? 'dark' : 'light');
 			return newTheme;
 		});
-	}
+	};
 </script>
 
 <div class="nav-container">
@@ -90,16 +90,14 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		font-size: 1rem;
-		line-height: 1.5rem;
 		text-decoration: none;
 	}
 
 	#home-shortcut,
 	#selection-shortcut {
 		padding: 1rem;
-		font-size: 1.5rem;
-		line-height: 2rem;
+		font-size: 0.875rem;
+		line-height: 1.25rem;
 		font-weight: bold;
 		background: transparent;
 	}
@@ -114,6 +112,10 @@
 		cursor: pointer;
 	}
 
+	a:active {
+		translate: 0 1px;
+	}
+
 	#button-wrapper {
 		display: flex;
 		align-items: center;
@@ -121,13 +123,13 @@
 	}
 
 	button {
-		width: 2rem;
+		width: 1.5rem;
 		height: auto;
 		border: none;
 		outline: none;
-		cursor: pointer;
 		border-radius: 50%;
 		background-color: var(--button-background-color);
+		cursor: pointer;
 	}
 
 	button:hover {
@@ -135,7 +137,7 @@
 	}
 
 	button:active {
-		transform: translateY(1px);
+		translate: 0 1px;
 	}
 
 	@media screen and (max-width: 768px) {
@@ -143,14 +145,9 @@
 			padding: 2rem;
 		}
 
-		.link {
-			font-size: 0.875rem !important;
-			line-height: 1.25rem !important;
-		}
-
 		button {
-			width: 1.5rem;
-			height: 1.5rem;
+			width: 1.2rem;
+			height: 1.2rem;
 			padding: 3px;
 			align-self: center;
 		}

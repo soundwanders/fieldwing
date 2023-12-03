@@ -63,21 +63,28 @@
 			<h2>Select Your Teams</h2>
 
 			<div class="select-container">
-				<select id="league-select" bind:value={selectedLeague} on:change={loadTeams}>
-					<option value="" disabled>Select a Conference</option>
-					{#each leagues as league}
-						<option value={league}>{league}</option>
-					{/each}
-				</select>
+				<div class="select-wrapper">
+					<!-- Dropdown container for team lists -->
+					<label for="league-select">Select a Conference:</label>
+					<select id="league-select" bind:value={selectedLeague} on:change={loadTeams}>
+							<option value="" disabled>...</option>
+							{#each leagues as league}
+									<option value={league}>{league}</option>
+							{/each}
+					</select>
+				</div>
 
-				<!-- Dropdown container for choosing which week to fetch -->
-				<label for="week-select">Select Week:</label>
-				<select id="select-week" bind:value={selectedWeek}>
-					{#each [...Array(17).keys()] as week}
-						<option value={week + 1}>{week + 1}</option>
-					{/each}
-				</select>
+				<div class="select-wrapper">
+					<label for="select-week">Select Week:</label>
+					<select id="select-week" bind:value={selectedWeek}>
+							{#each [...Array(17).keys()] as week}
+									<option value={week + 1}>{week + 1}</option>
+							{/each}
+					</select>
+				</div>
+			</div>
 
+			<div class="select-container">
 				<div class="teams-container" class:light={!$theme} class:dark={$theme}>
 					<ul>
 						{#if teams.length > 0}
@@ -94,7 +101,7 @@
 								</li>
 							{/each}
 						{:else}
-							<p id="select-conference">🏈 Select a conference to view teams</p>
+							<p class="select-conference-placeholder">🏈 Select a conference to view teams</p>
 						{/if}
 					</ul>
 				</div>
@@ -128,13 +135,14 @@
 	</div>
 </section>
 
-<style>
+<style module>
 	.select-section {
 		width: 100vw;
 		min-height: 100vh;
 		display: flex;
 		background-color: var(--background-color);
 		color: var(--text-color);
+		transition: background-color 0.2s ease;
 	}
 
 	.selection-wrapper {
@@ -148,52 +156,72 @@
 		margin-top: 2rem;
 	}
 
-	/* Form Styles */
+	/* Form */
 	.selector-form {
 		width: 100%;
 		max-width: 20rem;
+		border: 1px solid #d1d5db;
 		border-radius: 0.375rem;
 		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 		padding: 1.5rem;
 		background-color: var(--form-background-color);
 		color: var(--form-text-color);
-		border: 1px solid #d1d5db;
+    transition: background-color 0.2s ease;
 	}
 
+	/* Team Selection Form  */
 	.selector-form h2 {
 		font-size: 1.5rem;
 		line-height: 2rem;
 		font-weight: 600;
 		text-align: center;
-		margin-bottom: 2rem;
+		margin-bottom: 1.25rem;
 		color: var(--text-color);
 	}
 
-	/* Select Container Styles */
+	/* Select Container */
 	.select-container {
 		display: flex;
-		flex-direction: column;
-		align-items: center;
+		align-items: flex-start;
+		width: 100%;
 		gap: 1rem;
 	}
 
-	/* Select Element Styles */
-	select {
+	/* Select Elements Wrapper */
+	.select-wrapper {
+		display: flex;
+		flex-direction: column;
 		width: 100%;
-		padding: 0.5rem;
-		font-size: 1rem;
-		border: 1px solid #d1d5db;
-		border-radius: 0.25rem;
-		background-color: var(--form-background-color);
-		color: var(--form-text-color);
+		position: relative;
 	}
 
-	/* Teams Container Styles */
+	/* Teams Container Select Elements */
+  #league-select,
+  #select-week {
+		margin-top: 0.25rem;
+    padding: 0.5rem;
+		font-size: 0.875rem;
+		line-height: 1.25rem;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+		background-color: var(--form-background-color);
+		color: var(--form-text-color);
+		transition: background-color 0.2s ease;
+  }
+
+	label {
+		font-size: 0.75rem;
+		line-height: 1rem;
+	}
+
+	/* Teams List Container */
 	.teams-container {
 		min-height: 200px;
 		max-height: 200px;
 		width: 100%;
 		padding: 0.3rem;
+		margin-top: 1.25rem;
+		border: 1px solid #d1d5db;
 		border-radius: 0.25rem;
 		overflow-x: hidden;
 		overflow-y: auto;
@@ -211,7 +239,7 @@
 		font-weight: bold;
 	}
 
-	.teams-container button {
+	.teams-button {
 		cursor: pointer;
 		width: 100%;
 		text-align: left;
@@ -219,7 +247,6 @@
 		background-color: inherit;
 		border: none;
 		color: inherit;
-		transition: background-color 0.2s ease-in-out;
 	}
 
 	.teams-container button.selected {
@@ -230,19 +257,23 @@
 		background-color: var(--highlight-color-dark);
 	}
 
-	/* Selected Teams Styles */
+	.teams-container.dark button:hover {
+		background-color: var(--highlight-color-dark);
+	}
+  
+	/* Selected Teams Container */
 	.selected-teams {
 		width: 100%;
 		max-width: 20rem;
 		min-height: 200px;
 		max-height: 200px;
-		background-color: var(--form-background-color);
-		color: var(--form-text-color);
+		padding: 1.5rem;
+		margin: 2rem 0 2rem 0;
 		border: 1px solid #d1d5db;
 		border-radius: 0.375rem;
 		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-		padding: 1.5rem;
-		margin: 2rem 0 2rem 0;
+		background-color: var(--form-background-color);
+		color: var(--form-text-color);
 		overflow-y: auto;
 	}
 
@@ -262,61 +293,64 @@
 		color: inherit;
 	}
 
-	.selected-teams li {
+	.selected-teams-list-items {
 		padding: 0 0.5rem;
 		border-bottom: 1px solid #d1d5db;
 	}
 
-	.selected-teams li:last-child {
+	.selected-teams-list-items:last-child {
 		border-bottom: none;
 	}
 
-	.selected-teams button {
-		cursor: pointer;
+	.select-conference-placeholder {
+		padding: 0 0.25rem;
+		font-size: 0.875rem;
+		line-height: 1.25rem;
+	}
+
+	.selected-teams-list-items button {
 		width: 100%;
 		text-align: left;
 		padding: 0.5rem 0;
-		background-color: inherit;
 		border: none;
+		background-color: inherit;
 		color: inherit;
+		cursor: pointer;
 		transition: background-color 0.2s ease-in-out;
 	}
 
-	.selected-teams li:hover {
+	.selected-teams-list-items:hover {
 		background-color: var(--highlight-color);
 	}
 
-	.selected-teams.dark li:hover {
+	.selected-teams-list-items:hover {
 		background-color: var(--highlight-color-dark);
 	}
 
-	.teams-container.dark button:hover {
-		background-color: var(--highlight-color-dark);
-	}
-
-	.teams-button {
-		padding: 0 2px;
-	}
-
-	#select-conference {
-		padding: 0 0.25rem;
-	}
-
-	/* Submit Button Styles */
+	/* Submit Button */
 	.submit-button {
-		cursor: pointer;
+		border: none;
+		border-radius: 0.5rem;
+		font-size: 1rem;
+		padding: 0.3rem 0.75rem;
 		background-color: var(--primary-color);
 		color: #fff;
-		border: none;
-		border-radius: 0.25rem;
-		font-size: 1rem;
-		padding: 0.5rem 1rem;
+		cursor: pointer;
 		transition: background-color 0.2s ease-in-out;
 	}
 
 	.submit-button:hover {
 		opacity: 0.9;
 	}
+
+  .submit-button:disabled {
+    background-color: #71717a;
+    cursor: not-allowed;
+  }
+
+  .submit-button:hover:disabled {
+    background-color: #52525b;
+  }
 
 	.light {
 		background-color: #f9f9f9;
@@ -338,6 +372,11 @@
 		.select-section {
 			width: 100%;
 			margin: 0 auto;
+		}
+
+		.selected-teams {
+			min-height: 140px;
+			max-height: 140px;
 		}
 	}
 </style>

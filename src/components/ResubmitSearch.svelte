@@ -139,7 +139,7 @@
 		padding: 10px 0.5rem;
 		padding-left: 10px;
 		margin: 0.75rem 0;
-		border: 1px solid #ccc;
+		border: 1px solid #d1d5db;
 		border-radius: 0.25rem;
 		background-color: var(--background-color);
 		color: var(--text-color);
@@ -147,20 +147,19 @@
 
 	.search-results {
 		width: 90%;
-		min-height: 80px;
-		max-height: 80px;
-		padding: 0;
-		border: 1px solid #ccc;
+		min-height: 2rem;
+		max-height: 2rem;
+		padding: 0rem 0 1.5rem 0;
+		border: 1px solid #d1d5db;
 		border-radius: 0.25rem;
-		margin-top: 0.5rem;
-		margin-bottom: 1rem;
+		margin: 1rem 0;
 		border-bottom: 1px solid #d1d5db;
 		overflow-y: auto;
 	}
 
 	.team-list-items {
 		list-style-type: none;
-		padding: 0.4rem 0.5rem;
+		padding: 0.25rem 0.5rem 0.5rem 0.5rem;
 	}
 
 	.query-result {
@@ -168,9 +167,9 @@
 	}
 
 	#resubmit-week {
+		padding: 3px;
 		background-color: var(--background-color);
 		color: var(--text-color);
-		padding: 3px;
 	}
 
 	button {
@@ -185,12 +184,13 @@
 	/* Submit Button Styles */
 	.resubmit-button {
 		cursor: pointer;
-		background-color: var(--primary-color);
-		color: #fff;
 		border: none;
-		border-radius: 0.25rem;
-		font-size: 1rem;
-		padding: 0.25rem 0.75rem;
+		border-radius: 0.5rem;
+		font-size: 0.875rem;
+		line-height: 1.25rem;
+		padding: 0.25rem 0.675rem;
+		background-color: var(--primary-color);
+		color: #f9f9f9;
 		transition: background-color 0.2s ease-in-out;
 	}
 

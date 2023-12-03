@@ -129,13 +129,13 @@
 	.get-started {
 		border: none;
 		outline: none;
-		background-color: var(--get-started-background-color);
-		color: var(--get-started-text-color);
 		font-size: 1.125rem;
 		line-height: 1.75rem;
-		cursor: pointer;
 		padding: 4px 8px;
 		border-radius: 0.5rem;
+		background-color: var(--get-started-background-color);
+		color: var(--get-started-text-color);
+		cursor: pointer;
 	}
 
 	.get-started.light {
@@ -146,6 +146,10 @@
 	.get-started.dark {
 		background-color: var(--get-started-background-color-dark);
 		color: var(--get-started-text-color-dark);
+	}
+
+	.get-started:hover {
+		opacity: 0.9;
 	}
 
 	.get-started:active {

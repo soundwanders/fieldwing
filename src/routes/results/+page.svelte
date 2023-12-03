@@ -111,7 +111,7 @@
 		padding: 0.5rem 2rem 1.5rem 2rem;
 		margin: 0.5rem 3rem;
 		margin-bottom: 1.25rem;
-		border: 1px solid #ccc;
+		border: 1px solid #d1d5db;
 		border-radius: 5px;
 		box-sizing: border-box;
 		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);

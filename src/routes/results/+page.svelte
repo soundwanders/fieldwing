@@ -2,6 +2,7 @@
 <script lang="ts">
 	import { selectedTeams } from '$lib/stores/store';
 	import { theme } from '$lib/stores/theme';
+	import { formatStartDate } from '$lib/utils/formatStartDate';
 	import ResubmitSearch from '../../components/ResubmitSearch.svelte';
 	import '../../styles/main.css';
 
@@ -10,6 +11,10 @@
 
 	let teamNames: string;
 	$: teamNames = $selectedTeams.join(', ');
+
+	function capitalizeFirstChar(str: string) {
+		return str.charAt(0).toUpperCase() + str.slice(1);
+	};
 
 	console.log('gameResults', gameResults);
 </script>
@@ -29,18 +34,38 @@
 					{#each gameResults as { team, data } (team)}
 						{#each data as gameResult (gameResult.id)}
 							<div class="game-results" class:light={!$theme} class:dark={$theme}>
-								<h2>Week {gameResult.week} - {gameResult.season_type}</h2>
-								<p class="game-info">Start Date: {gameResult.start_date}</p>
-								<p class="game-info">Venue: {gameResult.venue}</p>
-								<p class="game-info">Home Team: {gameResult.home_team}</p>
-								<p class="game-info">Away Team: {gameResult.away_team}</p>
+								<h2 class="team-names" class:light={!$theme} class:dark={$theme}>
+									{gameResult.home_team} vs {gameResult.away_team}
+								</h2>
+
+								<h3>
+									Week {gameResult.week} - {capitalizeFirstChar(gameResult.season_type)}
+								</h3>
+
+								<!-- Scoreboard-like design for home and away points -->
+								<div class="scoreboard">
+									<div class="team-score">
+										<p class="team-name">{gameResult.home_team}</p>
+										<p class="points">{gameResult.home_points}</p>
+									</div>
+									<div class="team-score">
+										<p class="team-name">{gameResult.away_team}</p>
+										<p class="points">{gameResult.away_points}</p>
+									</div>
+								</div>
+
+								<p class="game-info">
+									Date: {formatStartDate(gameResult.start_date)}
+								</p>
+								<p class="game-info">
+									Venue: {gameResult.venue}
+								</p>
 								<p class="game-info">
 									Conference Game: {gameResult.conference_game ? 'Yes' : 'No'}
 								</p>
-								<p class="game-info">Completed: {gameResult.completed ? 'Yes' : 'No'}</p>
-								<p class="game-info">Home Points: {gameResult.home_points}</p>
-								<p class="game-info">Away Points: {gameResult.away_points}</p>
-								<!-- Add more fields as needed -->
+								<p class="game-info">
+									Completed: {gameResult.completed ? 'Yes' : 'No'}
+								</p>
 							</div>
 						{/each}
 					{/each}
@@ -95,7 +120,7 @@
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		width: 100vw;
+		width: 100%;
 		height: 100%;
 	}
 
@@ -106,21 +131,27 @@
 	}
 
 	.game-results {
-		width: min-content;
-		text-align: center;
+		width: max-content;
+    text-align: center;
 		padding: 0.5rem 2rem 1.5rem 2rem;
 		margin: 0.5rem 3rem;
 		margin-bottom: 1.25rem;
-		border: 1px solid #d1d5db;
-		border-radius: 5px;
-		box-sizing: border-box;
-		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-		background-color: var(--background-color);
-		color: var(--text-color);
+    border: 1px solid #d1d5db;
+    border-radius: 5px;
+    box-sizing: border-box;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    background-color: var(--background-color);
+    color: var(--text-color);
+    transition: transform 0.2s ease;
 	}
 
 	.team-names {
-		color: var(--teams-color);
+    font-size: 1.75rem;
+    font-weight: bold;
+		text-decoration: none;
+		margin-top: -1.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--teams-color);
 	}
 
 	.team-names.dark {
@@ -128,7 +159,32 @@
 	}
 
 	.game-info {
-		margin-bottom: 5px;
+		margin-bottom: 0.25rem;
+	}
+	
+	.game-info:first-of-type {
+		margin-top: -0.125rem;
+	}
+
+	.scoreboard {
+    display: flex;
+    justify-content: space-evenly;
+		align-content: end;
+    margin: 0.5rem auto;
+	}
+
+	.team-score {
+		text-align: center;
+	}
+
+	.team-name {
+		font-weight: bold;
+	}
+
+	.points {
+		font-size: 1.75rem;
+		line-height: 2.25rem;
+		margin-top: 0.25rem;
 	}
 
 	.light {

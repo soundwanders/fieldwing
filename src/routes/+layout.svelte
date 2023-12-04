@@ -18,6 +18,11 @@
 		--highlight-color: #b2e7cb;
 		--highlight-color-dark: #336699;
 
+		--form-background-color: #f0f0f0;
+		--form-background-color-dark: #1d232e;
+		--form-text-color: #09090b;
+		--form-text-color-dark: #f8fafc;
+
 		--get-started-background-color-light: #293545;
 		--get-started-background-color-dark: #cbd5e1;
 		--get-started-text-color-light: #f9f9f9;

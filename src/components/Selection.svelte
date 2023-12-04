@@ -63,36 +63,36 @@
 			<h2>Select Your Teams</h2>
 
 			<div class="selector-container">
-				<div class="selector-wrapper" class:light={!$theme} class:dark={$theme}>
+				<div class="team-selector-wrapper">
 					<!-- Dropdown container for team lists -->
 					<label for="league-select">Select a Conference:</label>
-					<select id="league-select" bind:value={selectedLeague} on:change={loadTeams}>
-							<option value="" disabled>...</option>
-							{#each leagues as league}
-									<option value={league}>{league}</option>
-							{/each}
+					<select class="conferences-dropdown" id="league-select" bind:value={selectedLeague} on:change={loadTeams}>
+						<option value="" disabled>...</option>
+						{#each leagues as league}
+								<option value={league}>{league}</option>
+						{/each}
 					</select>
 				</div>
 
-				<div class="selector-wrapper" class:light={!$theme} class:dark={$theme}>
+				<div class="team-selector-wrapper">
 					<label for="select-week">Select Week:</label>
-					<select id="select-week" bind:value={selectedWeek}>
-							{#each [...Array(17).keys()] as week}
-									<option value={week + 1}>{week + 1}</option>
-							{/each}
+					<select class="weeks-dropdown" id="select-week" bind:value={selectedWeek}>
+						{#each [...Array(17).keys()] as week}
+								<option value={week + 1}>{week + 1}</option>
+						{/each}
 					</select>
 				</div>
 			</div>
 
 			<div class="selector-container">
-				<div class="teams-container" class:light={!$theme} class:dark={$theme}>
+				<div class="teams-container">
 					<ul>
 						{#if teams.length > 0}
 							{#each teams as team}
 								<li class="teams-container-list-item">
 									<button
 										on:mousedown={(event) => toggleSelection(event, team)}
-										class="teams-button"
+										class="teams-button" class:light={!$theme} class:dark={$theme}
 										class:selected={$selectedTeams.includes(team)}
 										tabindex="0"
 									>
@@ -170,9 +170,14 @@
 		border-radius: 0.375rem;
 		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 		padding: 1.5rem;
-		background-color: var(--form-background-color);
-		color: var(--form-text-color);
+		background-color: var(--form-background-color) !important;
+		color: var(--form-text-color) !important;
     transition: background-color 0.2s ease;
+	}
+
+	.selector-form.dark {
+		background-color: var(--form-background-color-dark) !important;
+		color: var(--form-text-color-dark) !important;
 	}
 
 	.selector-form h2 {
@@ -181,7 +186,6 @@
 		font-weight: 600;
 		text-align: center;
 		margin-bottom: 1.25rem;
-		color: var(--text-color);
 	}
 
 	/* Selection Container */
@@ -193,7 +197,7 @@
 	}
 
 	/* Select Elements Flex Wrapper */
-	.selector-wrapper {
+	.team-selector-wrapper {
 		display: flex;
 		flex-direction: column;
 		width: 100%;
@@ -209,15 +213,21 @@
 		line-height: 1.25rem;
     border: 1px solid #ced4da;
     border-radius: 0.25rem;
-		background-color: var(--form-background-color);
-		color: var(--form-text-color);
-		transition: background-color 0.2s ease;
+		background-color: inherit;
+		color: inherit;
   }
+
+	option {
+		background-color: inherit;
+		color: inherit;
+	}
 
 	/* Select element labels */
 	label {
 		font-size: 0.75rem;
 		line-height: 1rem;
+		background-color: inherit;
+		color: inherit;
 	}
 
 	/* Teams List Container */
@@ -237,6 +247,8 @@
 		list-style: none;
 		padding: 0;
 		margin: 0;
+		background-color: inherit;
+		color: inherit;
 	}
 
 	.teams-container-list-item {
@@ -256,19 +268,20 @@
 		color: inherit;
 		box-sizing: border-box;
 	}
-	.teams-container button.selected {
+
+	.teams-button.selected {
 		background-color: var(--highlight-color);
 	}
 
-	.teams-container.dark button.selected {
+	.teams-button.dark.selected {
 		background-color: var(--highlight-color-dark);
 	}
 
-	.teams-container button:hover {
+	.teams-button:hover {
 		background-color: var(--highlight-color);
 	}
 
-	.teams-container.dark button:hover {
+	.teams-button.dark:hover {
 		background-color: var(--highlight-color-dark);
 	}
   
@@ -276,6 +289,8 @@
 		padding: 0 0.25rem;
 		font-size: 0.875rem;
 		line-height: 1.25rem;
+		color: inherit;
+		background-color: inherit;
 	}
 
 	/* Selected Teams Container */
@@ -287,9 +302,14 @@
 		border: 1px solid #d1d5db;
 		border-radius: 0.375rem;
 		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-		background-color: var(--form-background-color);
-		color: var(--form-text-color);
 		overflow-y: auto;
+		background-color: var(--form-background-color) !important;
+		color: var(--form-text-color) !important;
+	}
+
+	.selected-teams.dark {
+		background-color: var(--form-background-color-dark) !important;
+		color: var(--form-text-color-dark) !important;
 	}
 
 	.selected-teams h2 {
@@ -407,7 +427,7 @@
 			margin: 0 auto;
 		}
 
-		.selector-wrapper {
+		.team-selector-wrapper {
 			align-self: end;
 		}
 

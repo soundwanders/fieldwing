@@ -73,8 +73,6 @@ function getSchoolName(fullTeamName: string): string {
 	for (let i = 0; i < parts.length; i++) {
 		const remainingSubstring = parts.slice(i).join(' ');
 
-		console.log(`Iteration ${i}: parts: ${parts}, remainingSubstring: ${remainingSubstring}`);
-
 		if (!mascotNames.includes(remainingSubstring)) {
 			filteredParts.push(parts[i]);
 		}

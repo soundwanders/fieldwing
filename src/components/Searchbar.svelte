@@ -50,6 +50,7 @@
 		<label for="teamSearch">Search for a Team:</label>
 		<input
 			type="text"
+			class="team-searchbar" class:light={!$theme} class:dark={$theme}
 			id="teamSearch"
 			bind:value={searchQuery}
 			placeholder="Enter team name"
@@ -61,7 +62,7 @@
 			<span class="query-result">{searchQuery}</span>
 		</p>
 
-		<div class="search-results">
+		<div class="search-results" class:light={!$theme} class:dark={$theme}>
 			{#if searchResults.length > 0}
 				<ul class="team-list">
 					{#each searchResults as team (team)}
@@ -100,16 +101,21 @@
 		font-weight: bold;
 	}
 
-	input[type='text'] {
+	.team-searchbar {
 		width: 100%;
 		padding: 10px 0;
 		padding-left: 10px;
 		margin: 0.75rem 0;
 		border: 1px solid #d1d5db;
 		border-radius: 0.25rem;
-		background-color: var(--background-color);
-		color: var(--text-color);
+		background-color: var(--form-background-color);
+		color: var(--form-text-color);
 		box-sizing: border-box;
+	}
+
+	.team-searchbar.dark {
+		background-color: var(--form-background-color-dark);
+		color: var(--form-text-color-dark);
 	}
 
 	.search-results {
@@ -117,11 +123,20 @@
 		min-height: 130px;
 		max-height: 130px;
 		padding: 0;
+		padding-left: 10px;
 		margin-top: 0.5rem;
 		border: 1px solid #d1d5db;
 		border-radius: 0.25rem;
 		border-bottom: 1px solid #d1d5db;
+		background-color: var(--form-background-color);
+		color: var(--form-text-color);
+		box-sizing: border-box;
 		overflow-y: auto;
+	}
+
+	.search-results.dark {
+		background-color: var(--form-background-color-dark);
+		color: var(--form-text-color-dark);
 	}
 
 	.team-list-items {

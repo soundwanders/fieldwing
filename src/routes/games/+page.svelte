@@ -24,7 +24,7 @@
 		<div class="results-container">
 			<h1>
 				This Week's Results for
-				<span class="team-names" class:light={!$theme} class:dark={$theme}>
+				<span class="header-teams" class:light={!$theme} class:dark={$theme}>
 					{teamNames}
 				</span>
 			</h1>
@@ -86,9 +86,11 @@
 	}
 
 	h1 {
+		max-inline-size: 50ch;
+		text-wrap: balance;
 		font-size: 2.25rem;
 		line-height: 2.5rem;
-		margin-bottom: 2rem;
+		margin-bottom: 3.75rem;
 		text-align: center;
 	}
 
@@ -219,6 +221,7 @@
 		}
 
 		h1 {
+			margin-bottom: 2.5rem;
 			font-size: 1.25rem;
 			line-height: 1.75rem;
 		}
@@ -227,6 +230,18 @@
 			font-size: 1.125rem;
 			line-height: 1.5rem;
 		}
+
+		h3 {
+			margin-top: 1.5rem;
+			font-size: 0.875rem;
+			line-height: 1rem;
+		}
+
+		.team-names {
+			font-size: 1.25rem;
+			line-height: 1.5rem;
+		}
+		
 		.game-info {
 			font-size: 0.875rem;
 			line-height: 1.25rem;

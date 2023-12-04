@@ -18,3 +18,10 @@
 
 	<Footer />
 </div>
+
+<style>
+	section {
+		min-height: 100vh;
+		
+	}
+</style>

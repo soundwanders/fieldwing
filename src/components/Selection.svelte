@@ -62,8 +62,8 @@
 		<form class="selector-form" class:light={!$theme} class:dark={$theme}>
 			<h2>Select Your Teams</h2>
 
-			<div class="select-container">
-				<div class="select-wrapper">
+			<div class="selector-container">
+				<div class="selector-wrapper" class:light={!$theme} class:dark={$theme}>
 					<!-- Dropdown container for team lists -->
 					<label for="league-select">Select a Conference:</label>
 					<select id="league-select" bind:value={selectedLeague} on:change={loadTeams}>
@@ -74,7 +74,7 @@
 					</select>
 				</div>
 
-				<div class="select-wrapper">
+				<div class="selector-wrapper" class:light={!$theme} class:dark={$theme}>
 					<label for="select-week">Select Week:</label>
 					<select id="select-week" bind:value={selectedWeek}>
 							{#each [...Array(17).keys()] as week}
@@ -84,12 +84,12 @@
 				</div>
 			</div>
 
-			<div class="select-container">
+			<div class="selector-container">
 				<div class="teams-container" class:light={!$theme} class:dark={$theme}>
 					<ul>
 						{#if teams.length > 0}
 							{#each teams as team}
-								<li>
+								<li class="teams-container-list-item">
 									<button
 										on:mousedown={(event) => toggleSelection(event, team)}
 										class="teams-button"
@@ -120,11 +120,15 @@
 				{/each}
 			</ul>
 		</div>
+	</div>
+</section>
 
-		<!-- Only enable submit button to redirect to results page if there are selected teams -->
+<section class="submit-section">
+	<div class="button-container">
+		<!-- Only enable submit button to redirect to games page if there are selected teams -->
 		<a
 			href={selectedTeamsArray.length > 0
-				? `/results?teams=${selectedTeamsArray.join(',')}&week=${selectedWeek}`
+				? `/games?teams=${selectedTeamsArray.join(',')}&week=${selectedWeek}`
 				: '#'}
 			data-sveltekit-prefetch
 		>
@@ -138,8 +142,10 @@
 <style module>
 	.select-section {
 		width: 100vw;
-		min-height: 100vh;
+		height: 100%;
 		display: flex;
+		justify-content: center;
+		align-items: flex-start;
 		background-color: var(--background-color);
 		color: var(--text-color);
 		transition: background-color 0.2s ease;
@@ -147,16 +153,16 @@
 
 	.selection-wrapper {
 		display: flex;
-		flex-direction: column;
-		align-items: center;
-		align-content: center;
-		width: 100%;
-		min-height: 70vh;
+		justify-content: center;
+		gap: 4rem;
+		width: 60%;
+		height: 50%;
+		height: fit-content;
 		padding: 0.5rem 2.5rem;
 		margin-top: 2rem;
 	}
 
-	/* Form */
+	/* Team Selection Form */
 	.selector-form {
 		width: 100%;
 		max-width: 20rem;
@@ -169,7 +175,6 @@
     transition: background-color 0.2s ease;
 	}
 
-	/* Team Selection Form  */
 	.selector-form h2 {
 		font-size: 1.5rem;
 		line-height: 2rem;
@@ -179,16 +184,16 @@
 		color: var(--text-color);
 	}
 
-	/* Select Container */
-	.select-container {
+	/* Selection Container */
+	.selector-container {
 		display: flex;
 		align-items: flex-start;
 		width: 100%;
 		gap: 1rem;
 	}
 
-	/* Select Elements Wrapper */
-	.select-wrapper {
+	/* Select Elements Flex Wrapper */
+	.selector-wrapper {
 		display: flex;
 		flex-direction: column;
 		width: 100%;
@@ -209,6 +214,7 @@
 		transition: background-color 0.2s ease;
   }
 
+	/* Select element labels */
 	label {
 		font-size: 0.75rem;
 		line-height: 1rem;
@@ -233,22 +239,23 @@
 		margin: 0;
 	}
 
-	.teams-container li {
+	.teams-container-list-item {
 		padding: 0.3rem 0.5rem;
 		border-bottom: 1px solid #d1d5db;
 		font-weight: bold;
 	}
 
-	.teams-button {
+	.teams-container-list-item button {
 		cursor: pointer;
 		width: 100%;
 		text-align: left;
 		padding: 0.5rem;
-		background-color: inherit;
 		border: none;
+		border-radius: 0.25rem;
+		background-color: inherit;
 		color: inherit;
+		box-sizing: border-box;
 	}
-
 	.teams-container button.selected {
 		background-color: var(--highlight-color);
 	}
@@ -257,18 +264,26 @@
 		background-color: var(--highlight-color-dark);
 	}
 
+	.teams-container button:hover {
+		background-color: var(--highlight-color);
+	}
+
 	.teams-container.dark button:hover {
 		background-color: var(--highlight-color-dark);
 	}
   
+	.select-conference-placeholder {
+		padding: 0 0.25rem;
+		font-size: 0.875rem;
+		line-height: 1.25rem;
+	}
+
 	/* Selected Teams Container */
 	.selected-teams {
 		width: 100%;
 		max-width: 20rem;
-		min-height: 200px;
-		max-height: 200px;
 		padding: 1.5rem;
-		margin: 2rem 0 2rem 0;
+		margin: 0;
 		border: 1px solid #d1d5db;
 		border-radius: 0.375rem;
 		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
@@ -294,40 +309,49 @@
 	}
 
 	.selected-teams-list-items {
-		padding: 0 0.5rem;
+		padding: 0 0.5rem 0.25rem 0.5rem;
+		margin: 0.5rem 0;
 		border-bottom: 1px solid #d1d5db;
+		background-color: inherit;
+		color: inherit;
+		box-sizing: border-box;
 	}
 
 	.selected-teams-list-items:last-child {
 		border-bottom: none;
 	}
 
-	.select-conference-placeholder {
-		padding: 0 0.25rem;
-		font-size: 0.875rem;
-		line-height: 1.25rem;
-	}
-
 	.selected-teams-list-items button {
 		width: 100%;
+		font-size: 1rem;
+		line-height: 1.25rem;
 		text-align: left;
-		padding: 0.5rem 0;
+		padding: 0.5rem;
 		border: none;
+		border-radius: 0.25rem;
 		background-color: inherit;
 		color: inherit;
 		cursor: pointer;
 		transition: background-color 0.2s ease-in-out;
+		box-sizing: border-box;
 	}
-
-	.selected-teams-list-items:hover {
+	
+	.selected-teams button:hover {
 		background-color: var(--highlight-color);
 	}
 
-	.selected-teams-list-items:hover {
+	.selected-teams.dark button:hover {
 		background-color: var(--highlight-color-dark);
 	}
 
-	/* Submit Button */
+	/* Submit Button Styles */
+	.button-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+		margin: 2rem 0;
+	}
+
 	.submit-button {
 		border: none;
 		border-radius: 0.5rem;
@@ -344,12 +368,12 @@
 	}
 
   .submit-button:disabled {
-    background-color: #71717a;
+    background-color: #525252;
     cursor: not-allowed;
   }
 
   .submit-button:hover:disabled {
-    background-color: #52525b;
+    background-color: #404040;
   }
 
 	.light {
@@ -365,8 +389,17 @@
 	/* Media query for mobile devices */
 	@media screen and (max-width: 768px) {
 		.selection-wrapper {
-			margin-top: 1rem;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			width: 100%;
 			min-height: 100%;
+			margin-top: 1rem;
+			gap: 2.5rem;
+		}
+
+		h2 {
+			margin-top: 0;
 		}
 
 		.select-section {
@@ -374,9 +407,27 @@
 			margin: 0 auto;
 		}
 
+		.selector-wrapper {
+			align-self: end;
+		}
+
 		.selected-teams {
 			min-height: 140px;
 			max-height: 140px;
+			margin: 0;
+		}
+
+		.selected-teams ul {
+			padding-bottom: 2rem;
+		}
+
+		.selected-teams-list-items button {
+			font-size: 0.875rem;
+			line-height: 1rem;
+		}
+
+		.button-container {
+			margin: 1rem 0 2rem 0;
 		}
 	}
 </style>

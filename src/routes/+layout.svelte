@@ -14,8 +14,9 @@
 <style>
 	:root {
 		--primary-color: #424ae1;
-		--highlight-color: #9fe2bf;
-		--highlight-color-dark: #2a5345;
+		--highlight-text-color: #18181b;
+		--highlight-color: #b2e7cb;
+		--highlight-color-dark: #336699;
 
 		--get-started-background-color-light: #293545;
 		--get-started-background-color-dark: #cbd5e1;

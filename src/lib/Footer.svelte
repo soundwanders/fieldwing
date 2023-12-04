@@ -28,12 +28,12 @@
 		flex-wrap: wrap;
 		justify-content: center;
 		gap: 1rem;
-		color: inherit;
+		color: inherit;	
+		font-size: 0.75rem;
+		line-height: 1rem;
 	}
 
 	.footer a {
-		font-size: 0.875rem;
-		line-height: 1.25rem;
 		text-decoration: none;
 		transition: color 0.2s ease-in-out;
 		color: inherit;

@@ -58,7 +58,7 @@
 
 	function handleResubmit() {
 		// Use goto to navigate to the results page with the selected teams as a query parameter in the URL
-		goto(`/results?teams=${selectedTeams}`);
+		goto(`/games?teams=${selectedTeams}`);
 	}
 </script>
 

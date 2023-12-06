@@ -1,5 +1,5 @@
 <script>
-	import Selection from '../../components/Selection.svelte';
+	import Selection from '../../components/GameSelection.svelte';
 	import Footer from '$lib/Footer.svelte';
 	import Searchbar from '../../components/Searchbar.svelte';
 	import '../../styles/main.css';

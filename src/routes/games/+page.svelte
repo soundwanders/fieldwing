@@ -39,7 +39,7 @@
 								</h2>
 
 								<h3>
-									Week {gameResult.week} - {capitalizeFirstChar(gameResult.season_type)}
+									Week {gameResult.week} - {capitalizeFirstChar(gameResult.season_type)} Season
 								</h3>
 
 								<!-- Scoreboard-like design for home and away points -->

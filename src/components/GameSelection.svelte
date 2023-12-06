@@ -4,6 +4,7 @@
 	import { selectedTeams } from '$lib/stores/store';
 	import { theme } from '$lib/stores/theme';
 	import { onMount } from 'svelte';
+	import { getCurrentYear } from '$lib/utils/getCurrentYear';
 	
 	export let leagues: string[];
 	export let selectedLeague: string;
@@ -11,6 +12,11 @@
 	let selectedTeamsArray = $selectedTeams;
 	let teams: string[] = [];
 	let selectedWeek: number = 1;
+  let selectedYear: number = new Date().getFullYear(); 
+
+	// currentYear placeholder for select-year input element
+	const currentYear = getCurrentYear();
+	const yearString = getCurrentYear().toString();
 
 	function loadTeams() {
 		if (selectedLeague === 'All') {
@@ -82,6 +88,12 @@
 						{/each}
 					</select>
 				</div>
+
+				<!-- New dropdown for selecting the year -->
+				<div class="team-selector-wrapper">
+					<label for="select-year">Select Year:</label>
+					<input type="number" id="select-year" bind:value={selectedYear} min={1900} max={currentYear} placeholder={yearString} />
+				</div>
 			</div>
 
 			<div class="selector-container">
@@ -128,7 +140,7 @@
 		<!-- Only enable submit button to redirect to games page if there are selected teams -->
 		<a
 			href={selectedTeamsArray.length > 0
-				? `/games?teams=${selectedTeamsArray.join(',')}&week=${selectedWeek}`
+        ? `/games?teams=${selectedTeamsArray.join(',')}&year=${selectedYear}&week=${selectedWeek}`
 				: '#'}
 			data-sveltekit-prefetch
 		>
@@ -191,7 +203,7 @@
 	/* Selection Container */
 	.selector-container {
 		display: flex;
-		align-items: flex-start;
+		align-items: flex-end;
 		width: 100%;
 		gap: 1rem;
 	}
@@ -206,9 +218,10 @@
 
 	/* Teams Container Select Elements */
   #league-select,
-  #select-week {
+  #select-week,
+	#select-year {
 		margin-top: 0.25rem;
-    padding: 0.5rem;
+		padding: 0.5rem;
 		font-size: 0.875rem;
 		line-height: 1.25rem;
     border: 1px solid #ced4da;
@@ -216,6 +229,10 @@
 		background-color: inherit;
 		color: inherit;
   }
+
+	#select-year {
+		max-width: 6rem;
+	}
 
 	option {
 		background-color: inherit;

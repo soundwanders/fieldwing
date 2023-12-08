@@ -6,74 +6,82 @@
 
 <div class="container" class:light={!$theme} class:dark={$theme}>
 	<div class="landing-page" class:light={!$theme} class:dark={$theme}>
-		<main class="landing-main">
-			<div class="landing-hero">
-				<h2>Get the Latest College Football Scores</h2>
-				<p>Stay informed and updated on all your favorite teams</p>
-				<a href="/selection" role="button" aria-label="Get Started">
-					<button type="button" class="get-started" class:light={!$theme} class:dark={$theme}>
-						Get Started
-					</button>
-				</a>
+		<main class="main-container">
+			<div class="landing-container">
+				<div class="landing-hero">
+					<h2>Your Front Row Seat to College Football Data</h2>
+					<p>Stay informed and updated on all your favorite teams</p>
+					<a href="/selection" role="button" aria-label="Get Started">
+						<button type="button" class="get-started" class:light={!$theme} class:dark={$theme}>
+							Get Started
+						</button>
+					</a>
+				</div>
+
+				<div class="landing-image">
+					<img src="/gameday.svg" alt="Game Day" class="hero-image"/>
+				</div>
 			</div>
 
-			<div class="landing-details">
-				<div class="landing-updates">
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						width="24"
-						height="24"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="2"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-					>
-						<circle cx="12" cy="12" r="10" />
-						<polyline points="12 6 12 12 16 14" />
-					</svg>
-					<h3>Weekly Updates</h3>
-					<p>Stay in the game each week with your favorite teams.</p>
-				</div>
+			<div class="landing-container">
+				<div class="landing-details">
+					<div class="landing-updates">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="24"
+							height="24"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						>
+							<circle cx="12" cy="12" r="10" />
+							<polyline points="12 6 12 12 16 14" />
+						</svg>
+						<h3>Weekly Updates</h3>
+						<p>Stay in the game each week with your favorite teams.</p>
+					</div>
 
-				<div class="landing-notifications">
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						width="24"
-						height="24"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="2"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-					>
-						<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
-						<path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
-					</svg>
-					<h3>Notifications</h3>
-					<p>Get real-time data straight from the sideline.</p>
-				</div>
+					<div class="landing-notifications">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="24"
+							height="24"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						>
+							<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+							<path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+						</svg>
+						<h3>Notifications</h3>
+						<p>Get real-time data straight from the sideline.</p>
+					</div>
 
-				<div class="landing-favorites">
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						width="24"
-						height="24"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="2"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-					>
-						<polygon
-							points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
-						/>
-					</svg>
-					<h3>Favorites</h3>
-					<p>Receive personalized content curated just for you.</p>
+					<div class="landing-favorites">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="24"
+							height="24"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						>
+							<polygon
+								points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+							/>
+						</svg>
+						<h3>Favorites</h3>
+						<p>Receive personalized content curated just for you.</p>
+					</div>
 				</div>
 			</div>
 		</main>
@@ -99,10 +107,14 @@
 		color: var(--text-color);
 	}
 
-	.landing-main {
+	.main-container {
+		width: 100%;
+	}
+
+	.landing-container {
+		width: 100%;
 		flex: 1;
 		display: flex;
-		flex-direction: column;
 		align-items: center;
 		justify-content: center;
 		padding: 1rem;
@@ -111,14 +123,30 @@
 	}
 
 	.landing-hero {
-		text-align: center;
+		width: 60%;
 		gap: 1rem;
+		text-align: center;
+	}
+
+	.landing-image {
+		width: 40%;
+		padding: 0;
+	}
+
+	.hero-image {
+		width: 68%;
 	}
 
 	.landing-hero h2 {
-		font-size: 2.25rem;
-		line-height: 2.5rem;
+		font-size: 3.75rem;
+		line-height: 1;
+		line-height: 1;
+		padding: 0 4rem;
 		font-weight: bold;
+		text-wrap: balance;
+		word-wrap: break-word;
+		max-width: 70%;
+		margin: 0 auto;
 	}
 
 	.landing-hero p {
@@ -162,6 +190,7 @@
 		display: flex;
 		justify-content: space-between;
 		gap: 2rem;
+		padding: 2rem 0 10rem 0;
 	}
 
 	.landing-details > div {
@@ -206,9 +235,28 @@
 			min-height: 100%;
 		}
 
-		.landing-main {
+		.landing-container {
 			margin-top: 0;
+			padding: 0;
 		}
+
+		.landing-hero {
+			width: 100%;
+			padding: 1.5rem;
+			padding-top: 0;
+		}
+
+		.landing-hero h2 {
+			font-size: 2rem; /* 36px */
+			line-height: 2.5rem; /* 40px */
+			padding: 1.5rem 0 0 0;
+			max-width: 100%;
+		}
+
+		.landing-image {
+			display: none;
+		}
+
 		.landing-page {
 			min-height: 100%;
 		}
@@ -217,6 +265,7 @@
 			margin: 0.5rem auto;
 			flex-direction: column;
 			align-items: center;
+			padding: 2rem;
 		}
 
 		.landing-details > div {
@@ -226,6 +275,10 @@
 		.landing-details > div > p {
 			font-size: 0.875rem;
 			line-height: 1.25rem;
+		}
+
+		.landing-details:last-child {
+			padding-bottom: 4rem;
 		}
 
 		.get-started {

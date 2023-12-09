@@ -10,7 +10,7 @@
 			<div class="landing-container">
 				<div class="landing-hero">
 					<h2>Your Front Row Seat to College Football Data</h2>
-					<p>Stay informed and updated on all your favorite teams</p>
+					<p>Discover game results and explore statistics for all your favorite teams</p>
 					<a href="/selection" role="button" aria-label="Get Started">
 						<button type="button" class="get-started" class:light={!$theme} class:dark={$theme}>
 							Get Started
@@ -124,7 +124,6 @@
 
 	.landing-hero {
 		width: 60%;
-		gap: 1rem;
 		text-align: center;
 	}
 
@@ -152,6 +151,7 @@
 	.landing-hero p {
 		font-size: 1.125rem;
 		line-height: 1.75rem;
+		margin: 1.25rem 0;
 	}
 
 	.get-started {
@@ -190,7 +190,7 @@
 		display: flex;
 		justify-content: space-between;
 		gap: 2rem;
-		padding: 2rem 0 10rem 0;
+		padding: 2rem 0 14rem 0;
 	}
 
 	.landing-details > div {
@@ -251,6 +251,11 @@
 			line-height: 2.5rem; /* 40px */
 			padding: 1.5rem 0 0 0;
 			max-width: 100%;
+		}
+
+
+		.landing-hero p {
+			margin: 0;
 		}
 
 		.landing-image {

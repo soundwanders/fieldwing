@@ -3,36 +3,50 @@
 	import { selectedTeams } from '$lib/stores/store';
 	import { theme } from '$lib/stores/theme';
 	import { formatStartDate } from '$lib/utils/formatStartDate';
+	import { onDestroy } from 'svelte';
 	import ResubmitSearch from '../../components/ResubmitSearch.svelte';
 	import '../../styles/main.css';
 
 	export let data: { gameResults?: any[] };
 	const { gameResults } = data;
+	console.log('gameResults', gameResults);
 
-	let teamNames: string;
-	$: teamNames = $selectedTeams.join(', ');
+  // Function to get selected teams from localStorage
+  function getSelectedTeamsFromLocalStorage() {
+    const storedTeams = localStorage.getItem('selectedTeams');
+    return storedTeams ? JSON.parse(storedTeams) : [];
+  }
+
+  // Initialize teamNames with the value from localStorage or selectedTeams
+  let teamNames: string = $selectedTeams.join(', ') || getSelectedTeamsFromLocalStorage();
+
+  // Update localStorage when selectedTeams changes
+  $: localStorage.setItem('selectedTeams', JSON.stringify($selectedTeams));
 
 	function capitalizeFirstChar(str: string) {
 		return str.charAt(0).toUpperCase() + str.slice(1);
 	};
 
-	console.log('gameResults', gameResults);
+	// Clear selectedTeams store on component destruction
+	onDestroy(() => {
+    selectedTeams.set([]);
+  });
 </script>
 
 <section class="wrapper">
 	<section class="results-section" class:light={!$theme} class:dark={$theme}>
 		<div class="results-container">
-			<h1>
-				This Week's Results for
-				<span class="header-teams" class:light={!$theme} class:dark={$theme}>
-					{teamNames}
-				</span>
-			</h1>
-
 			{#if gameResults}
-				<div class="game-results-container">
 					{#each gameResults as { team, data } (team)}
 						{#each data as gameResult (gameResult.id)}
+						<h1>
+							Week {gameResult.week} Results for
+							<span class="header-teams" class:light={!$theme} class:dark={$theme}>
+								{teamNames}
+							</span>
+						</h1>
+
+						<div class="game-results-container">
 							<div class="game-results" class:light={!$theme} class:dark={$theme}>
 								<h2 class="team-names" class:light={!$theme} class:dark={$theme}>
 									{gameResult.home_team} vs {gameResult.away_team}
@@ -67,9 +81,9 @@
 									Completed: {gameResult.completed ? 'Yes' : 'No'}
 								</p>
 							</div>
-						{/each}
+						</div>
 					{/each}
-				</div>
+				{/each}
 			{/if}
 		</div>
 	</section>
@@ -81,7 +95,7 @@
 
 <style>
 	:root {
-		--teams-color: #bb0000;
+		--teams-color: #ee0000;
 		--teams-color-dark: #ff9195;
 	}
 

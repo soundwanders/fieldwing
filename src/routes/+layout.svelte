@@ -20,6 +20,8 @@
 
 		--form-background-color: #f0f0f0;
 		--form-background-color-dark: #1d232e;
+		--form-sub-background-color: #eff4f1;
+		--form-sub-background-color-dark: #242b38;
 		--form-text-color: #09090b;
 		--form-text-color-dark: #f8fafc;
 
@@ -52,7 +54,7 @@
 	@media screen and (max-width: 768px) {
 		.app-container {
 			width: 100%;
-			height: 100%;
+			min-height: 100%;
 		}
 
 		.content-container {

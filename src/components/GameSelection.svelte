@@ -72,7 +72,7 @@
 				<div class="team-selector-wrapper">
 					<!-- Dropdown container for team lists -->
 					<label for="league-select">Select a Conference:</label>
-					<select class="conferences-dropdown" id="league-select" bind:value={selectedLeague} on:change={loadTeams}>
+					<select class="conferences-dropdown" id="league-select" class:light={!$theme} class:dark={$theme} bind:value={selectedLeague} on:change={loadTeams}>
 						<option value="" disabled>...</option>
 						{#each leagues as league}
 								<option value={league}>{league}</option>
@@ -82,7 +82,7 @@
 
 				<div class="team-selector-wrapper">
 					<label for="select-week">Select Week:</label>
-					<select class="weeks-dropdown" id="select-week" bind:value={selectedWeek}>
+					<select class="weeks-dropdown" id="select-week" class:light={!$theme} class:dark={$theme} bind:value={selectedWeek}>
 						{#each [...Array(17).keys()] as week}
 								<option value={week + 1}>{week + 1}</option>
 						{/each}
@@ -92,12 +92,12 @@
 				<!-- New dropdown for selecting the year -->
 				<div class="team-selector-wrapper">
 					<label for="select-year">Select Year:</label>
-					<input type="number" id="select-year" bind:value={selectedYear} min={1900} max={currentYear} placeholder={yearString} />
+					<input type="number" class="year-input" id="select-year" class:light={!$theme} class:dark={$theme} bind:value={selectedYear} min={1900} max={currentYear} placeholder={yearString} />
 				</div>
 			</div>
 
 			<div class="selector-container">
-				<div class="teams-container">
+				<div class="teams-container" class:light={!$theme} class:dark={$theme}>
 					<ul>
 						{#if teams.length > 0}
 							{#each teams as team}
@@ -214,6 +214,15 @@
 		flex-direction: column;
 		width: 100%;
 		position: relative;
+		background-color: transparent;
+	}
+	
+	.conferences-dropdown, .weeks-dropdown, .year-input {
+		background-color: var(--form-sub-background-color);
+	}
+
+	.conferences-dropdown.dark, .weeks-dropdown.dark, .year-input.dark {
+		background-color: var(--form-sub-background-color-dark);
 	}
 
 	/* Teams Container Select Elements */
@@ -226,10 +235,9 @@
 		line-height: 1.25rem;
     border: 1px solid #ced4da;
     border-radius: 0.25rem;
-		background-color: inherit;
 		color: inherit;
-  }
-
+	}
+	
 	#select-year {
 		max-width: 6rem;
 	}
@@ -258,6 +266,11 @@
 		border-radius: 0.25rem;
 		overflow-x: hidden;
 		overflow-y: auto;
+		background-color: var(--form-sub-background-color);
+	}
+
+	.teams-container.dark {
+		background-color: var(--form-sub-background-color-dark);
 	}
 
 	.teams-container ul {

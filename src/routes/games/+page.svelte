@@ -1,36 +1,21 @@
 <!-- +page.svelte -->
 <script lang="ts">
-	import { selectedTeams } from '$lib/stores/store';
-	import { theme } from '$lib/stores/theme';
-	import { formatStartDate } from '$lib/utils/formatStartDate';
-	import { onDestroy } from 'svelte';
-	import ResubmitSearch from '../../components/ResubmitSearch.svelte';
-	import '../../styles/main.css';
+  import { theme } from '$lib/stores/theme';
+  import { formatStartDate } from '$lib/utils/formatStartDate';
+  import ResubmitSearch from '../../components/ResubmitSearch.svelte';
+  import '../../styles/main.css';
 
-	export let data: { gameResults?: any[] };
-	const { gameResults } = data;
-	console.log('gameResults', gameResults);
+  export let data: { gameResults?: any[]; teams?: string[] };
 
-  // Function to get selected teams from localStorage
-  function getSelectedTeamsFromLocalStorage() {
-    const storedTeams = localStorage.getItem('selectedTeams');
-    return storedTeams ? JSON.parse(storedTeams) : [];
-  }
+  const { gameResults } = data;
 
-  // Initialize teamNames with the value from localStorage or selectedTeams
-  let teamNames: string = $selectedTeams.join(', ') || getSelectedTeamsFromLocalStorage();
+  $: formattedTeams = Array.isArray(data.teams) ? data.teams.join(', ') : data.teams;
 
-  // Update localStorage when selectedTeams changes
-  $: localStorage.setItem('selectedTeams', JSON.stringify($selectedTeams));
+  $: pageTitle = `Games for Teams: ${formattedTeams || 'No Teams Selected'}`;
 
-	function capitalizeFirstChar(str: string) {
-		return str.charAt(0).toUpperCase() + str.slice(1);
-	};
-
-	// Clear selectedTeams store on component destruction
-	onDestroy(() => {
-    selectedTeams.set([]);
-  });
+  function capitalizeFirstChar(str: string) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
 </script>
 
 <section class="wrapper">
@@ -42,7 +27,7 @@
 						<h1>
 							Week {gameResult.week} Results for
 							<span class="header-teams" class:light={!$theme} class:dark={$theme}>
-								{teamNames}
+								{pageTitle}
 							</span>
 						</h1>
 
@@ -52,9 +37,9 @@
 									{gameResult.home_team} vs {gameResult.away_team}
 								</h2>
 
-								<h3>
+								<p id="week-subtitle">
 									Week {gameResult.week} - {capitalizeFirstChar(gameResult.season_type)} Season
-								</h3>
+								</p>
 
 								<!-- Scoreboard-like design for home and away points -->
 								<div class="scoreboard">
@@ -114,6 +99,12 @@
 		text-decoration: underline;
 		text-underline-offset: 2px;
 		text-decoration-thickness: 1px;
+	}
+
+	#week-subtitle {
+		margin-top: 1.75rem;
+		font-size: 1rem;
+		line-height: 1.25rem;
 	}
 
 	.wrapper {
@@ -245,8 +236,7 @@
 			line-height: 1.5rem;
 		}
 
-		h3 {
-			margin-top: 1.5rem;
+		#week-subtitle {
 			font-size: 0.875rem;
 			line-height: 1rem;
 		}

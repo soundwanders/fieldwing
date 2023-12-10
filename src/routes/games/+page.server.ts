@@ -57,7 +57,8 @@ export const load: PageServerLoad = async ({ params, url }) => {
 		const results = await Promise.all(fetchGameResultsPromises);
 
 		return {
-			gameResults: results
+			gameResults: results,
+			teams: teamArray
 		};
 	} catch (error) {
 		console.error(error);

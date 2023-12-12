@@ -40,8 +40,9 @@
 							<circle cx="12" cy="12" r="10" />
 							<polyline points="12 6 12 12 16 14" />
 						</svg>
-						<h3>Weekly Updates</h3>
-						<p>Stay in the game each week with your favorite teams.</p>
+
+						<h3>Explore Legacies</h3>
+						<p>Dive into the rich history of college football with comprehensive game results.</p>
 					</div>
 
 					<div class="landing-notifications">
@@ -59,8 +60,9 @@
 							<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
 							<path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
 						</svg>
-						<h3>Notifications</h3>
-						<p>Get real-time data straight from the sideline.</p>
+
+						<h3>Witness Rivalries</h3>
+						<p>Witness the intensity of historic rivalries through head-to-head matchup records.</p>	
 					</div>
 
 					<div class="landing-favorites">
@@ -79,8 +81,9 @@
 								points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
 							/>
 						</svg>
-						<h3>Favorites</h3>
-						<p>Receive personalized content curated just for you.</p>
+
+						<h3>Unlock Updates</h3>
+						<p>Stay connected every week with current data on all your favorite teams.</p>
 					</div>
 				</div>
 			</div>

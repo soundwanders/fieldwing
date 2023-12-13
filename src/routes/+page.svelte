@@ -250,15 +250,11 @@
 		}
 
 		.landing-hero h2 {
-			font-size: 2rem; /* 36px */
-			line-height: 2.5rem; /* 40px */
+			font-size: 2rem;
+			line-height: 2.5rem;
 			padding: 1.5rem 0 0 0;
 			max-width: 100%;
-		}
-
-		.landing-hero p {
-			margin: 0;
-		}
+  }
 
 		.landing-image {
 			display: none;

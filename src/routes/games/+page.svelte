@@ -1,36 +1,38 @@
 <!-- +page.svelte -->
 <script lang="ts">
-  import { theme } from '$lib/stores/theme';
-  import { formatStartDate } from '$lib/utils/formatStartDate';
-  import ResubmitSearch from '../../components/ResubmitSearch.svelte';
-  import '../../styles/main.css';
+	import { theme } from '$lib/stores/theme';
+	import { formatStartDate } from '$lib/utils/formatStartDate';
+	import ResubmitSearch from '../../components/ResubmitSearch.svelte';
+	import '../../styles/main.css';
 
-  export let data: { gameResults?: any[]; teams?: string[] };
+	export let data: { gameResults?: any[]; teams?: string[] };
 
-  const { gameResults } = data;
+	const { gameResults } = data;
 
-  $: formattedTeams = Array.isArray(data.teams) ? data.teams.join(', ') : data.teams;
+	$: formattedTeams = Array.isArray(data.teams) ? data.teams.join(', ') : data.teams;
 
-  $: pageTitle = `Games for Teams: ${formattedTeams || 'No Teams Selected'}`;
+	$: teamTitleList = `${formattedTeams || 'No Teams Selected'}`;
 
-  function capitalizeFirstChar(str: string) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  };
+	function capitalizeFirstChar(str: string) {
+		return str.charAt(0).toUpperCase() + str.slice(1);
+	}
 </script>
 
 <section class="wrapper">
 	<section class="results-section" class:light={!$theme} class:dark={$theme}>
 		<div class="results-container">
-			{#if gameResults}
-					{#each gameResults as { team, data } (team)}
-						{#each data as gameResult (gameResult.id)}
-						<h1>
-							Week {gameResult.week} Results for
-							<span class="header-teams" class:light={!$theme} class:dark={$theme}>
-								{pageTitle}
-							</span>
-						</h1>
+			{#if gameResults && gameResults[0]?.data[0]}
+				<h1>
+					Week {gameResults[0].data[0].week} Results for
+					<span class="header-teams" class:light={!$theme} class:dark={$theme}>
+						{teamTitleList}
+					</span>
+				</h1>
+			{/if}
 
+			{#if gameResults}
+				{#each gameResults as { team, data } (team)}
+					{#each data as gameResult (gameResult.id)}
 						<div class="game-results-container">
 							<div class="game-results" class:light={!$theme} class:dark={$theme}>
 								<h2 class="team-names" class:light={!$theme} class:dark={$theme}>
@@ -139,26 +141,26 @@
 
 	.game-results {
 		width: max-content;
-    text-align: center;
+		text-align: center;
 		padding: 0.5rem 2rem 1.5rem 2rem;
 		margin: 0.5rem 3rem;
 		margin-bottom: 1.25rem;
-    border: 1px solid #d1d5db;
-    border-radius: 5px;
-    box-sizing: border-box;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    background-color: var(--background-color);
-    color: var(--text-color);
-    transition: transform 0.2s ease;
+		border: 1px solid #d1d5db;
+		border-radius: 5px;
+		box-sizing: border-box;
+		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+		background-color: var(--background-color);
+		color: var(--text-color);
+		transition: transform 0.2s ease;
 	}
 
 	.team-names {
-    font-size: 1.75rem;
-    font-weight: bold;
+		font-size: 1.75rem;
+		font-weight: bold;
 		text-decoration: none;
 		margin-top: -1.5rem;
-    margin-bottom: 0.5rem;
-    color: var(--teams-color);
+		margin-bottom: 0.5rem;
+		color: var(--teams-color);
 	}
 
 	.team-names.dark {
@@ -168,16 +170,16 @@
 	.game-info {
 		margin-bottom: 0.25rem;
 	}
-	
+
 	.game-info:first-of-type {
 		margin-top: -0.125rem;
 	}
 
 	.scoreboard {
-    display: flex;
-    justify-content: space-evenly;
+		display: flex;
+		justify-content: space-evenly;
 		align-content: end;
-    margin: 0.5rem auto;
+		margin: 0.5rem auto;
 	}
 
 	.team-score {
@@ -245,7 +247,7 @@
 			font-size: 1.25rem;
 			line-height: 1.5rem;
 		}
-		
+
 		.game-info {
 			font-size: 0.875rem;
 			line-height: 1.25rem;

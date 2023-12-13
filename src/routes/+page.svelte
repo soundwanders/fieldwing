@@ -42,7 +42,7 @@
 						</svg>
 
 						<h3>Explore Legacies</h3>
-						<p>Dive into the rich history of college football with comprehensive game results.</p>
+						<p>Dive into the rich history of college football with comprehensive game results</p>
 					</div>
 
 					<div class="landing-notifications">
@@ -62,7 +62,7 @@
 						</svg>
 
 						<h3>Witness Rivalries</h3>
-						<p>Witness the intensity of historic rivalries through head-to-head matchup records.</p>	
+						<p>Witness the intensity of historic rivalries through head-to-head matchups</p>	
 					</div>
 
 					<div class="landing-favorites">
@@ -83,7 +83,7 @@
 						</svg>
 
 						<h3>Unlock Updates</h3>
-						<p>Stay connected every week with current data on all your favorite teams.</p>
+						<p>Stay connected every week with current data for all your favorite teams</p>
 					</div>
 				</div>
 			</div>

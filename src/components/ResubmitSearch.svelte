@@ -1,65 +1,72 @@
 <!-- ResubmitSearch.svelte -->
-
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import fbsData from '../data/fbs.json';
-	import fcsData from '../data/fcs.json';
-	import { selectedTeams } from '$lib/stores/store';
-	import { theme } from '$lib/stores/theme';
-	import { getCurrentWeek } from '$lib/utils/getCurrentWeek';
-	import { goto } from '$app/navigation';
+  import { onMount } from 'svelte';
+  import fbsData from '../data/fbs.json';
+  import fcsData from '../data/fcs.json';
+  import { selectedTeams } from '$lib/stores/store';
+  import { theme } from '$lib/stores/theme';
+  import { getCurrentWeek } from '$lib/utils/getCurrentWeek';
+  import { goto } from '$app/navigation';
 
-	let searchQuery: string = '';
-	let searchResults: string[] = [];
+  let searchQuery: string = '';
+  let searchResults: string[] = [];
 
-	let selectedWeek: number = 1;
+  let selectedWeek: number = 1;
 
-	const minQueryLength: number = 2;
+	let selectedTeamsArray = $selectedTeams;
 
-	function searchTeams() {
-		const query: string = searchQuery.toLowerCase();
+  const minQueryLength: number = 2;
 
-		if (query.length >= minQueryLength) {
-			searchResults = [...fbsData, ...fcsData].filter((team: string) => {
-				return team.toLowerCase().includes(query);
-			});
-		} else {
-			searchResults = [];
-		}
+  function searchTeams() {
+    const query: string = searchQuery.toLowerCase();
+
+    if (query.length >= minQueryLength) {
+      searchResults = [...fbsData, ...fcsData].filter((team: string) => {
+        return team.toLowerCase().includes(query);
+      });
+    } else {
+      searchResults = [];
+    }
+  };
+
+  function selectTeam(event: Event, team: string) {
+    event.preventDefault();
+
+    // Toggle selected team in the selectedTeams store
+    selectedTeams.update((selectedTeams: string[]) => {
+      if (selectedTeams.includes(team)) {
+        return selectedTeams.filter((selectedTeam) => selectedTeam !== team);
+      } else {
+        return [...selectedTeams, team];
+      }
+    });
+
+    // Trigger a re-render to update searchResults and highlight selected team
+    searchTeams();
+  }
+
+  // Update searchResults when the component mounts to handle pre-selected teams
+  onMount(() => {
+    searchTeams();
+
+    // Check if there's a week parameter in the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const weekParam = urlParams.get('week');
+
+    // Set selectedWeek based on the URL parameter or the current week
+    selectedWeek = weekParam ? parseInt(weekParam, 10) : getCurrentWeek();
+
+		selectedTeamsArray = $selectedTeams;
+  });
+
+	$: {
+		selectedTeamsArray = $selectedTeams;
 	}
-
-	function selectTeam(event: Event, team: string) {
-		event.preventDefault();
-
-		// Toggle selected team in the selectedTeams store
-		selectedTeams.update((selectedTeams: string[]) => {
-			if (selectedTeams.includes(team)) {
-				return selectedTeams.filter((selectedTeam) => selectedTeam !== team);
-			} else {
-				return [...selectedTeams, team];
-			}
-		});
-
-		// Trigger a re-render to update searchResults and highlight selected team
-		searchTeams();
-	}
-
-	// Update searchResults when the component mounts to handle pre-selected teams
-	onMount(() => {
-		searchTeams();
-
-		// Check if there's a week parameter in the URL
-		const urlParams = new URLSearchParams(window.location.search);
-		const weekParam = urlParams.get('week');
-
-		// Set selectedWeek based on the URL parameter or the current week
-		selectedWeek = weekParam ? parseInt(weekParam, 10) : getCurrentWeek();
-	});
 
 	function handleResubmit() {
-		// Use goto to navigate to the results page with the selected teams as a query parameter in the URL
-		goto(`/games?teams=${selectedTeams}`);
-	}
+    // Use goto to navigate to the results page with the selected teams as a query parameter in the URL
+    goto(`/games?teams=${selectedTeamsArray.join(',')}&week=${selectedWeek}`);
+  };
 </script>
 
 <div class="resubmit-container" class:light={!$theme} class:dark={$theme}>

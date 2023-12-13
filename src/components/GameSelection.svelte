@@ -5,14 +5,14 @@
 	import { theme } from '$lib/stores/theme';
 	import { onMount } from 'svelte';
 	import { getCurrentYear } from '$lib/utils/getCurrentYear';
-	
+
 	export let leagues: string[];
 	export let selectedLeague: string;
 
 	let selectedTeamsArray = $selectedTeams;
 	let teams: string[] = [];
 	let selectedWeek: number = 1;
-  let selectedYear: number = new Date().getFullYear(); 
+	let selectedYear: number = new Date().getFullYear();
 
 	// currentYear placeholder for select-year input element
 	const currentYear = getCurrentYear();
@@ -72,19 +72,32 @@
 				<div class="team-selector-wrapper">
 					<!-- Dropdown container for team lists -->
 					<label for="league-select">Select a Conference:</label>
-					<select class="conferences-dropdown" id="league-select" class:light={!$theme} class:dark={$theme} bind:value={selectedLeague} on:change={loadTeams}>
+					<select
+						class="conferences-dropdown"
+						id="league-select"
+						class:light={!$theme}
+						class:dark={$theme}
+						bind:value={selectedLeague}
+						on:change={loadTeams}
+					>
 						<option value="" disabled>...</option>
 						{#each leagues as league}
-								<option value={league}>{league}</option>
+							<option value={league}>{league}</option>
 						{/each}
 					</select>
 				</div>
 
 				<div class="team-selector-wrapper">
 					<label for="select-week">Select Week:</label>
-					<select class="weeks-dropdown" id="select-week" class:light={!$theme} class:dark={$theme} bind:value={selectedWeek}>
+					<select
+						class="weeks-dropdown"
+						id="select-week"
+						class:light={!$theme}
+						class:dark={$theme}
+						bind:value={selectedWeek}
+					>
 						{#each [...Array(17).keys()] as week}
-								<option value={week + 1}>{week + 1}</option>
+							<option value={week + 1}>{week + 1}</option>
 						{/each}
 					</select>
 				</div>
@@ -92,7 +105,17 @@
 				<!-- New dropdown for selecting the year -->
 				<div class="team-selector-wrapper">
 					<label for="select-year">Select Year:</label>
-					<input type="number" class="year-input" id="select-year" class:light={!$theme} class:dark={$theme} bind:value={selectedYear} min={1900} max={currentYear} placeholder={yearString} />
+					<input
+						type="number"
+						class="year-input"
+						id="select-year"
+						class:light={!$theme}
+						class:dark={$theme}
+						bind:value={selectedYear}
+						min={1900}
+						max={currentYear}
+						placeholder={yearString}
+					/>
 				</div>
 			</div>
 
@@ -104,7 +127,9 @@
 								<li class="teams-container-list-item">
 									<button
 										on:mousedown={(event) => toggleSelection(event, team)}
-										class="teams-button" class:light={!$theme} class:dark={$theme}
+										class="teams-button"
+										class:light={!$theme}
+										class:dark={$theme}
 										class:selected={$selectedTeams.includes(team)}
 										tabindex="0"
 									>
@@ -140,7 +165,7 @@
 		<!-- Only enable submit button to redirect to games page if there are selected teams -->
 		<a
 			href={selectedTeamsArray.length > 0
-        ? `/games?teams=${selectedTeamsArray.join(',')}&year=${selectedYear}&week=${selectedWeek}`
+				? `/games?teams=${selectedTeamsArray.join(',')}&year=${selectedYear}&week=${selectedWeek}`
 				: '#'}
 			data-sveltekit-prefetch
 		>
@@ -184,7 +209,7 @@
 		padding: 1.5rem;
 		background-color: var(--form-background-color) !important;
 		color: var(--form-text-color) !important;
-    transition: background-color 0.2s ease;
+		transition: background-color 0.2s ease;
 	}
 
 	.selector-form.dark {
@@ -216,28 +241,32 @@
 		position: relative;
 		background-color: transparent;
 	}
-	
-	.conferences-dropdown, .weeks-dropdown, .year-input {
+
+	.conferences-dropdown,
+	.weeks-dropdown,
+	.year-input {
 		background-color: var(--form-sub-background-color);
 	}
 
-	.conferences-dropdown.dark, .weeks-dropdown.dark, .year-input.dark {
+	.conferences-dropdown.dark,
+	.weeks-dropdown.dark,
+	.year-input.dark {
 		background-color: var(--form-sub-background-color-dark);
 	}
 
 	/* Teams Container Select Elements */
-  #league-select,
-  #select-week,
+	#league-select,
+	#select-week,
 	#select-year {
 		margin-top: 0.25rem;
 		padding: 0.5rem;
 		font-size: 0.875rem;
 		line-height: 1.25rem;
-    border: 1px solid #ced4da;
-    border-radius: 0.25rem;
+		border: 1px solid #ced4da;
+		border-radius: 0.25rem;
 		color: inherit;
 	}
-	
+
 	#select-year {
 		max-width: 6rem;
 	}
@@ -314,7 +343,7 @@
 	.teams-button.dark:hover {
 		background-color: var(--highlight-color-dark);
 	}
-  
+
 	.select-conference-placeholder {
 		padding: 0 0.25rem;
 		font-size: 0.875rem;
@@ -385,7 +414,7 @@
 		transition: background-color 0.2s ease-in-out;
 		box-sizing: border-box;
 	}
-	
+
 	.selected-teams button:hover {
 		background-color: var(--highlight-color);
 	}
@@ -396,9 +425,9 @@
 
 	/* Submit Button Styles */
 	.button-container {
-    width: 100%;
-    display: flex;
-    justify-content: center;
+		width: 100%;
+		display: flex;
+		justify-content: center;
 		margin: 2rem 0;
 	}
 
@@ -417,14 +446,14 @@
 		opacity: 0.9;
 	}
 
-  .submit-button:disabled {
-    background-color: #525252;
-    cursor: not-allowed;
-  }
+	.submit-button:disabled {
+		background-color: #525252;
+		cursor: not-allowed;
+	}
 
-  .submit-button:hover:disabled {
-    background-color: #404040;
-  }
+	.submit-button:hover:disabled {
+		background-color: #404040;
+	}
 
 	.light {
 		background-color: #f9f9f9;

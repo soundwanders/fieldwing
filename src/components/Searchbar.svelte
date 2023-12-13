@@ -50,7 +50,9 @@
 		<label for="teamSearch">Search for a Team:</label>
 		<input
 			type="text"
-			class="team-searchbar" class:light={!$theme} class:dark={$theme}
+			class="team-searchbar"
+			class:light={!$theme}
+			class:dark={$theme}
 			id="teamSearch"
 			bind:value={searchQuery}
 			placeholder="Enter team name"

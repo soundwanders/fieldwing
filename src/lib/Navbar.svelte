@@ -1,6 +1,5 @@
 <script>
 	import { theme } from '$lib/stores/theme.js';
-	import { onMount } from 'svelte';
 	import ThemeIcons from '../components/ThemeIcons.svelte';
 
 	function toggleTheme() {
@@ -9,7 +8,7 @@
 			localStorage.setItem('theme', newTheme ? 'dark' : 'light');
 			return newTheme;
 		});
-	};
+	}
 </script>
 
 <div class="nav-container">
@@ -23,6 +22,17 @@
 			aria-label="Go to Home"
 		>
 			Fieldwing
+		</a>
+
+		<a
+			id="matchup-shortcut"
+			class="link"
+			class:light={!$theme}
+			class:dark={$theme}
+			href="/matchup"
+			aria-label="Go to Team Selection page"
+		>
+			Matchup
 		</a>
 
 		<a
@@ -94,7 +104,8 @@
 	}
 
 	#home-shortcut,
-	#selection-shortcut {
+	#selection-shortcut,
+	#matchup-shortcut {
 		padding: 1rem;
 		font-size: 0.875rem;
 		line-height: 1.25rem;
@@ -103,7 +114,6 @@
 	}
 
 	#selection-shortcut {
-		margin-left: 2rem;
 		margin-right: auto;
 	}
 

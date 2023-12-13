@@ -28,7 +28,7 @@
 		flex-wrap: wrap;
 		justify-content: center;
 		gap: 1rem;
-		color: inherit;	
+		color: inherit;
 		font-size: 0.75rem;
 		line-height: 1rem;
 	}

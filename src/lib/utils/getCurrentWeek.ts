@@ -7,4 +7,4 @@ export function getCurrentWeek(): number {
 		(currentDate.getTime() - collegeFootballStartDate.getTime()) / millisecondsPerWeek
 	);
 	return currentWeek;
-};
+}

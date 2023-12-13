@@ -19,7 +19,7 @@
 				</div>
 
 				<div class="landing-image">
-					<img src="/gameday.svg" alt="Game Day" class="hero-image"/>
+					<img src="/gameday.svg" alt="Game Day" class="hero-image" />
 				</div>
 			</div>
 
@@ -62,7 +62,7 @@
 						</svg>
 
 						<h3>Witness Rivalries</h3>
-						<p>Witness the intensity of historic rivalries through head-to-head matchups</p>	
+						<p>Witness the intensity of historic rivalries through head-to-head matchups</p>
 					</div>
 
 					<div class="landing-favorites">
@@ -255,7 +255,6 @@
 			padding: 1.5rem 0 0 0;
 			max-width: 100%;
 		}
-
 
 		.landing-hero p {
 			margin: 0;

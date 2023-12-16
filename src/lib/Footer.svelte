@@ -4,9 +4,11 @@
 
 <footer class="footer">
 	<nav class:light={!$theme} class:dark={$theme}>
-		<a href="#tos">Terms of Service</a>
-		<a href="#github">Github</a>
-		<a href="#faq">FAQ</a>
+		<a href="/tos">Terms of Service</a>
+		<a href="https://github.com/soundwanders" target="_blank">Github</a>
+		<a href="https://api.collegefootballdata.com/api/docs/?url=/api-docs.json" target="_blank"
+			>API</a
+		>
 	</nav>
 
 	<div id="made-with-love">

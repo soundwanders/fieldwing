@@ -81,11 +81,6 @@
 </section>
 
 <style>
-	:root {
-		--teams-color: #ee0000;
-		--teams-color-dark: #ff9195;
-	}
-
 	h1 {
 		max-inline-size: 50ch;
 		text-wrap: balance;

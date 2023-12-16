@@ -3,7 +3,7 @@
 <script lang="ts">
 	import { selectedTeams } from '$lib/stores/store';
 	import { theme } from '$lib/stores/theme';
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import { getCurrentYear } from '$lib/utils/getCurrentYear';
 
 	export let leagues: string[];
@@ -87,6 +87,7 @@
 					</select>
 				</div>
 
+				<!-- Dropdown for selecting the week -->
 				<div class="team-selector-wrapper">
 					<label for="select-week">Select Week:</label>
 					<select
@@ -102,7 +103,7 @@
 					</select>
 				</div>
 
-				<!-- New dropdown for selecting the year -->
+				<!-- Dropdown for selecting the year -->
 				<div class="team-selector-wrapper">
 					<label for="select-year">Select Year:</label>
 					<input
@@ -126,7 +127,10 @@
 							{#each teams as team}
 								<li class="teams-container-list-item">
 									<button
-										on:mousedown={(event) => toggleSelection(event, team)}
+										on:mousedown={(event) => {
+											event.preventDefault();
+											toggleSelection(event, team);
+										}}
 										class="teams-button"
 										class:light={!$theme}
 										class:dark={$theme}
@@ -150,7 +154,12 @@
 			<ul>
 				{#each selectedTeamsArray.filter(Boolean) as selectedTeam (selectedTeam)}
 					<li class="selected-teams-list-items">
-						<button on:mousedown={(event) => toggleSelection(event, selectedTeam)}>
+						<button
+							on:mousedown={(event) => {
+								event.preventDefault();
+								toggleSelection(event, selectedTeam);
+							}}
+						>
 							{selectedTeam}
 						</button>
 					</li>
@@ -435,9 +444,9 @@
 		border: none;
 		border-radius: 0.5rem;
 		font-size: 1rem;
-		padding: 0.3rem 0.75rem;
-		background-color: var(--primary-color);
+		padding: 0.25rem 0.5rem;
 		color: #fff;
+		background-color: var(--primary-color);
 		cursor: pointer;
 		transition: background-color 0.2s ease-in-out;
 	}

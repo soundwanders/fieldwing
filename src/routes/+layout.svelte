@@ -14,6 +14,7 @@
 <style>
 	:root {
 		--primary-color: #424ae1;
+    --primary-hover-color: #0056b3;
 		--highlight-text-color: #18181b;
 		--highlight-color: #b2e7cb;
 		--highlight-color-dark: #336699;

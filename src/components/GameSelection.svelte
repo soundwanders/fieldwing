@@ -216,14 +216,9 @@
 		border-radius: 0.375rem;
 		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 		padding: 1.5rem;
-		background-color: var(--form-background-color) !important;
-		color: var(--form-text-color) !important;
+		background-color: var(--form-background-color);
+		color: var(--form-text-color);
 		transition: background-color 0.2s ease;
-	}
-
-	.selector-form.dark {
-		background-color: var(--form-background-color-dark) !important;
-		color: var(--form-text-color-dark) !important;
 	}
 
 	.selector-form h2 {
@@ -255,12 +250,6 @@
 	.weeks-dropdown,
 	.year-input {
 		background-color: var(--form-sub-background-color);
-	}
-
-	.conferences-dropdown.dark,
-	.weeks-dropdown.dark,
-	.year-input.dark {
-		background-color: var(--form-sub-background-color-dark);
 	}
 
 	/* Teams Container Select Elements */
@@ -307,10 +296,6 @@
 		background-color: var(--form-sub-background-color);
 	}
 
-	.teams-container.dark {
-		background-color: var(--form-sub-background-color-dark);
-	}
-
 	.teams-container ul {
 		list-style: none;
 		padding: 0;
@@ -341,16 +326,8 @@
 		background-color: var(--highlight-color);
 	}
 
-	.teams-button.dark.selected {
-		background-color: var(--highlight-color-dark);
-	}
-
 	.teams-button:hover {
 		background-color: var(--highlight-color);
-	}
-
-	.teams-button.dark:hover {
-		background-color: var(--highlight-color-dark);
 	}
 
 	.select-conference-placeholder {
@@ -371,13 +348,8 @@
 		border-radius: 0.375rem;
 		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 		overflow-y: auto;
-		background-color: var(--form-background-color) !important;
-		color: var(--form-text-color) !important;
-	}
-
-	.selected-teams.dark {
-		background-color: var(--form-background-color-dark) !important;
-		color: var(--form-text-color-dark) !important;
+		background-color: var(--form-background-color);
+		color: var(--form-text-color);
 	}
 
 	.selected-teams h2 {
@@ -420,16 +392,12 @@
 		background-color: inherit;
 		color: inherit;
 		cursor: pointer;
-		transition: background-color 0.2s ease-in-out;
 		box-sizing: border-box;
+		transition: background-color 0.2s ease-in-out;
 	}
 
 	.selected-teams button:hover {
 		background-color: var(--highlight-color);
-	}
-
-	.selected-teams.dark button:hover {
-		background-color: var(--highlight-color-dark);
 	}
 
 	/* Submit Button Styles */
@@ -444,7 +412,7 @@
 		border: none;
 		border-radius: 0.5rem;
 		font-size: 1rem;
-		padding: 0.25rem 0.5rem;
+		padding: 0.25rem 0.675rem;
 		color: #fff;
 		background-color: var(--primary-color);
 		cursor: pointer;
@@ -465,13 +433,23 @@
 	}
 
 	.light {
-		background-color: #f9f9f9;
-		color: #1a202c;
+		--background-color: #f9f9f9;
+		--text-color: #1a202c;
+		--form-background-color: #f0f0f0;
+		--form-sub-background-color: #eff4f1;
+		--form-text-color: #09090b;
+		--highlight-text-color: #18181b;
+		--highlight-color: #b2e7cb;
 	}
 
 	.dark {
-		background-color: #1a202c;
-		color: #f9f9f9;
+		--background-color: #1a202c;
+		--text-color: #f9f9f9;
+		--form-background-color: #1d232e;
+		--form-sub-background-color: #242b38;
+		--form-text-color: #f8fafc;
+		--highlight-text-color: #f9f9f9;
+		--highlight-color: #336699;
 	}
 
 	/* Media query for mobile devices */

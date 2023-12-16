@@ -209,18 +209,18 @@
 		background-color: var(--highlight-color);
 	}
 
-	button.dark.selected {
-		background-color: var(--highlight-color-dark);
-	}
-
 	.light {
-		background-color: #f9f9f9;
-		color: #1a202c;
+		--background-color: #f9f9f9;
+		--text-color: #1a202c;
+		--highlight-text-color: #18181b;
+		--highlight-color: #b2e7cb;
 	}
 
 	.dark {
-		background-color: #1a202c;
-		color: #f9f9f9;
+		--background-color: #1a202c;
+		--text-color: #f9f9f9;
+		--highlight-text-color: #f9f9f9;
+		--highlight-color: #336699;
 	}
 
 	/* Media query for mobile devices */

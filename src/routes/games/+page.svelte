@@ -81,6 +81,11 @@
 </section>
 
 <style>
+	.wrapper {
+		width: 100vw;
+		height: 100vh;
+	}
+
 	h1 {
 		max-inline-size: 50ch;
 		text-wrap: balance;
@@ -96,17 +101,6 @@
 		text-decoration: underline;
 		text-underline-offset: 2px;
 		text-decoration-thickness: 1px;
-	}
-
-	#week-subtitle {
-		margin-top: 1.75rem;
-		font-size: 1rem;
-		line-height: 1.25rem;
-	}
-
-	.wrapper {
-		width: 100vw;
-		height: 100vh;
 	}
 
 	.results-section {
@@ -155,11 +149,9 @@
 		text-decoration: none;
 		margin-top: -1.5rem;
 		margin-bottom: 0.5rem;
+		background-color: var(--background-color);
 		color: var(--teams-color);
-	}
-
-	.team-names.dark {
-		color: var(--teams-color-dark);
+		z-index: 10;
 	}
 
 	.game-info {
@@ -185,6 +177,12 @@
 		font-weight: bold;
 	}
 
+	#week-subtitle {
+		margin-top: 1.75rem;
+		font-size: 1rem;
+		line-height: 1.25rem;
+	}
+
 	.points {
 		font-size: 1.75rem;
 		line-height: 2.25rem;
@@ -192,13 +190,15 @@
 	}
 
 	.light {
-		background-color: #f9f9f9;
-		color: #1a202c;
+		--background-color: #f9f9f9;
+		--text-color: #1a202c;
+		--teams-color: #bb0000;
 	}
 
 	.dark {
-		background-color: #1a202c;
-		color: #f9f9f9;
+		--background-color: #1a202c;
+		--text-color: #f9f9f9;
+		--teams-color: #ff9195;
 	}
 
 	/* Media query for mobile devices */

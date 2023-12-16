@@ -168,16 +168,6 @@
 		cursor: pointer;
 	}
 
-	.get-started.light {
-		background-color: var(--get-started-background-color-light);
-		color: var(--get-started-text-color-light);
-	}
-
-	.get-started.dark {
-		background-color: var(--get-started-background-color-dark);
-		color: var(--get-started-text-color-dark);
-	}
-
 	.get-started:hover {
 		opacity: 0.9;
 	}
@@ -203,7 +193,7 @@
 		align-items: center;
 		gap: 1rem;
 		padding: 0 2rem;
-		margin-top: 2.5rem;
+		margin-top: 3rem;
 	}
 
 	.landing-details > div > p {
@@ -222,13 +212,17 @@
 	}
 
 	.light {
-		background-color: #f9f9f9;
-		color: #1a202c;
+		--background-color: #f9f9f9;
+		--text-color: #1a202c;
+		--get-started-background-color: #293545;
+		--get-started-text-color: #f9f9f9;
 	}
 
 	.dark {
-		background-color: #1a202c;
-		color: #f9f9f9;
+		--background-color: #1a202c;
+		--text-color: #f9f9f9;
+		--get-started-background-color: #cbd5e1;
+		--get-started-text-color: #09090b;
 	}
 
 	/* Media query for mobile devices */

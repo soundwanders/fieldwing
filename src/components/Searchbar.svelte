@@ -115,11 +115,6 @@
 		box-sizing: border-box;
 	}
 
-	.team-searchbar.dark {
-		background-color: var(--form-background-color-dark);
-		color: var(--form-text-color-dark);
-	}
-
 	.search-results {
 		width: 100%;
 		min-height: 130px;
@@ -134,11 +129,6 @@
 		color: var(--form-text-color);
 		box-sizing: border-box;
 		overflow-y: auto;
-	}
-
-	.search-results.dark {
-		background-color: var(--form-background-color-dark);
-		color: var(--form-text-color-dark);
 	}
 
 	.team-list-items {
@@ -163,8 +153,21 @@
 		background-color: var(--highlight-color);
 	}
 
-	button.dark.selected {
-		background-color: var(--highlight-color-dark);
+	.light {
+		--form-background-color: #f0f0f0;
+		--form-sub-background-color: #eff4f1;
+		--form-text-color: #09090b;
+		--highlight-text-color: #18181b;
+		--highlight-color: #b2e7cb;
+	}
+
+	.dark {
+		--form-background-color: #1d232e;
+		--form-sub-background-color: #242b38;
+		--form-text-color: #09090b;
+		--form-text-color: #f8fafc;
+		--highlight-text-color: #f9f9f9;
+		--highlight-color: #336699;
 	}
 
 	/* Media query for mobile devices */

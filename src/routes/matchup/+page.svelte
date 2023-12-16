@@ -20,4 +20,13 @@
 	section {
 		min-height: 100vh;
 	}
+
+	/* Media query for mobile devices */
+	@media (max-width: 768px) {
+		section {
+			min-height: 100%;
+			width: 100%;
+			height: 100%;
+		}
+	}
 </style>

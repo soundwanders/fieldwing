@@ -265,6 +265,10 @@
 			padding: 2rem;
 		}
 
+		.landing-details:first-of-type {
+			margin-top: -0.5rem;
+		}
+
 		.landing-details > div {
 			margin-top: 0;
 		}

@@ -32,7 +32,7 @@
 			href="/selection"
 			aria-label="Go to Team Selection page"
 		>
-			Select Teams
+			Game Data
 		</a>
 
 		<a
@@ -43,7 +43,7 @@
 			href="/matchup"
 			aria-label="Go to Team Selection page"
 		>
-			Head-to-Head
+			Matchups
 		</a>
 
 		<span id="button-wrapper">
@@ -158,7 +158,9 @@
 		#home-shortcut,
 		#selection-shortcut,
 		#matchup-shortcut {
-			padding: 1rem 1.5rem;
+			font-size: 0.75rem;
+			line-height: 1rem;
+			padding: 1rem;
 		}
 
 		button {

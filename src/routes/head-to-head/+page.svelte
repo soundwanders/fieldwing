@@ -1,17 +1,21 @@
 <!-- +page.svelte -->
 <script lang="ts">
 	import { theme } from '$lib/stores/theme';
-	import { selectedTeams } from '$lib/stores/store';
+	import { selectedMatchupTeams } from '$lib/stores/store';
 	import '../../styles/main.css';
-
-	let team1: string;
-	let team2: string;
 
 	export let data: { matchupData?: any[] };
 	const { matchupData } = data;
+	
+	let team1: string;
+	let team2: string;
 
 	let teamNames: string;
-	$: teamNames = `${team1} vs ${team2}`;
+	$: {
+		team1 = $selectedMatchupTeams[0];
+		team2 = $selectedMatchupTeams[1];
+		teamNames = `${team1} vs ${team2}`;
+	}
 
 	console.log('matchupData', matchupData);
 </script>

@@ -3,11 +3,11 @@
 <script lang="ts">
 	import { selectedTeams } from '$lib/stores/store';
 	import { theme } from '$lib/stores/theme';
-	import { onDestroy, onMount } from 'svelte';
+	import { onMount } from 'svelte';
 	import { getCurrentYear } from '$lib/utils/getCurrentYear';
 
-	export let leagues: string[];
-	export let selectedLeague: string;
+	export let conferences: string[];
+	export let selectedConference: string;
 
 	let selectedTeamsArray = $selectedTeams;
 	let teams: string[] = [];
@@ -19,17 +19,17 @@
 	const yearString = getCurrentYear().toString();
 
 	function loadTeams() {
-		if (selectedLeague === 'All') {
+		if (selectedConference === 'All') {
 			import('../data/fbs.json').then((fbsData) => {
 				import('../data/fcs.json').then((fcsData) => {
 					teams = [...fbsData.default, ...fcsData.default];
 				});
 			});
-		} else if (selectedLeague === 'FBS') {
+		} else if (selectedConference === 'FBS') {
 			import('../data/fbs.json').then((data) => {
 				teams = data.default;
 			});
-		} else if (selectedLeague === 'FCS') {
+		} else if (selectedConference === 'FCS') {
 			import('../data/fcs.json').then((data) => {
 				teams = data.default;
 				selectedTeamsArray = $selectedTeams;
@@ -71,18 +71,18 @@
 			<div class="selector-container">
 				<div class="team-selector-wrapper">
 					<!-- Dropdown container for team lists -->
-					<label for="league-select">Select a Conference:</label>
+					<label for="conference-select">Select a Conference:</label>
 					<select
 						class="conferences-dropdown"
-						id="league-select"
+						id="conference-select"
 						class:light={!$theme}
 						class:dark={$theme}
-						bind:value={selectedLeague}
+						bind:value={selectedConference}
 						on:change={loadTeams}
 					>
 						<option value="" disabled>...</option>
-						{#each leagues as league}
-							<option value={league}>{league}</option>
+						{#each conferences as conference}
+							<option value={conference}>{conference}</option>
 						{/each}
 					</select>
 				</div>
@@ -253,7 +253,7 @@
 	}
 
 	/* Teams Container Select Elements */
-	#league-select,
+	#conference-select,
 	#select-week,
 	#select-year {
 		margin-top: 0.25rem;

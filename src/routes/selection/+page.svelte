@@ -1,18 +1,18 @@
 <script>
 	import Selection from '../../components/GameSelection.svelte';
-	import Footer from '$lib/Footer.svelte';
 	import Searchbar from '../../components/Searchbar.svelte';
+	import Footer from '$lib/Footer.svelte';
 	import '../../styles/main.css';
 
-	let leagues = ['All', 'FBS', 'FCS'];
-	let selectedLeague = '';
+	let conferences = ['All', 'FBS', 'FCS'];
+	let selectedConference = '';
 </script>
 
 <div class="selection-page">
 	<main>
 		<section>
 			<Searchbar />
-			<Selection {leagues} {selectedLeague} />
+			<Selection {conferences} {selectedConference} />
 		</section>
 	</main>
 

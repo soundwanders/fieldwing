@@ -1,50 +1,39 @@
 <!-- MatchupSelection.svelte -->
+
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { goto } from '$app/navigation';
 	import { selectedMatchupTeams } from '$lib/stores/store';
 	import { theme } from '$lib/stores/theme';
-	import fbsData from '../data/fbs.json';
-	import fcsData from '../data/fcs.json';
+
+	export let conferences: string[];
+	export let selectedConference: string;
 
 	let minYear = '';
 	let maxYear = '';
-	let team1: string = '';
-	let team2: string = '';
-	let selectedConference: string = '';
+
+	let teams: string[] = [];
 
 	let selectedTeamsArray = $selectedMatchupTeams;
 
-	const fbsTeams: string[] = fbsData;
-	const fcsTeams: string[] = fcsData;
-
-	// Filtered teams based on the selected conference
-	let filteredTeams: string[] = [];
-
-	function updateFilteredTeams() {
-		if (selectedConference === 'FBS') {
-			filteredTeams = fbsTeams;
+	function loadTeams() {
+		if (selectedConference === 'All') {
+			import('../data/fbs.json').then((fbsData) => {
+				import('../data/fcs.json').then((fcsData) => {
+					teams = [...fbsData.default, ...fcsData.default];
+				});
+			});
+		} else if (selectedConference === 'FBS') {
+			import('../data/fbs.json').then((data) => {
+				teams = data.default;
+			});
 		} else if (selectedConference === 'FCS') {
-			filteredTeams = fcsTeams;
-		} else if (selectedConference === 'All') {
-			filteredTeams = [...fbsTeams, ...fcsTeams];
+			import('../data/fcs.json').then((data) => {
+				teams = data.default;
+				selectedTeamsArray = $selectedMatchupTeams;
+			});
 		} else {
-			filteredTeams = [];
+			teams = [];
 		}
-	}
-
-	function handleSubmit() {
-		const [selectedTeam1, selectedTeam2] = $selectedMatchupTeams;
-
-		// Navigate to the matchup route
-		// Construct URL with selected teams, conference, and optional min/max years as query parameters
-		goto(
-			`/matchup?team1=${encodeURIComponent(selectedTeam1)}&team2=${encodeURIComponent(
-				selectedTeam2
-			)}&conference=${encodeURIComponent(selectedConference)}${
-				minYear ? `&minYear=${minYear}` : ''
-			}${maxYear ? `&maxYear=${maxYear}` : ''}`
-		);
 	}
 
 	onMount(() => {
@@ -53,7 +42,6 @@
 
 	$: {
 		selectedTeamsArray = $selectedMatchupTeams;
-		updateFilteredTeams();
 	}
 </script>
 
@@ -64,34 +52,48 @@
 
 			<div class="selector-container">
 				<div class="team-selector-wrapper">
-					<label for="conference-select">Select Conference:</label>
+					<!-- Dropdown container for team lists -->
+					<label for="conference-select">Select a Conference:</label>
 					<select
+						class="conferences-dropdown"
 						id="conference-select"
-						bind:value={selectedConference}
 						class:light={!$theme}
 						class:dark={$theme}
+						bind:value={selectedConference}
+						on:change={loadTeams}
 					>
-						<option value="FBS">FBS</option>
-						<option value="FCS">FCS</option>
-						<option value="all">All</option>
+						<option value="" disabled>...</option>
+						{#each conferences as conference}
+							<option value={conference}>{conference}</option>
+						{/each}
 					</select>
 				</div>
 
 				<div class="team-selector-wrapper">
 					<label for="team1-select">Select Team 1:</label>
-					<select id="team1-select" bind:value={team1} class:light={!$theme} class:dark={$theme}>
-						{#each filteredTeams as team}
-							<option value={team}>{team}</option>
-						{/each}
+					<select
+						id="team1-select"
+						bind:value={selectedTeamsArray[0]}
+						class:light={!$theme}
+						class:dark={$theme}
+					>
+            {#each teams as team}
+              <option value={team}>{team}</option>
+            {/each}
 					</select>
 				</div>
 
 				<div class="team-selector-wrapper">
 					<label for="team2-select">Select Team 2:</label>
-					<select id="team2-select" bind:value={team2} class:light={!$theme} class:dark={$theme}>
-						{#each filteredTeams as team}
-							<option value={team}>{team}</option>
-						{/each}
+					<select
+						id="team1-select"
+						bind:value={selectedTeamsArray[1]}
+						class:light={!$theme}
+						class:dark={$theme}
+					>
+            {#each teams.filter(team => team !== selectedTeamsArray[0]) as team}
+              <option value={team}>{team}</option>
+            {/each}
 					</select>
 				</div>
 
@@ -120,16 +122,23 @@
 
 			<div class="button-container">
 				<a
-					href={team1 && team2
-						? `/matchup?team1=${encodeURIComponent(team1)}&team2=${encodeURIComponent(
-								team2
-						  )}&conference=${encodeURIComponent(selectedConference)}${
-								minYear ? `&minYear=${minYear}` : ''
-						  }${maxYear ? `&maxYear=${maxYear}` : ''}`
+					href={selectedTeamsArray
+						? `/matchup?team1=${encodeURIComponent(
+								selectedTeamsArray[0]
+						  )}&team2=${encodeURIComponent(selectedTeamsArray[1])}
+            &conference=${encodeURIComponent(selectedConference)}
+            ${minYear ? `&minYear=${minYear}` : ''}
+            ${maxYear ? `&maxYear=${maxYear}` : ''}`
 						: '#'}
 					data-sveltekit-prefetch
 				>
-					<button type="button" class="submit-button" disabled={!team1 || !team2}> Submit </button>
+					<button
+						type="button"
+						class="submit-button"
+						disabled={!selectedTeamsArray[0] || !selectedTeamsArray[1]}
+					>
+						Submit
+					</button>
 				</a>
 			</div>
 		</form>

@@ -46,68 +46,94 @@
 </script>
 
 <div class="search-wrapper">
-	<div class="search-container">
-		<label for="teamSearch">Search for a Team:</label>
-		<input
-			type="text"
-			class="team-searchbar"
-			class:light={!$theme}
-			class:dark={$theme}
-			id="teamSearch"
-			bind:value={searchQuery}
-			placeholder="Enter team name"
-			on:input={searchTeams}
-		/>
+	<div class="search-flex-container">
+		<div class="label-wrapper">
+			<label for="teamSearch">Search for a Team:</label>
+		</div>
 
-		<p id="search-query">
-			You searched for:
-			<span class="query-result">{searchQuery}</span>
-		</p>
+		<div class="input-wrapper">
+			<input
+				type="text"
+				class="team-searchbar"
+				class:light={!$theme}
+				class:dark={$theme}
+				id="teamSearch"
+				bind:value={searchQuery}
+				placeholder="Enter team name"
+				on:input={searchTeams}
+			/>
+		</div>
+	</div>
 
-		<div class="search-results" class:light={!$theme} class:dark={$theme}>
-			{#if searchResults.length > 0}
-				<ul class="team-list">
-					{#each searchResults as team (team)}
-						<li class="team-list-items">
-							<button
-								class="teams-button"
-								on:mousedown={(event) => selectTeam(event, team)}
-								class:selected={$selectedTeams.includes(team)}
-								class:light={!$theme}
-								class:dark={$theme}
-								tabindex="0"
-							>
-								{team}
-							</button>
-						</li>
-					{/each}
-				</ul>
-			{:else if searchQuery.length >= minQueryLength}
-				<p>No teams found!</p>
-			{/if}
+	<div class="search-flex-container">
+		<div class="label-wrapper">
+			<p id="search-query">
+				You searched for:
+				<span class="query-result">{searchQuery}</span>
+			</p>
+		</div>
+
+		<div class="input-wrapper">
+			<div class="search-results" class:light={!$theme} class:dark={$theme}>
+				{#if searchResults.length > 0}
+					<ul class="team-list">
+						{#each searchResults as team (team)}
+							<li class="team-list-items">
+								<button
+									class="teams-button"
+									on:mousedown={(event) => selectTeam(event, team)}
+									class:selected={$selectedTeams.includes(team)}
+									class:light={!$theme}
+									class:dark={$theme}
+									tabindex="0"
+								>
+									{team}
+								</button>
+							</li>
+						{/each}
+					</ul>
+				{:else if searchQuery.length >= minQueryLength}
+					<p>No teams found!</p>
+				{/if}
+			</div>
 		</div>
 	</div>
 </div>
 
 <style module>
 	.search-wrapper {
-		width: 100%;
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		flex-direction: column;
 	}
 
-	label {
-		padding: 2rem 0;
-		font-weight: bold;
+	.search-flex-container {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 1rem;
 	}
 
 	.team-searchbar {
-		width: 100%;
-		padding: 10px 0;
-		padding-left: 10px;
+		flex-grow: 1;
+		height: 2.5rem;
+		padding: 0.3rem;
 		margin: 0.75rem 0;
+		box-sizing: border-box;
+		border: 1px solid #d1d5db;
+		border-radius: 0.25rem;
+		background-color: var(--form-background-color);
+		color: var(--form-text-color);
+	}
+
+	.search-results {
+		flex-grow: 1;
+		height: 2.5rem;
+		width: 300px;
+		overflow-y: auto;
+		padding: 0.3rem;
+		margin-top: 0.5rem;
 		border: 1px solid #d1d5db;
 		border-radius: 0.25rem;
 		background-color: var(--form-background-color);
@@ -115,20 +141,14 @@
 		box-sizing: border-box;
 	}
 
-	.search-results {
+	.label-wrapper {
 		width: 100%;
-		min-height: 130px;
-		max-height: 130px;
-		padding: 0;
-		padding-left: 10px;
-		margin-top: 0.5rem;
-		border: 1px solid #d1d5db;
-		border-radius: 0.25rem;
-		border-bottom: 1px solid #d1d5db;
-		background-color: var(--form-background-color);
-		color: var(--form-text-color);
-		box-sizing: border-box;
-		overflow-y: auto;
+		height: fit-content;
+		text-align: left;
+	}
+
+	.input-wrapper {
+		height: fit-content;
 	}
 
 	.team-list-items {
@@ -137,6 +157,11 @@
 	}
 
 	.query-result {
+		font-weight: bold;
+	}
+
+	label {
+		padding: 2rem 0;
 		font-weight: bold;
 	}
 
@@ -172,8 +197,13 @@
 
 	/* Media query for mobile devices */
 	@media screen and (max-width: 768px) {
-		.search-container {
+		.search-wrapper {
+			flex-direction: column;
+		}
+
+		.search-flex-container {
 			padding: 0 1rem;
+			flex-direction: column;
 		}
 
 		.team-list {
@@ -183,6 +213,11 @@
 
 		.search-results {
 			margin-bottom: 1.25rem;
+		}
+
+		.label-wrapper {
+			width: 100%;
+			text-align: center;
 		}
 	}
 </style>

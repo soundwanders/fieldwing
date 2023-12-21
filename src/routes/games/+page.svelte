@@ -110,6 +110,7 @@
 		margin: 0;
 		padding: 0;
 		background-color: var(--background-color);
+		background-image: var(--background-image);
 		color: var(--text-color);
 	}
 
@@ -139,6 +140,7 @@
 		box-sizing: border-box;
 		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 		background-color: var(--background-color);
+		background-image: var(--background-image);
 		color: var(--text-color);
 		transition: transform 0.2s ease;
 	}
@@ -150,6 +152,7 @@
 		margin-top: -1.5rem;
 		margin-bottom: 0.5rem;
 		background-color: var(--background-color);
+		background-image: var(--background-image);
 		color: var(--teams-color);
 		z-index: 10;
 	}
@@ -190,13 +193,11 @@
 	}
 
 	.light {
-		--background-color: #f9f9f9;
 		--text-color: #1a202c;
 		--teams-color: #bb0000;
 	}
 
 	.dark {
-		--background-color: #1a202c;
 		--text-color: #f9f9f9;
 		--teams-color: #ff9195;
 	}

@@ -133,6 +133,7 @@
 		flex-direction: column;
 		padding: 1.25rem;
 		background-color: var(--background-color);
+		background-image: var(--background-image);
 		color: var(--text-color);
 	}
 
@@ -149,6 +150,7 @@
 		border: 1px solid #d1d5db;
 		border-radius: 0.25rem;
 		background-color: var(--background-color);
+		background-image: var(--background-image);
 		color: var(--text-color);
 	}
 
@@ -176,6 +178,7 @@
 	#resubmit-week {
 		padding: 3px;
 		background-color: var(--background-color);
+		background-image: var(--background-image);
 		color: var(--text-color);
 	}
 
@@ -210,14 +213,12 @@
 	}
 
 	.light {
-		--background-color: #f9f9f9;
 		--text-color: #1a202c;
 		--highlight-text-color: #18181b;
 		--highlight-color: #b2e7cb;
 	}
 
 	.dark {
-		--background-color: #1a202c;
 		--text-color: #f9f9f9;
 		--highlight-text-color: #f9f9f9;
 		--highlight-color: #336699;

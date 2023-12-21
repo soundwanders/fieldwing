@@ -1,7 +1,6 @@
 <script>
-	import Matchup from '../../components/MatchupSelection.svelte';
+	import MatchupSelection from '../../components/MatchupSelection.svelte';
 	import Footer from '$lib/Footer.svelte';
-	import Searchbar from '../../components/Searchbar.svelte';
 	import '../../styles/main.css';
 
 	let conferences = ['All', 'FBS', 'FCS'];
@@ -11,8 +10,7 @@
 <div class="selection-page">
 	<main>
 		<section>
-			<Searchbar />
-			<Matchup {conferences} {selectedConference} />
+			<MatchupSelection {conferences} {selectedConference} />
 		</section>
 	</main>
 

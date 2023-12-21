@@ -20,16 +20,19 @@
 	.app-container {
 		width: 100%;
 		background-color: var(--background-color);
+		background-image: var(--background-image);
 		color: var(--text-color);
 	}
 
 	.light {
 		--background-color: #f9f9f9;
+		--background-image: linear-gradient(180deg, #f9f9f9 55%, #c7cbe9 90%);
 		--text-color: #1a202c;
 	}
 
 	.dark {
-		--background-color: #1a202c;
+		--background-color: #2b4162;
+		--background-image: linear-gradient(180deg, #1a202c 55%, #1b293e 90%);
 		--text-color: #f9f9f9;
 	}
 

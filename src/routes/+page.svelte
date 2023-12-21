@@ -98,6 +98,7 @@
 		width: 100vw;
 		min-height: 100vh;
 		background-color: var(--background-color);
+		background-image: var(--background-image);
 		color: var(--text-color);
 	}
 
@@ -107,6 +108,7 @@
 		width: 100%;
 		min-height: 90vh;
 		background-color: var(--background-color);
+		background-image: var(--background-image);
 		color: var(--text-color);
 	}
 
@@ -120,9 +122,8 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		padding: 1rem;
+		padding: 0 1rem 1rem 1rem;
 		gap: 2rem;
-		margin-top: -2rem;
 	}
 
 	.landing-hero {
@@ -148,6 +149,7 @@
 		word-wrap: break-word;
 		max-width: 70%;
 		margin: 0 auto;
+		margin-top: 2rem;
 	}
 
 	.landing-hero p {
@@ -161,7 +163,7 @@
 		outline: none;
 		font-size: 1.125rem;
 		line-height: 1.75rem;
-		padding: 4px 8px;
+		padding: 0.25rem 0.5rem;
 		border-radius: 0.5rem;
 		background-color: var(--get-started-background-color);
 		color: var(--get-started-text-color);
@@ -212,14 +214,12 @@
 	}
 
 	.light {
-		--background-color: #f9f9f9;
 		--text-color: #1a202c;
 		--get-started-background-color: #293545;
 		--get-started-text-color: #f9f9f9;
 	}
 
 	.dark {
-		--background-color: #1a202c;
 		--text-color: #f9f9f9;
 		--get-started-background-color: #cbd5e1;
 		--get-started-text-color: #09090b;
@@ -248,6 +248,7 @@
 			line-height: 2.5rem;
 			padding: 1.5rem 0 0 0;
 			max-width: 100%;
+			margin-top: 0;
 		}
 
 		.landing-image {

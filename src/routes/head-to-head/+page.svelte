@@ -6,11 +6,12 @@
 
 	export let data: { matchupData?: any[] };
 	const { matchupData } = data;
-	
+
 	let team1: string;
 	let team2: string;
 
 	let teamNames: string;
+
 	$: {
 		team1 = $selectedMatchupTeams[0];
 		team2 = $selectedMatchupTeams[1];
@@ -76,6 +77,7 @@
 		box-sizing: border-box;
 		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 		background-color: var(--background-color);
+		background-image: var(--background-image);
 		color: var(--text-color);
 		transition: transform 0.2s ease;
 	}

@@ -169,7 +169,7 @@
 	</div>
 </section>
 
-<section class="submit-section">
+<section class="submit-section" class:light={!$theme} class:dark={$theme}>
 	<div class="button-container">
 		<!-- Only enable submit button to redirect to games page if there are selected teams -->
 		<a
@@ -192,7 +192,6 @@
 		display: flex;
 		justify-content: center;
 		align-items: flex-start;
-		background-color: var(--background-color);
 		color: var(--text-color);
 		transition: background-color 0.2s ease;
 	}
@@ -424,32 +423,34 @@
 	}
 
 	.submit-button:disabled {
-		background-color: #525252;
+		background-color: var(--button-disabled-background-color);
 		cursor: not-allowed;
 	}
 
 	.submit-button:hover:disabled {
-		background-color: #404040;
+		background-color: var(--button-disabled-hover-color);
 	}
 
 	.light {
-		--background-color: #f9f9f9;
 		--text-color: #1a202c;
 		--form-background-color: #f0f0f0;
 		--form-sub-background-color: #eff4f1;
 		--form-text-color: #09090b;
 		--highlight-text-color: #18181b;
 		--highlight-color: #b2e7cb;
+		--button-disabled-background-color: #7c7c7c;
+		--button-disabled-hover-color: #5f5f5f;
 	}
 
 	.dark {
-		--background-color: #1a202c;
 		--text-color: #f9f9f9;
 		--form-background-color: #1d232e;
 		--form-sub-background-color: #242b38;
 		--form-text-color: #f8fafc;
 		--highlight-text-color: #f9f9f9;
 		--highlight-color: #336699;
+		--button-disabled-background-color: #707070;
+		--button-disabled-hover-color: #5c5c5c;
 	}
 
 	/* Media query for mobile devices */

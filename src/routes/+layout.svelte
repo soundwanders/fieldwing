@@ -22,17 +22,29 @@
 		background-color: var(--background-color);
 		background-image: var(--background-image);
 		color: var(--text-color);
+		opacity: 0;
+		animation: fadeIn 1s forwards;
+		transition: background-color 0.5s ease; 
+	}
+
+	@keyframes fadeIn {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
 	}
 
 	.light {
 		--background-color: #f9f9f9;
-		--background-image: linear-gradient(180deg, #f9f9f9 55%, #c7cbe9 90%);
+		--background-image: linear-gradient(180deg, #f9f9f9 55%, #c7cbe9 93%);
 		--text-color: #1a202c;
 	}
 
 	.dark {
 		--background-color: #2b4162;
-		--background-image: linear-gradient(180deg, #1a202c 55%, #1b293e 90%);
+		--background-image: linear-gradient(180deg, #1a202c 55%, #1b293e 93%);
 		--text-color: #f9f9f9;
 	}
 

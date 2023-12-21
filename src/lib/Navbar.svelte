@@ -25,12 +25,12 @@
 		</a>
 
 		<a
-			id="selection-shortcut"
+			id="results-shortcut"
 			class="link"
 			class:light={!$theme}
 			class:dark={$theme}
-			href="/selection"
-			aria-label="Go to Team Selection page"
+			href="/results"
+			aria-label="Go to Game Results page"
 		>
 			Game Data
 		</a>
@@ -41,7 +41,7 @@
 			class:light={!$theme}
 			class:dark={$theme}
 			href="/matchup"
-			aria-label="Go to Team Selection page"
+			aria-label="Go to Head-to-Head Matchups page"
 		>
 			Matchups
 		</a>
@@ -85,11 +85,21 @@
 	}
 
 	.nav-container {
-		max-height: 128px;
+		max-height: 128px;		
+		animation: fadeIn 1s forwards ease-out; 
+		transition: background-color 0.5s ease; 
+	}
+
+	@keyframes fadeIn {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
 	}
 
 	.navbar {
-		transition: all 0.2s ease-in-out;
 		padding: 2rem 10rem;
 		display: flex;
 		flex-direction: row;
@@ -104,7 +114,7 @@
 	}
 
 	#home-shortcut,
-	#selection-shortcut,
+	#results-shortcut,
 	#matchup-shortcut {
 		padding: 1rem 2rem;
 		font-size: 0.875rem;
@@ -156,7 +166,7 @@
 		}
 
 		#home-shortcut,
-		#selection-shortcut,
+		#results-shortcut,
 		#matchup-shortcut {
 			font-size: 0.75rem;
 			line-height: 1rem;

@@ -32,10 +32,10 @@
 			</h1>
 
 			{#if matchupData}
-				<div class="head-to-head-container">
+				<div class="head-to-head-container" class:light={!$theme} class:dark={$theme}>
 					{#each matchupData as matchup (matchup.id)}
 						{#each matchup.data as gameResult (gameResult.id)}
-							<div class="head-to-head" class:light={!$theme} class:dark={$theme}>
+							<div class="head-to-head">
 								<h2 class="matchup-info" class:light={!$theme} class:dark={$theme}>
 									{matchup.team1} vs {matchup.team2}
 								</h2>
@@ -64,6 +64,20 @@
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: center;
+		background-color: var(--background-color);
+		background-image: var(--background-image);
+		color: var(--text-color);
+		animation: fadeIn 1s forwards ease-out; 
+		transition: background-color 0.5s ease; 
+	}
+
+	@keyframes fadeIn {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
 	}
 
 	.head-to-head {
@@ -76,10 +90,6 @@
 		border-radius: 5px;
 		box-sizing: border-box;
 		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-		background-color: var(--background-color);
-		background-image: var(--background-image);
-		color: var(--text-color);
-		transition: transform 0.2s ease;
 	}
 
 	.matchup-info {

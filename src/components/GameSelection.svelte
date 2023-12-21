@@ -187,11 +187,11 @@
 
 <style module>
 	.select-section {
-		width: 100vw;
-		height: 100%;
 		display: flex;
 		justify-content: center;
 		align-items: flex-start;
+		width: 100vw;
+		height: 100%;
 		color: var(--text-color);
 		transition: background-color 0.2s ease;
 	}
@@ -201,7 +201,6 @@
 		justify-content: center;
 		gap: 4rem;
 		width: 60%;
-		height: 50%;
 		height: fit-content;
 		padding: 0.5rem 2.5rem;
 		margin-top: 2rem;
@@ -461,7 +460,7 @@
 			align-items: center;
 			width: 100%;
 			min-height: 100%;
-			margin-top: 1rem;
+			margin-top: 0.25rem;
 			gap: 2.5rem;
 		}
 

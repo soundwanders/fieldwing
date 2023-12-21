@@ -19,7 +19,18 @@
 
 <style>
 	section {
-		min-height: 100vh;
+		min-height: 100vh;		
+		animation: fadeIn 1s forwards;
+		transition: background-color 0.5s ease; 
+	}
+
+	@keyframes fadeIn {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
 	}
 
 	/* Media query for mobile devices */

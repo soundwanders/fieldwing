@@ -83,7 +83,7 @@
 <style>
 	.wrapper {
 		width: 100vw;
-		height: 100vh;
+		height: 100vh;		
 	}
 
 	h1 {
@@ -111,7 +111,7 @@
 		padding: 0;
 		background-color: var(--background-color);
 		background-image: var(--background-image);
-		color: var(--text-color);
+		color: var(--text-color);		
 	}
 
 	.results-container {

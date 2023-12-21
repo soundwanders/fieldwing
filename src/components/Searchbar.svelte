@@ -104,20 +104,23 @@
 	.search-wrapper {
 		display: flex;
 		justify-content: center;
-		align-items: center;
+		align-items: flex-start;
+		width: 100vw;
+		height: 100%;
 	}
 
 	.search-flex-container {
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: space-between;
-		align-items: center;
-		margin-bottom: 1rem;
+		align-items: flex-start;
+		width: min-content;
 	}
 
 	.team-searchbar {
 		flex-grow: 1;
 		height: 2.5rem;
+		width: 370px;
 		padding: 0.3rem;
 		margin: 0.75rem 0;
 		box-sizing: border-box;
@@ -130,10 +133,10 @@
 	.search-results {
 		flex-grow: 1;
 		height: 2.5rem;
-		width: 300px;
+		width: 370px;
 		overflow-y: auto;
 		padding: 0.3rem;
-		margin-top: 0.5rem;
+		margin: 0.75rem 0;
 		border: 1px solid #d1d5db;
 		border-radius: 0.25rem;
 		background-color: var(--form-background-color);
@@ -145,10 +148,12 @@
 		width: 100%;
 		height: fit-content;
 		text-align: left;
+		margin: 0 2rem;
 	}
 
 	.input-wrapper {
 		height: fit-content;
+		margin: 0 2rem;
 	}
 
 	.team-list-items {
@@ -156,12 +161,16 @@
 		padding: 0.4rem 0.5rem;
 	}
 
+	#search-query {
+		padding: 0;
+		margin: 0;
+	}
+
 	.query-result {
 		font-weight: bold;
 	}
 
 	label {
-		padding: 2rem 0;
 		font-weight: bold;
 	}
 
@@ -199,11 +208,22 @@
 	@media screen and (max-width: 768px) {
 		.search-wrapper {
 			flex-direction: column;
+			width: 100%;
+			height: 100%;
+			padding: 0 2rem;
 		}
 
-		.search-flex-container {
-			padding: 0 1rem;
+		.search-flex-container, .input-wrapper {
+			width: 100%;
+			max-width: min-content;
+			height: 100%;
 			flex-direction: column;
+			margin: 0;
+			padding: 0;
+		}
+
+		.team-searchbar, .search-results {
+			width: 66vw;
 		}
 
 		.team-list {
@@ -217,7 +237,12 @@
 
 		.label-wrapper {
 			width: 100%;
-			text-align: center;
+			text-align: left;
+			margin: 0;
+		}
+
+		.input-wrapper:last-child {
+			margin-bottom: 1rem !important;
 		}
 	}
 </style>

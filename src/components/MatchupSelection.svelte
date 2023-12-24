@@ -166,7 +166,7 @@
 	}
 
 	.vs-wrapper img {
-		max-width: 10%;
+		max-width: 9%;
 		height: auto;
 	}
 
@@ -180,7 +180,7 @@
 		margin-top: 2rem;
 		box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 		border-radius: 0.75rem;
-		background-color: var(--form-sub-background-color);
+		background-color: var(--form-background-color);
 		color: var(--text-color);
 		transition: background-color 0.2s ease;
 	}
@@ -269,7 +269,8 @@
 	/* Light Theme */
 	.light {
 		--text-color: #333;
-		--form-sub-background-color: #eff4f1;
+		--form-background-color: #eeeef0;
+		--form-sub-background-color: #f4f4f5;
 		--label-color: #555;
 		--input-background-color: #f9f9f9;
 		--input-text-color: #333;
@@ -282,7 +283,8 @@
 	/* Dark Theme */
 	.dark {
 		--text-color: #f9f9f9;
-		--form-sub-background-color: #1e2532;
+		--form-background-color: #1d232e;
+		--form-sub-background-color: #242b38;
 		--label-color: #b0b0b0;
 		--input-background-color: #2b2b2b;
 		--input-text-color: #f9f9f9;

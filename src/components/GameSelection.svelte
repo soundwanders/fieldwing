@@ -432,8 +432,8 @@
 
 	.light {
 		--text-color: #1a202c;
-		--form-background-color: #f0f0f0;
-		--form-sub-background-color: #eff4f1;
+		--form-background-color: #eeeef0;
+		--form-sub-background-color: #f4f4f5;
 		--form-text-color: #09090b;
 		--highlight-text-color: #18181b;
 		--highlight-color: #b2e7cb;

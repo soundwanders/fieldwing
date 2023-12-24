@@ -132,7 +132,8 @@
 
 	.search-results {
 		flex-grow: 1;
-		height: 2.5rem;
+		min-height: 3rem;
+		max-height: 3rem;
 		width: 370px;
 		overflow-y: auto;
 		padding: 0.3rem;
@@ -156,9 +157,20 @@
 		margin: 0 2rem;
 	}
 
+	.team-list {
+		font-size: 0.875rem;
+		line-height: 1rem;
+		margin: 0.5rem auto;
+	}
+
+
+	.team-list:first-child {
+		margin: 0.1rem auto;
+	}
+
 	.team-list-items {
 		list-style-type: none;
-		padding: 0.4rem 0.5rem;
+		padding: 0.125rem 0;
 	}
 
 	#search-query {
@@ -188,8 +200,8 @@
 	}
 
 	.light {
-		--form-background-color: #f0f0f0;
-		--form-sub-background-color: #eff4f1;
+		--form-background-color: #eeeef0;
+		--form-sub-background-color: #f4f4f5;
 		--form-text-color: #09090b;
 		--highlight-text-color: #18181b;
 		--highlight-color: #b2e7cb;

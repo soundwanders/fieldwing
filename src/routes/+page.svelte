@@ -11,7 +11,7 @@
 				<div class="landing-hero">
 					<h2>Your Front Row Seat to College Football Data</h2>
 					<p>Browse game results and explore statistics for all your favorite teams</p>
-					<a href="/results" role="button" aria-label="Get Started">
+					<a href="/selection" role="button" aria-label="Get Started">
 						<button type="button" class="get-started" class:light={!$theme} class:dark={$theme}>
 							Get Started
 						</button>

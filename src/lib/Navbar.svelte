@@ -32,7 +32,7 @@
 			href="/selection"
 			aria-label="Go to Game Selection page"
 		>
-			Game Data
+			Games
 		</a>
 
 		<a

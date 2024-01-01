@@ -2,7 +2,7 @@
 import type { PageServerLoad } from './$types';
 import { CFBD_API_KEY } from '$env/static/private';
 import { getCurrentWeek } from '$lib/utils/getCurrentWeek';
-import { mascotNames } from '$lib/utils/mascots';
+import { getSchoolName } from '$lib/utils/getSchoolName';
 
 export const load: PageServerLoad = async ({ params, url }) => {
 	try {
@@ -67,21 +67,3 @@ export const load: PageServerLoad = async ({ params, url }) => {
 		};
 	}
 };
-
-// Function to extract the school mascots/team names from the full team name
-function getSchoolName(fullTeamName: string): string {
-	// Split the full team name into parts
-	const parts = fullTeamName.split(' ');
-
-	// Iterate over the parts to filter out mascots from the team name
-	let filteredParts: string[] = [];
-	for (let i = 0; i < parts.length; i++) {
-		const remainingSubstring = parts.slice(i).join(' ');
-
-		if (!mascotNames.includes(remainingSubstring)) {
-			filteredParts.push(parts[i]);
-		}
-	}
-
-	return filteredParts.join(' ');
-}

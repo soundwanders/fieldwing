@@ -86,13 +86,6 @@
 </section>
 
 <style>
-	.wrapper {
-		width: 100vw;
-		height: 100vh;
-		background-color: var(--background-color);
-		background-image: var(--background-image);
-	}
-	
 	.light {
 		--background-color: #f9f9f9;
 		--text-color: #1a202c;
@@ -119,6 +112,13 @@
 		text-decoration: underline;
 		text-underline-offset: 2px;
 		text-decoration-thickness: 1px;
+	}
+
+	.wrapper {
+		width: 100vw;
+		height: 100vh;
+		background-color: var(--background-color);
+		background-image: var(--background-image);
 	}
 
 	.results-section {

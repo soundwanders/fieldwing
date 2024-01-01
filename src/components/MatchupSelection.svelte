@@ -166,7 +166,7 @@
 	}
 
 	.vs-wrapper img {
-		max-width: 9%;
+		max-width: 8%;
 		height: auto;
 	}
 

@@ -2,13 +2,14 @@
 
 import type { PageServerLoad } from './$types';
 import { CFBD_API_KEY } from '$env/static/private';
+import { getSchoolName } from '$lib/utils/getSchoolName';
 
 export const load: PageServerLoad = async ({ params, url }) => {
 	try {
-		const team1 = url.searchParams.get('team1') || '';
-		const team2 = url.searchParams.get('team2') || '';
-		const minYear = url.searchParams.get('minYear') || '';
-		const maxYear = url.searchParams.get('maxYear') || '';
+    const team1 = getSchoolName(url.searchParams.get('team1') || '');
+    const team2 = getSchoolName(url.searchParams.get('team2') || '');
+    const minYear = url.searchParams.get('minYear') || '';
+    const maxYear = url.searchParams.get('maxYear') || '';
 
 		// Construct the URL based on user input
 		let apiUrl = `https://api.collegefootballdata.com/teams/matchup?team1=${encodeURIComponent(
@@ -23,7 +24,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 		if (maxYear) {
 			apiUrl += `&maxYear=${maxYear}`;
 		}
-
+		
 		const response = await fetch(apiUrl, {
 			headers: {
 				Authorization: `Bearer ${CFBD_API_KEY}`

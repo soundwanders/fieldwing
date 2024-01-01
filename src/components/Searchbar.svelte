@@ -132,8 +132,8 @@
 
 	.search-results {
 		flex-grow: 1;
-		min-height: 5rem;
-		max-height: 5rem;
+		min-height: 3.75rem;
+		max-height: 3.75rem;
 		width: 370px;
 		overflow-y: auto;
 		padding: 0.3rem;

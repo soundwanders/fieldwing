@@ -11,8 +11,8 @@
 <div class="selection-page">
 	<main>
 		<section>
-			<div class="scoreboard-wrapper">
-				<img src="/scoreboard.png" alt="Scoreboard matchups" />
+			<div class="goalpost-wrapper">
+				<img src="/goalpost.png" alt="Game selection decoration" />
 			</div>
 		
 			<Searchbar />
@@ -30,16 +30,15 @@
 		transition: background-color 0.2s ease; 
 	}
 
-	.scoreboard-wrapper {
+	.goalpost-wrapper {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
 		width: 100%;
-		margin-top: -1.25rem;
-		margin-bottom: 1.25rem;
+		margin-bottom: 1.5rem;
 	}
 
-	.scoreboard-wrapper img {
+	.goalpost-wrapper img {
 		max-width: 8%;
 		height: auto;
 	}
@@ -61,7 +60,7 @@
 			height: 100%;
 		}
 
-		.scoreboard-wrapper img {
+		.goalpost-wrapper img {
 			max-width: 33%;
 			height: auto;
 		}

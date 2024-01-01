@@ -11,6 +11,10 @@
 <div class="selection-page">
 	<main>
 		<section>
+			<div class="scoreboard-wrapper">
+				<img src="/scoreboard.png" alt="Scoreboard matchups" />
+			</div>
+		
 			<Searchbar />
 			<Selection {conferences} {selectedConference} />
 		</section>
@@ -22,8 +26,22 @@
 <style>
 	section {
 		min-height: 100vh;
-		animation: fadeIn 1s forwards;
+		animation: fadeIn 0.8s forwards;
 		transition: background-color 0.5s ease; 
+	}
+
+	.scoreboard-wrapper {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		width: 100%;
+		margin-top: -1.25rem;
+		margin-bottom: 1.25rem;
+	}
+
+	.scoreboard-wrapper img {
+		max-width: 8%;
+		height: auto;
 	}
 
 	@keyframes fadeIn {
@@ -41,6 +59,11 @@
 			width: 100%;
 			min-height: 100%;
 			height: 100%;
+		}
+
+		.scoreboard-wrapper img {
+			max-width: 33%;
+			height: auto;
 		}
 	}
 </style>

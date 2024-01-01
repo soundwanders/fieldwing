@@ -203,14 +203,14 @@
 		width: 60%;
 		height: fit-content;
 		padding: 0.5rem 2.5rem;
-		margin-top: 2rem;
+		margin-top: 0.5rem;
 	}
 
 	/* Team Selection Form */
 	.selector-form {
 		width: 100%;
 		max-width: 20rem;
-		border: 1px solid #d1d5db;
+		border: 1px solid #c3c8d0;
 		border-radius: 0.375rem;
 		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 		padding: 1.5rem;
@@ -220,6 +220,7 @@
 	}
 
 	.selector-form h2 {
+		font-family: 'Nunito Sans';
 		font-size: 1.5rem;
 		line-height: 2rem;
 		font-weight: 600;
@@ -287,7 +288,7 @@
 		width: 100%;
 		padding: 0.3rem;
 		margin-top: 1.25rem;
-		border: 1px solid #d1d5db;
+		border: 1px solid #c3c8d0;
 		border-radius: 0.25rem;
 		overflow-x: hidden;
 		overflow-y: auto;
@@ -304,7 +305,7 @@
 
 	.teams-container-list-item {
 		padding: 0.3rem 0.5rem;
-		border-bottom: 1px solid #d1d5db;
+		border-bottom: 1px solid #c3c8d0;
 		font-weight: bold;
 	}
 
@@ -342,7 +343,7 @@
 		max-width: 20rem;
 		padding: 1.5rem;
 		margin: 0;
-		border: 1px solid #d1d5db;
+		border: 1px solid #c3c8d0;
 		border-radius: 0.375rem;
 		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 		overflow-y: auto;
@@ -369,7 +370,7 @@
 	.selected-teams-list-items {
 		padding: 0 0.5rem 0.25rem 0.5rem;
 		margin: 0.5rem 0;
-		border-bottom: 1px solid #d1d5db;
+		border-bottom: 1px solid #c3c8d0;
 		background-color: inherit;
 		color: inherit;
 		box-sizing: border-box;

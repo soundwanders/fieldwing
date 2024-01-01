@@ -8,6 +8,7 @@
 	export let data: { gameResults?: any[]; teams?: string[] };
 
 	const { gameResults } = data;
+	console.log(gameResults);
 
 	$: formattedTeams = Array.isArray(data.teams) ? data.teams.join(', ') : data.teams;
 
@@ -21,14 +22,18 @@
 <section class="wrapper">
 	<section class="results-section" class:light={!$theme} class:dark={$theme}>
 		<div class="results-container">
-			{#if gameResults && gameResults[0]?.data[0]}
-				<h1>
-					Week {gameResults[0].data[0].week} Results for
-					<span class="header-teams" class:light={!$theme} class:dark={$theme}>
-						{teamTitleList}
-					</span>
-				</h1>
-			{/if}
+
+			<div class="header-image-container">
+				{#if gameResults && gameResults[0]?.data[0]}
+					<img class="header-image" src="/strategy.png" alt="Game Results" />
+					<h1>
+						Week {gameResults[0].data[0].week}, {gameResults[0].data[0].season} Results for
+						<span class="header-teams" class:light={!$theme} class:dark={$theme}>
+							{teamTitleList}
+						</span>
+					</h1>
+				{/if}
+			</div>
 
 			{#if gameResults}
 				{#each gameResults as { team, data } (team)}
@@ -83,7 +88,21 @@
 <style>
 	.wrapper {
 		width: 100vw;
-		height: 100vh;		
+		height: 100vh;
+		background-color: var(--background-color);
+		background-image: var(--background-image);
+	}
+	
+	.light {
+		--background-color: #f9f9f9;
+		--text-color: #1a202c;
+		--teams-color: #bb0000;
+	}
+
+	.dark {
+		--background-color: #1a202c;
+		--text-color: #f9f9f9;
+		--teams-color: #ff9195;
 	}
 
 	h1 {
@@ -91,7 +110,6 @@
 		text-wrap: balance;
 		font-size: 2.25rem;
 		line-height: 2.5rem;
-		margin-bottom: 3.75rem;
 		text-align: center;
 	}
 
@@ -110,8 +128,19 @@
 		margin: 0;
 		padding: 0;
 		background-color: var(--background-color);
-		background-image: var(--background-image);
 		color: var(--text-color);		
+	}
+
+	.header-image-container {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.header-image {
+		width: 3.5%;
+		height: auto;
+		margin-right: 0.5rem;
 	}
 
 	.results-container {
@@ -135,12 +164,11 @@
 		padding: 0.5rem 2rem 1.5rem 2rem;
 		margin: 0.5rem 3rem;
 		margin-bottom: 1.25rem;
-		border: 1px solid #d1d5db;
+		border: 1px solid #c3c8d0;
 		border-radius: 5px;
 		box-sizing: border-box;
 		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 		background-color: var(--background-color);
-		background-image: var(--background-image);
 		color: var(--text-color);
 		transition: transform 0.2s ease;
 	}
@@ -152,7 +180,6 @@
 		margin-top: -1.5rem;
 		margin-bottom: 0.5rem;
 		background-color: var(--background-color);
-		background-image: var(--background-image);
 		color: var(--teams-color);
 		z-index: 10;
 	}
@@ -187,19 +214,9 @@
 	}
 
 	.points {
-		font-size: 1.75rem;
+		font-size: 2rem;
 		line-height: 2.25rem;
 		margin-top: 0.25rem;
-	}
-
-	.light {
-		--text-color: #1a202c;
-		--teams-color: #bb0000;
-	}
-
-	.dark {
-		--text-color: #f9f9f9;
-		--teams-color: #ff9195;
 	}
 
 	/* Media query for mobile devices */

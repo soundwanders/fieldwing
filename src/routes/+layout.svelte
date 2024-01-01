@@ -24,7 +24,7 @@
 		background-image: var(--background-image);
 		color: var(--text-color);
 		opacity: 0;
-		animation: fadeIn 1s forwards;
+		animation: fadeIn 0.8s forwards;
 		transition: background-color 0.5s ease; 
 	}
 

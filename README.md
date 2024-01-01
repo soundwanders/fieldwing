@@ -25,6 +25,12 @@ Fieldwing is a web application built with SvelteKit, allowing users to seamlessl
 - De-selecting teams remove them from this container.
 - Choices in selected teams container will be used to fetch relevant data such as game results.
 
+### Historical Head-to-Head Matchups
+
+- Explore the historical head-to-head matchups between two selected teams.
+- Navigate to the "Head-to-Head" page, where you can choose two teams and view their past matchups.
+- Get insights into the performance of your favorite teams in their previous encounters.
+
 ### Theming
 
 - Theme is tracked in a Svelte store as well as the use of localStorage if available.

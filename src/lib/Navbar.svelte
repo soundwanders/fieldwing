@@ -25,12 +25,12 @@
 		</a>
 
 		<a
-			id="results-shortcut"
+			id="selection-shortcut"
 			class="link"
 			class:light={!$theme}
 			class:dark={$theme}
-			href="/results"
-			aria-label="Go to Game Results page"
+			href="/selection"
+			aria-label="Go to Game Selection page"
 		>
 			Game Data
 		</a>
@@ -86,7 +86,7 @@
 
 	.nav-container {
 		max-height: 128px;		
-		animation: fadeIn 1s forwards ease-out; 
+		animation: fadeIn 0.8s forwards ease-out; 
 		transition: background-color 0.5s ease; 
 	}
 
@@ -114,7 +114,7 @@
 	}
 
 	#home-shortcut,
-	#results-shortcut,
+	#selection-shortcut,
 	#matchup-shortcut {
 		padding: 1rem 2rem;
 		font-size: 0.875rem;
@@ -166,7 +166,7 @@
 		}
 
 		#home-shortcut,
-		#results-shortcut,
+		#selection-shortcut,
 		#matchup-shortcut {
 			font-size: 0.75rem;
 			line-height: 1rem;

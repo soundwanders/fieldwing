@@ -124,7 +124,7 @@
 		padding: 0.3rem;
 		margin: 0.75rem 0;
 		box-sizing: border-box;
-		border: 1px solid #d1d5db;
+		border: 1px solid #c3c8d0;
 		border-radius: 0.25rem;
 		background-color: var(--form-background-color);
 		color: var(--form-text-color);
@@ -132,13 +132,13 @@
 
 	.search-results {
 		flex-grow: 1;
-		min-height: 3rem;
-		max-height: 3rem;
+		min-height: 5rem;
+		max-height: 5rem;
 		width: 370px;
 		overflow-y: auto;
 		padding: 0.3rem;
 		margin: 0.75rem 0;
-		border: 1px solid #d1d5db;
+		border: 1px solid #c3c8d0;
 		border-radius: 0.25rem;
 		background-color: var(--form-background-color);
 		color: var(--form-text-color);
@@ -163,9 +163,8 @@
 		margin: 0.5rem auto;
 	}
 
-
 	.team-list:first-child {
-		margin: 0.1rem auto;
+		margin: 0.2rem auto;
 	}
 
 	.team-list-items {

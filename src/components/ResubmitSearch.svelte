@@ -212,7 +212,6 @@
 		padding: 0.25rem 0.675rem;
 		background-color: var(--primary-color);
 		color: #f9f9f9;
-		transition: background-color 0.2s ease-in-out;
 	}
 
 	.resubmit-button:hover {

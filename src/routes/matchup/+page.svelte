@@ -21,7 +21,7 @@
 	section {
 		min-height: 100vh;		
 		animation: fadeIn 0.8s forwards;
-		transition: background-color 0.5s ease; 
+		transition: background-color 0.2s ease; 
 	}
 
 	@keyframes fadeIn {

@@ -252,7 +252,6 @@
 		color: #fff;
 		background-color: var(--primary-color);
 		cursor: pointer;
-		transition: background-color 0.2s ease-in-out;
 	}
 
 	.submit-button:hover {

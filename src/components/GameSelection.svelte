@@ -222,8 +222,8 @@
 	.selector-form h2 {
 		font-family: 'Nunito Sans';
 		font-size: 1.5rem;
-		line-height: 2rem;
 		font-weight: 600;
+		line-height: 2rem;
 		text-align: center;
 		margin-bottom: 1.25rem;
 	}
@@ -392,7 +392,6 @@
 		color: inherit;
 		cursor: pointer;
 		box-sizing: border-box;
-		transition: background-color 0.2s ease-in-out;
 	}
 
 	.selected-teams button:hover {
@@ -415,7 +414,6 @@
 		color: #fff;
 		background-color: var(--primary-color);
 		cursor: pointer;
-		transition: background-color 0.2s ease-in-out;
 	}
 
 	.submit-button:hover {

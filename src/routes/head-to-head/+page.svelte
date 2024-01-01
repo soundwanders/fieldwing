@@ -68,7 +68,7 @@
 		background-image: var(--background-image);
 		color: var(--text-color);
 		animation: fadeIn 0.8s forwards ease-out; 
-		transition: background-color 0.5s ease; 
+		transition: background-color 0.2s ease; 
 	}
 
 	@keyframes fadeIn {

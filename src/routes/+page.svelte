@@ -101,7 +101,7 @@
 		background-image: var(--background-image);
 		color: var(--text-color);		
 		animation: fadeIn 0.8s forwards ease-out; 
-		transition: background-color 0.5s ease; 
+		transition: background-color 0.2s ease; 
 	}
 
 	@keyframes fadeIn {
@@ -153,12 +153,12 @@
 
 	.landing-hero h2 {
 		font-size: 3.75rem;
-		line-height: 1;
-		padding: 0 4rem;
 		font-weight: bold;
+		line-height: 1;
 		text-wrap: balance;
 		word-wrap: break-word;
 		max-width: 70%;
+		padding: 0 4rem;
 		margin: 0 auto;
 		margin-top: 2rem;
 	}
@@ -170,11 +170,11 @@
 	}
 
 	.get-started {
-		border: none;
-		outline: none;
 		font-size: 1.125rem;
 		line-height: 1.75rem;
 		padding: 0.25rem 0.5rem;
+		border: none;
+		outline: none;
 		border-radius: 0.5rem;
 		background-color: var(--get-started-background-color);
 		color: var(--get-started-text-color);
@@ -255,10 +255,10 @@
 		}
 
 		.landing-hero h2 {
+			max-width: 100%;
 			font-size: 2rem;
 			line-height: 2.5rem;
 			padding: 1.5rem 0 0 0;
-			max-width: 100%;
 			margin-top: 0;
 		}
 

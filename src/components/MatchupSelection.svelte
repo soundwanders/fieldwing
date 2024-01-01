@@ -126,7 +126,7 @@
 				<div class="button-container">
 					<a
 						href={selectedTeamsArray
-							? `/matchup?team1=${encodeURIComponent(
+							? `/head-to-head?team1=${encodeURIComponent(
 									selectedTeamsArray[0]
 							  )}&team2=${encodeURIComponent(selectedTeamsArray[1])}
 							&conference=${encodeURIComponent(selectedConference)}

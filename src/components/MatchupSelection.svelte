@@ -183,6 +183,7 @@
 		background-color: var(--form-background-color);
 		color: var(--text-color);
 		transition: background-color 0.2s ease;
+		border: 1px solid #c3c8d0;
 	}
 
 	.selector-form {
@@ -214,7 +215,8 @@
 		gap: 0.1rem;
 	}
 
-	h2 {
+	.selector-form h2 {
+		font-family: 'Nunito Sans';
 		font-size: 1.5rem;
 		margin-bottom: 2rem;
 		text-align: center;

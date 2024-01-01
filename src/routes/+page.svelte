@@ -100,7 +100,7 @@
 		background-color: var(--background-color);
 		background-image: var(--background-image);
 		color: var(--text-color);		
-		animation: fadeIn 1s forwards ease-out; 
+		animation: fadeIn 0.8s forwards ease-out; 
 		transition: background-color 0.5s ease; 
 	}
 

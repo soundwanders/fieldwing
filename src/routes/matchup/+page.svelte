@@ -20,7 +20,7 @@
 <style>
 	section {
 		min-height: 100vh;		
-		animation: fadeIn 1s forwards;
+		animation: fadeIn 0.8s forwards;
 		transition: background-color 0.5s ease; 
 	}
 

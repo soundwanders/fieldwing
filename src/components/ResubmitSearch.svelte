@@ -147,7 +147,7 @@
 		padding: 10px 0.5rem;
 		padding-left: 10px;
 		margin: 0.75rem 0;
-		border: 1px solid #d1d5db;
+		border: 1px solid #c3c8d0;
 		border-radius: 0.25rem;
 		background-color: var(--background-color);
 		background-image: var(--background-image);
@@ -159,10 +159,10 @@
 		min-height: 2rem;
 		max-height: 2rem;
 		padding: 0rem 0 1.5rem 0;
-		border: 1px solid #d1d5db;
+		border: 1px solid #c3c8d0;
 		border-radius: 0.25rem;
 		margin: 1rem 0;
-		border-bottom: 1px solid #d1d5db;
+		border-bottom: 1px solid #c3c8d0;
 		overflow-y: auto;
 	}
 

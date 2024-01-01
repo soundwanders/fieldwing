@@ -86,7 +86,7 @@
 
 	.nav-container {
 		max-height: 128px;		
-		animation: fadeIn 1s forwards ease-out; 
+		animation: fadeIn 0.8s forwards ease-out; 
 		transition: background-color 0.5s ease; 
 	}
 

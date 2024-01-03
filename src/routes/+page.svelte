@@ -25,47 +25,32 @@
 
 			<div class="landing-container">
 				<div class="landing-details">
-					<div class="landing-updates">
+					<div class="landing-ctas">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							width="24"
 							height="24"
 							viewBox="0 0 24 24"
 							fill="none"
-							stroke="currentColor"
-							stroke-width="2"
-							stroke-linecap="round"
-							stroke-linejoin="round"
 						>
-							<circle cx="12" cy="12" r="10" />
-							<polyline points="12 6 12 12 16 14" />
+							<g id="SVGRepo_bgCarrier" stroke-width="0" />
+							<g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" />
+							<g id="SVGRepo_iconCarrier">
+								<path
+									d="M21 8L19 20H5L3 8M21 8L15.5 12.5L12 7M21 8C21.8284 8 22.5 7.32843 22.5 6.5C22.5 5.67157 21.8284 5 21 5C20.1716 5 19.5 5.67157 19.5 6.5C19.5 7.32843 20.1716 8 21 8ZM12 7L8.5 12.5L3 8M12 7C12.8284 7 13.5 6.32843 13.5 5.5C13.5 4.67157 12.8284 4 12 4C11.1716 4 10.5 4.67157 10.5 5.5C10.5 6.32843 11.1716 7 12 7ZM3 8C3.82843 8 4.5 7.32843 4.5 6.5C4.5 5.67157 3.82843 5 3 5C2.17157 5 1.5 5.67157 1.5 6.5C1.5 7.32843 2.17157 8 3 8Z"
+									stroke="currentColor"
+									stroke-width="1.8"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+								/>
+							</g>
 						</svg>
-
+						
 						<h3>Explore Legacies</h3>
 						<p>Dive into the rich history of college football with comprehensive game results</p>
 					</div>
 
-					<div class="landing-notifications">
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							width="24"
-							height="24"
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							stroke-width="2"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-						>
-							<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
-							<path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
-						</svg>
-
-						<h3>Witness Rivalries</h3>
-						<p>Witness the intensity of historic rivalries through head-to-head matchups</p>
-					</div>
-
-					<div class="landing-favorites">
+					<div class="landing-ctas">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							width="24"
@@ -80,6 +65,26 @@
 							<polygon
 								points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
 							/>
+						</svg>
+
+						<h3>Witness Rivalries</h3>
+						<p>Witness the intensity of historic rivalries through head-to-head matchups</p>
+					</div>
+
+					<div class="landing-ctas">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="24"
+							height="24"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						>
+							<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+							<path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
 						</svg>
 
 						<h3>Unlock Updates</h3>
@@ -99,9 +104,9 @@
 		min-height: 100vh;
 		background-color: var(--background-color);
 		background-image: var(--background-image);
-		color: var(--text-color);		
-		animation: fadeIn 0.8s forwards ease-out; 
-		transition: background-color 0.2s ease; 
+		color: var(--text-color);
+		animation: fadeIn 0.8s forwards ease-out;
+		transition: background-color 0.2s ease;
 	}
 
 	@keyframes fadeIn {
@@ -189,6 +194,10 @@
 		transform: translateY(1px);
 	}
 
+	.landing-ctas {
+		text-align: center;
+	}
+
 	.landing-details {
 		width: 85%;
 		margin: 0 auto;
@@ -220,7 +229,7 @@
 		opacity: 0.75;
 	}
 
-	.landing-favorites {
+	.landing-ctas:last-of-type {
 		padding-bottom: 2rem;
 	}
 

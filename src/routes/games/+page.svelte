@@ -22,7 +22,6 @@
 <section class="wrapper">
 	<section class="results-section" class:light={!$theme} class:dark={$theme}>
 		<div class="results-container">
-
 			<div class="header-image-container">
 				{#if gameResults && gameResults[0]?.data[0]}
 					<img class="header-image" src="/strategy.png" alt="Game Results" />
@@ -128,7 +127,7 @@
 		margin: 0;
 		padding: 0;
 		background-color: var(--background-color);
-		color: var(--text-color);		
+		color: var(--text-color);
 	}
 
 	.header-image-container {

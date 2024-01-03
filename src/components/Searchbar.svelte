@@ -224,7 +224,8 @@
 			padding: 0 2rem;
 		}
 
-		.search-flex-container, .input-wrapper {
+		.search-flex-container,
+		.input-wrapper {
 			width: 100%;
 			max-width: min-content;
 			height: 100%;
@@ -233,7 +234,8 @@
 			padding: 0;
 		}
 
-		.team-searchbar, .search-results {
+		.team-searchbar,
+		.search-results {
 			width: 66vw;
 		}
 

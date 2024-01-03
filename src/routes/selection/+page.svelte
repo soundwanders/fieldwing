@@ -14,7 +14,7 @@
 			<div class="goalpost-wrapper">
 				<img src="/goalpost.png" alt="Game selection decoration" />
 			</div>
-		
+
 			<Searchbar />
 			<Selection {conferences} {selectedConference} />
 		</section>
@@ -27,7 +27,7 @@
 	section {
 		min-height: 100vh;
 		animation: fadeIn 0.8s forwards;
-		transition: background-color 0.2s ease; 
+		transition: background-color 0.2s ease;
 	}
 
 	.goalpost-wrapper {

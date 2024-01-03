@@ -125,7 +125,7 @@
 </div>
 
 <style module>
-		.light {
+	.light {
 		--background-color: #f9f9f9;
 		--text-color: #1a202c;
 		--highlight-text-color: #18181b;
@@ -138,7 +138,7 @@
 		--highlight-text-color: #f9f9f9;
 		--highlight-color: #336699;
 	}
-	
+
 	.resubmit-container {
 		width: 100%;
 		display: flex;

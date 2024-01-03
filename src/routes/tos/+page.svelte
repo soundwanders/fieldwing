@@ -10,13 +10,14 @@
 			<ol>
 				<li>
 					<strong>Acceptance of Terms</strong><br />
-					By using our College Football App, you agree to comply with these Terms of Service. If you
-					do not agree, please refrain from using the app.
+					By using the Fieldwing website, you agree to comply with these Terms of Service. If you do
+					not agree, please refrain from using the app. If you would like to discuss the Terms of Service,
+					please feel free to contact us.
 				</li>
 
 				<li>
 					<strong>App Usage</strong><br />
-					Our app is designed for personal, non-commercial use. Any unauthorized use or reproduction
+					Our web app is designed for personal, non-commercial use. Any unauthorized use or reproduction
 					of the app's content is strictly prohibited.
 				</li>
 

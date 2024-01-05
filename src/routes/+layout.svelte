@@ -39,13 +39,13 @@
 
 	.light {
 		--background-color: #f9f9f9;
-		--background-image: linear-gradient(180deg, #f9f9f9 58%, #c7cbe9 93%);
+		--background-image: linear-gradient(180deg, #f9f9f9 59%, #c7cbe9 93%);
 		--text-color: #1a202c;
 	}
 
 	.dark {
 		--background-color: #2b4162;
-		--background-image: linear-gradient(180deg, #1a202c 58%, #1b293e 93%);
+		--background-image: linear-gradient(180deg, #1a202c 59%, #1b293e 93%);
 		--text-color: #f9f9f9;
 	}
 
@@ -57,7 +57,7 @@
 		}
 
 		.content-container {
-			padding: 0 2.5rem;
+			padding: 0 2rem;
 			margin: 0 auto;
 		}
 	}

@@ -298,6 +298,7 @@
 	/* Add media query for smaller screens */
 	@media screen and (max-width: 768px) {
 		.selection-wrapper {
+			width: 90%;
 			margin-bottom: 4rem;
 		}
 
@@ -325,8 +326,8 @@
 		}
 
 		.input-selector-wrapper {
-			width: 45%;
-			max-width: 45%;
+			width: 44%;
+			max-width: 44%;
 		}
 	}
 </style>

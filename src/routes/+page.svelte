@@ -45,7 +45,7 @@
 								/>
 							</g>
 						</svg>
-						
+
 						<h3>Explore Legacies</h3>
 						<p>Dive into the rich history of college football with comprehensive game results</p>
 					</div>

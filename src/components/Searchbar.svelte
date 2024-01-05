@@ -221,7 +221,8 @@
 			flex-direction: column;
 			width: 100%;
 			height: 100%;
-			padding: 0 2rem;
+			padding: 0;
+			margin: 0 auto;
 		}
 
 		.search-flex-container,
@@ -230,7 +231,6 @@
 			max-width: min-content;
 			height: 100%;
 			flex-direction: column;
-			margin: 0;
 			padding: 0;
 		}
 
@@ -251,7 +251,6 @@
 		.label-wrapper {
 			width: 100%;
 			text-align: left;
-			margin: 0;
 		}
 
 		.input-wrapper:last-child {

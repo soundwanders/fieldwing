@@ -25,22 +25,30 @@
 	<section class="results-section" class:light={!$theme} class:dark={$theme}>
 		<div class="results-container">
 			{#if matchupData}
-				<h1>
-					Head-to-Head Matchup for
-					<span class="header-teams" class:light={!$theme} class:dark={$theme}>
-						{teamNames}
+				<h1 class="main-title">
+					
+					<span class="title-team">
+						{team1} 
 					</span>
+					vs
+					<span class="title-team">
+						{team2} 
+					</span>
+					Results from {matchupData.startYear} to {matchupData.endYear}
 				</h1>
-
-				<p>Start Year: {matchupData.startYear}</p>
-				<p>End Year: {matchupData.endYear}</p>
-
-				<div class="head-to-head-container" class:light={!$theme} class:dark={$theme}>
+			
+				<div class="head-to-head-container">
 					{#each matchupData.games as gameResult, index (index)}
 						{#if gameResult && gameResult.awayTeam && gameResult.homeTeam}
 							<div class="head-to-head">
-								<h2 class="matchup-info" class:light={!$theme} class:dark={$theme}>
-									{gameResult.awayTeam} vs {gameResult.homeTeam}
+								<h2 class="matchup-teams" class:light={!$theme} class:dark={$theme}>
+									<span class="team1">
+										{gameResult.awayTeam} 
+									</span>	
+										at
+									<span class="team2">
+										{gameResult.homeTeam} 
+									</span>
 								</h2>
 
 								<p class="matchup-info">
@@ -51,15 +59,15 @@
 									Venue: {gameResult.venue}
 								</p>
 
-								<p class="matchup-info">
-									Result: {gameResult.winner} won with a score of {gameResult.homeScore} - {gameResult.awayScore}
+								<p class="matchup-result">
+									{gameResult.winner} won with a score of {gameResult.homeScore} - {gameResult.awayScore}
 								</p>
 							</div>
 						{/if}
 					{/each}
 				</div>
 			{:else}
-				<p>
+				<p class="no-data-message">
 					Sorry, it seems like there is no head-to-head matchup data available for those two teams.
 				</p>
 			{/if}
@@ -69,8 +77,11 @@
 
 <style>
 	.wrapper {
-		width: 100vw;
-		height: 100vh;
+		width: 100%;
+		min-height: 100vh;
+		display: flex;
+		align-items: center;
+		justify-content: center;
 		background-color: var(--background-color);
 		background-image: var(--background-image);
 		margin: 0;
@@ -81,21 +92,125 @@
 		--background-color: #f9f9f9;
 		--text-color: #1a202c;
 		--teams-color: #bb0000;
+		--title-team-color: #005ebb;
+		--team-color: #00a251;
 	}
 
 	.dark {
 		--background-color: #1a202c;
 		--text-color: #f9f9f9;
 		--teams-color: #ff9195;
+		--title-team-color: #abaeff;
+		--team-color: #91ffc4;
+	}
+
+	.results-section {
+		width: 100%;
+		max-width: 850px;
+		margin-bottom: 5rem;
+	}
+
+	.results-container {
+		padding: 1.5rem;
+	}
+
+	.main-title {
+		font-size: 2.25rem;
+		line-height: 2.5rem;
+		text-wrap: balance;
+		margin-bottom: 2rem;
+		text-align: center;
+		color: var(--teams-color);
+	}
+
+	.title-team {
+		color: var(--title-team-color);
+	}
+
+	.team1 {
+		color: var(--team-color);
+	}
+
+	.team2 {
+		color: var(--team-color);
 	}
 
 	.head-to-head-container {
 		display: flex;
 		flex-wrap: wrap;
-		justify-content: center;
+		justify-content: space-between;
+		width: 100%;
+		gap: 1.5rem;
+	}
+
+	.head-to-head {
+		flex: 0 0 calc(33.33% - 1.5rem);
+		text-align: center;
+		margin-bottom: 0.5rem;
+		padding: 1.25rem;
+		border: 1px solid #c3c8d0;
+		border-radius: 0.75rem;
+		box-sizing: border-box;
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+		transition: transform 0.3s ease-in-out;
+	}
+
+	.head-to-head:hover {
+		transform: scale(1.05);
+	}
+
+	.matchup-teams {
+		font-size: 1.5rem;
+		line-height: 2rem;
+		color: var(--teams-color);
+		margin-bottom: 0.5rem;
+	}
+
+	.matchup-info {
+		font-size: 1rem;
+		line-height: 1.25rem;
+		margin-bottom: 0.5rem;
 		color: var(--text-color);
-		animation: fadeIn 0.8s forwards ease-out;
-		transition: background-color 0.2s ease;
+	}
+
+	.matchup-result {
+		font-size: 1.2rem;
+		line-height: 1.5rem;
+		color: var(--teams-color);
+	}
+
+	.no-data-message {
+		font-size: 1.2rem;
+		line-height: 1.5rem;
+		color: var(--text-color);
+	}
+
+	@media (max-width: 768px) {
+		.wrapper {
+			width: 100%;
+			min-height: 100%;
+			margin: 0;
+			padding: 0;
+		}
+
+		.head-to-head {
+			flex: 1;
+		}
+
+		.main-title {
+			font-size: 1.5rem;
+			line-height: 2rem;
+		}
+
+		.matchup-teams {
+			font-size: 1.125rem;
+			line-height: 1.75rem;
+		}
+
+		.matchup-result {
+			font-size: 1rem;
+			line-height: 1.5rem;
+		}
 	}
 
 	@keyframes fadeIn {
@@ -105,23 +220,5 @@
 		to {
 			opacity: 1;
 		}
-	}
-
-	.head-to-head {
-		width: max-content;
-		text-align: center;
-		padding: 0.5rem 2rem 1.5rem 2rem;
-		margin: 0.5rem 3rem;
-		margin-bottom: 1.25rem;
-		border: 1px solid #c3c8d0;
-		border-radius: 5px;
-		box-sizing: border-box;
-		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-	}
-
-	.matchup-info {
-		font-size: 1rem;
-		line-height: 1.25rem;
-		margin-bottom: 0.5rem;
 	}
 </style>

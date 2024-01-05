@@ -139,7 +139,7 @@
 	.header-image {
 		width: 3.5%;
 		height: auto;
-		margin-right: 0.5rem;
+		margin-right: 0.75rem;
 	}
 
 	.results-container {

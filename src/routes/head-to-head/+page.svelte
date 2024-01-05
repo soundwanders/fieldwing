@@ -10,12 +10,9 @@
 	let team1: string;
 	let team2: string;
 
-	let teamNames: string;
-
 	$: {
 		team1 = matchupData.team1;
 		team2 = matchupData.team2;
-		teamNames = `${team1} vs ${team2}`;
 	}
 
 	console.log('matchupData', matchupData);
@@ -25,17 +22,15 @@
 	<section class="results-section" class:light={!$theme} class:dark={$theme}>
 		<div class="results-container">
 			{#if matchupData}
-				<h1 class="main-title">
-					
-					<span class="title-team">
+				<div class="header-image-container">
+					<img class="header-image" src="/h2h.png" alt="Head to Head Matchups" />
+					<h1 class="main-title" class:light={!$theme} class:dark={$theme}>
 						{team1} 
-					</span>
-					vs
-					<span class="title-team">
-						{team2} 
-					</span>
-					Results from {matchupData.startYear} to {matchupData.endYear}
-				</h1>
+						vs
+						{team2}
+						from {matchupData.startYear} to {matchupData.endYear}
+					</h1>
+				</div>
 			
 				<div class="head-to-head-container">
 					{#each matchupData.games as gameResult, index (index)}
@@ -76,11 +71,25 @@
 </section>
 
 <style>
+	.light {
+		--background-color: #f9f9f9;
+		--text-color: #1a202c;
+		--teams-color: #bb0000;
+		--team-name-color: #005ebb;
+	}
+
+	.dark {
+		--background-color: #1a202c;
+		--text-color: #f9f9f9;
+		--teams-color: #ff9195;
+		--team-name-color: #abaeff;
+	}
+
 	.wrapper {
 		width: 100%;
 		min-height: 100vh;
 		display: flex;
-		align-items: center;
+		align-items: baseline;
 		justify-content: center;
 		background-color: var(--background-color);
 		background-image: var(--background-image);
@@ -88,51 +97,50 @@
 		padding: 0;
 	}
 
-	.light {
-		--background-color: #f9f9f9;
-		--text-color: #1a202c;
-		--teams-color: #bb0000;
-		--title-team-color: #005ebb;
-		--team-color: #00a251;
-	}
-
-	.dark {
-		--background-color: #1a202c;
-		--text-color: #f9f9f9;
-		--teams-color: #ff9195;
-		--title-team-color: #abaeff;
-		--team-color: #91ffc4;
-	}
-
 	.results-section {
-		width: 100%;
-		max-width: 850px;
-		margin-bottom: 5rem;
+		display: flex;
+		justify-content: center;
+		width: 100vw;
+		margin: 0;
+		padding: 0;
+		color: var(--text-color);
+	}
+
+	.header-image-container {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		margin-bottom: 2rem;
+	}
+
+	.header-image {
+		width: 4%;
+		height: auto;
+		margin-right: 0.75rem;
+		margin-bottom: 0.75rem;
 	}
 
 	.results-container {
-		padding: 1.5rem;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
 	}
 
 	.main-title {
 		font-size: 2.25rem;
 		line-height: 2.5rem;
 		text-wrap: balance;
-		margin-bottom: 2rem;
 		text-align: center;
-		color: var(--teams-color);
+		color: var(--text-color);
 	}
-
-	.title-team {
-		color: var(--title-team-color);
-	}
-
+	
 	.team1 {
-		color: var(--team-color);
+		color: var(--team-name-color);
 	}
 
 	.team2 {
-		color: var(--team-color);
+		color: var(--team-name-color);
 	}
 
 	.head-to-head-container {
@@ -194,12 +202,17 @@
 		}
 
 		.head-to-head {
-			flex: 1;
+			flex: 1 1 auto;
 		}
 
 		.main-title {
 			font-size: 1.5rem;
 			line-height: 2rem;
+		}
+
+		.header-image {
+			width: 25%;
+			margin-bottom: 1rem;
 		}
 
 		.matchup-teams {

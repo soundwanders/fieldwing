@@ -126,7 +126,7 @@
 		box-sizing: border-box;
 		border: 1px solid #c3c8d0;
 		border-radius: 0.25rem;
-		background-color: var(--form-background-color);
+		background-color: transparent;
 		color: var(--form-text-color);
 	}
 

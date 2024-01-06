@@ -1,12 +1,18 @@
 <!-- +page.svelte -->
 <script lang="ts">
 	import { theme } from '$lib/stores/theme';
-	import '../../styles/main.css';
 	import { formatStartDate } from '$lib/utils/formatStartDate';
+	import { goto } from '$app/navigation';
+	import '../../styles/main.css';
 
 	export let data: { matchupData?: any };
 	const { matchupData } = data;
 
+  if (!data || !data.matchupData) {
+    // Handle empty or invalid data
+    goto('/matchup');
+  }
+	
 	let team1: string;
 	let team2: string;
 
@@ -23,7 +29,7 @@
 		<div class="results-container">
 			{#if matchupData}
 				<div class="header-image-container">
-					<img class="header-image" src="/h2h.png" alt="Head to Head Matchups" />
+					<img class="h2h-image" src="/h2h.png" alt="Head to Head Matchups" />
 					<h1 class="main-title" class:light={!$theme} class:dark={$theme}>
 						{team1} 
 						vs
@@ -101,8 +107,6 @@
 		display: flex;
 		justify-content: center;
 		width: 100vw;
-		margin: 0;
-		padding: 0;
 		color: var(--text-color);
 	}
 
@@ -113,7 +117,7 @@
 		margin-bottom: 2rem;
 	}
 
-	.header-image {
+	.h2h-image {
 		width: 3.5%;
 		height: auto;
 		margin-right: 0.75rem;
@@ -175,15 +179,17 @@
 	}
 
 	.matchup-info {
-		font-size: 1rem;
+		font-size: 0.875rem;
 		line-height: 1.25rem;
 		margin-bottom: 0.5rem;
 		color: var(--text-color);
 	}
 
 	.matchup-result {
-		font-size: 1.2rem;
-		line-height: 1.5rem;
+		font-size: 1rem;
+		line-height: 1.25rem;
+		font-weight: 600;
+		padding-top: 0.25rem;
 		color: var(--teams-color);
 	}
 
@@ -206,28 +212,30 @@
 		}
 
 		.main-title {
-			font-size: 1.5rem;
-			line-height: 2rem;
+			font-size: 1.25rem;
+			line-height: 1.75rem;
 		}
 
 		.header-image-container {
 			width: 90%;
+			margin-bottom: 1rem;
 		}
 
-		.header-image {
-			width: 20%;
+		.h2h-image {
+			width: 25%;
+			height: auto;
+			margin-right: -1rem;
 			margin-bottom: 0;
-			margin-right: 0;
 		}
 
 		.matchup-teams {
-			font-size: 1.125rem;
-			line-height: 1.75rem;
-		}
-
-		.matchup-result {
 			font-size: 1rem;
 			line-height: 1.5rem;
+		}
+
+		.matchup-info, .matchup-result {	
+			font-size: 0.875rem;
+			line-height: 1.25rem;
 		}
 	}
 

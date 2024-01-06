@@ -1,5 +1,6 @@
 <script>
 	import { theme } from '$lib/stores/theme';
+	import '../../styles/main.css';
 </script>
 
 <section class="wrapper">

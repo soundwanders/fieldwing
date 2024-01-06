@@ -11,16 +11,15 @@
 <div class="selection-page">
 	<main>
 		<section>
-			<div class="goalpost-wrapper">
-				<img src="/goalpost.png" alt="Game selection decoration" />
+			<div class="selection-img-wrapper">
+				<img class="selection-image" src="/selection.png" alt="Game Results Selection" />
 			</div>
 
 			<Searchbar />
 			<Selection {conferences} {selectedConference} />
 		</section>
+		<Footer />
 	</main>
-
-	<Footer />
 </div>
 
 <style>
@@ -30,7 +29,7 @@
 		transition: background-color 0.2s ease;
 	}
 
-	.goalpost-wrapper {
+	.selection-img-wrapper {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
@@ -38,8 +37,8 @@
 		margin-bottom: 1.5rem;
 	}
 
-	.goalpost-wrapper img {
-		max-width: 8%;
+	.selection-image {
+		width: 7.5%;
 		height: auto;
 	}
 
@@ -60,8 +59,8 @@
 			height: 100%;
 		}
 
-		.goalpost-wrapper img {
-			max-width: 33%;
+		.selection-image {
+			width: 33%;
 			height: auto;
 		}
 	}

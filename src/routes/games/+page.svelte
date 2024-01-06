@@ -24,7 +24,7 @@
 		<div class="results-container">
 			<div class="header-image-container">
 				{#if gameResults && gameResults[0]?.data[0]}
-					<img class="header-image" src="/strategy.png" alt="Game Results" />
+					<img class="games-image" src="/gameresults.png" alt="Game Results" />
 					<h1>
 						Week {gameResults[0].data[0].week}, {gameResults[0].data[0].season} Results for
 						<span class="header-teams" class:light={!$theme} class:dark={$theme}>
@@ -136,7 +136,7 @@
 		align-items: center;
 	}
 
-	.header-image {
+	.games-image {
 		width: 3.5%;
 		height: auto;
 		margin-right: 0.75rem;
@@ -157,11 +157,19 @@
 		justify-content: center;
 	}
 
+	.game-results-container {
+		margin-top: 2rem;
+	}
+
+	.game-results-container:nth-child(2) {
+		margin-top: 0;
+	}
+
 	.game-results {
 		width: max-content;
 		text-align: center;
 		padding: 0.5rem 2rem 1.5rem 2rem;
-		margin: 0.5rem 3rem;
+		margin: 1.5rem 3rem;
 		margin-bottom: 1.25rem;
 		border: 1px solid #c3c8d0;
 		border-radius: 5px;
@@ -223,6 +231,8 @@
 		.wrapper {
 			width: 100%;
 			height: 100%;
+			margin: 0;
+			padding: 0;
 		}
 
 		.results-section {
@@ -234,9 +244,30 @@
 			width: 100%;
 		}
 
+		.header-image-container {
+			width: 90%;
+			margin-bottom: 0.5rem;
+		}
+
+		.games-image {
+			width: 25%;
+			height: auto;
+			margin-right: -0.5rem;
+			margin-left: -1rem;
+			margin-bottom: 0.75rem;
+		}
+
 		.game-results {
 			width: 100%;
 			margin: 1.5rem;
+		}
+
+		.game-results:first-of-type {
+			margin-top: 0;
+		}
+
+		.game-results:first-of-type {
+			margin-bottom: 2.5rem;
 		}
 
 		h1 {

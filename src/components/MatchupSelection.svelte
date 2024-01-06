@@ -4,6 +4,7 @@
 	import { onMount } from 'svelte';
 	import { selectedMatchupTeams } from '$lib/stores/store';
 	import { theme } from '$lib/stores/theme';
+	import { goto } from '$app/navigation';
 
 	export let conferences: string[];
 	export let selectedConference: string;
@@ -12,6 +13,7 @@
 	let maxYear = '';
 	let teams: string[] = [];
 	let selectedTeamsArray = $selectedMatchupTeams;
+  let errorMessage: string = '';
 
 	function loadTeams() {
 		if (selectedConference === 'All') {
@@ -33,6 +35,36 @@
 			teams = [];
 		}
 	}
+
+  function validateData() {
+    if (!selectedTeamsArray[0] || !selectedTeamsArray[1]) {
+      errorMessage = 'Please select both teams.';
+      return false;
+    }
+
+    if (minYear && maxYear && parseInt(minYear) > parseInt(maxYear)) {
+      errorMessage = 'Min year should be less than or equal to max year.';
+      return false;
+    }
+
+    errorMessage = '';
+    return true;
+  }
+
+  async function handleSubmit() {
+    if (validateData()) {
+      // if valid data, go to head to head matchup results
+      goto(getHeadToHeadURL());
+    }
+  }
+
+  function getHeadToHeadURL() {
+    return `/head-to-head?team1=${encodeURIComponent(
+      selectedTeamsArray[0]
+    )}&team2=${encodeURIComponent(selectedTeamsArray[1])}&conference=${encodeURIComponent(
+      selectedConference
+    )}${minYear ? `&minYear=${minYear}` : ''}${maxYear ? `&maxYear=${maxYear}` : ''}`;
+  }
 
 	onMount(() => {
 		selectedTeamsArray = $selectedMatchupTeams;
@@ -124,26 +156,19 @@
 				</div>
 
 				<div class="button-container">
-					<a
-						href={selectedTeamsArray
-							? `/head-to-head?team1=${encodeURIComponent(
-									selectedTeamsArray[0]
-							  )}&team2=${encodeURIComponent(selectedTeamsArray[1])}
-							&conference=${encodeURIComponent(selectedConference)}
-							${minYear ? `&minYear=${minYear}` : ''}
-							${maxYear ? `&maxYear=${maxYear}` : ''}`
-							: '#'}
-						data-sveltekit-prefetch
+					<button
+						type="button"
+						class="submit-button"
+						disabled={!selectedTeamsArray[0] || !selectedTeamsArray[1]}
+						on:click={handleSubmit}
 					>
-						<button
-							type="button"
-							class="submit-button"
-							disabled={!selectedTeamsArray[0] || !selectedTeamsArray[1]}
-						>
-							Submit
-						</button>
-					</a>
+						Submit
+					</button>
 				</div>
+			
+				{#if errorMessage}
+					<p class="error-message">{errorMessage}</p>
+				{/if}
 			</div>
 		</form>
 	</div>
@@ -166,7 +191,7 @@
 	}
 
 	.vs-wrapper img {
-		max-width: 8%;
+		width: 8%;
 		height: auto;
 	}
 
@@ -303,8 +328,9 @@
 		}
 
 		.vs-wrapper img {
-			max-width: 33%;
+			width: 33%;
 			height: auto;
+			margin-right: -0.5rem;
 		}
 
 		.selector-form {

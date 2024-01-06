@@ -97,7 +97,7 @@
 						class:dark={$theme}
 						bind:value={selectedWeek}
 					>
-						{#each [...Array(17).keys()] as week}
+						{#each [...Array(12).keys()] as week}
 							<option value={week + 1}>{week + 1}</option>
 						{/each}
 					</select>

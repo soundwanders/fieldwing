@@ -114,7 +114,7 @@
 	}
 
 	.header-image {
-		width: 4%;
+		width: 3.5%;
 		height: auto;
 		margin-right: 0.75rem;
 		margin-bottom: 0.75rem;
@@ -146,9 +146,9 @@
 	.head-to-head-container {
 		display: flex;
 		flex-wrap: wrap;
-		justify-content: space-between;
-		width: 100%;
-		gap: 1.5rem;
+		justify-content: center;
+		width: 90%;
+		gap: 2rem;
 	}
 
 	.head-to-head {
@@ -210,9 +210,14 @@
 			line-height: 2rem;
 		}
 
+		.header-image-container {
+			width: 90%;
+		}
+
 		.header-image {
-			width: 25%;
-			margin-bottom: 1rem;
+			width: 20%;
+			margin-bottom: 0;
+			margin-right: 0;
 		}
 
 		.matchup-teams {

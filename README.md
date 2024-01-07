@@ -2,13 +2,18 @@
 
 ## Description
 
-Fieldwing is a web application built with SvelteKit, allowing users to seamlessly select their favorite college football teams and get weekly updates on their game results!
+Fieldwing is a web application powered by SvelteKit, designed to provide users with a comprehensive view of college football teams. Users can explore historical game results, head-to-head matchups, and select their favorite teams for in-depth analysis. Dive into the rich history of college football and gain insights into team performance over the years.
 
 ## Features
 
 ### Conference Selection
 
 - Users can select a college football conference from a dropdown list, or view all FBS and FCS teams at once.
+- A dropdown list selection dynamically populates the teams container, allowing user to scroll through and select their favorite teams.
+
+### Week and Year Selection
+
+- Users can choose the week and the year they wish to view the game results for, refining the search process and improving customization.
 - A dropdown list selection dynamically populates the teams container, allowing user to scroll through and select their favorite teams.
 
 ### Team Selection
@@ -29,32 +34,27 @@ Fieldwing is a web application built with SvelteKit, allowing users to seamlessl
 
 - Explore the historical head-to-head matchups between two selected teams.
 - Navigate to the "Head-to-Head" page, where you can choose two teams and view their past matchups.
+- Select two teams and input the date ranges you would like to explore, for example you can view all games from 2010 to 2020.
 - Get insights into the performance of your favorite teams in their previous encounters.
-
-### Theming
-
-- Theme is tracked in a Svelte store as well as the use of localStorage if available.
-- The application supports light and dark themes, allowing user to toggle their preferred theme.
-- Theme changes are applied consistently throughout the UI for a cohesive user experience.
 
 ## Accessibility
 
 - Accessibility is important! Conscious effort to make our application screen-reader friendly.
 - Interactive elements such as buttons and links are appropriately handled for keyboard and mouse users.
-- Focus on use of semantic HTML, as well as ARIA to provide additional semantics and improve accessibility.
+- Focus on proper use of semantic HTML, as well as ARIA to improve accessibility.
 
-## Aesthetic Design
+### Custom Theming
 
-- The UI design is intended to be modern, responsive, and visually appealing.
-- Several design elements have been inspired by Tailwind.
-- Aesthetic choices are intended to improve the overall user experience without over-complicating things.
+- Theme is tracked in a Svelte store as well as the use of localStorage if available.
+- The application supports light and dark themes, allowing user to toggle their preferred theme.
+- Theme changes are applied consistently throughout the UI for a cohesive user experience.
+- Many design choices inspired by Tailwind CSS, such as font size and color palettes.
 
 ## Roadmap
 
-- Explore refinements to the UI and UX to create a unique, enjoyable experience
-- Integration of additional features, such as data fetching from APIs.
-- Investigate the feasability of user authentication and user profiles to allow users to manage and update their favorite teams.
-- Implement unit testing with Vitest.
+- ~~Integration of additional features, such as data fetching from APIs~
+- Investigate user authentication and user profiles to allow users to manage and update their favorite teams.
+- Implement unit(?) testing with Vitest or a similar library.
 - Create a Github Actions or similar workflow for testing and deployment on codebase updates.
 
 ## Getting Started

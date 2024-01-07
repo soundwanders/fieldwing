@@ -1,7 +1,7 @@
 <!-- Selector.svelte -->
 
 <script lang="ts">
-	import { selectedTeams } from '$lib/stores/store';
+	import { selectedTeams, selectedWeek } from '$lib/stores/store';
 	import { theme } from '$lib/stores/theme';
 	import { onMount } from 'svelte';
 	import { getCurrentYear } from '$lib/utils/getCurrentYear';
@@ -11,7 +11,6 @@
 
 	let selectedTeamsArray = $selectedTeams;
 	let teams: string[] = [];
-	let selectedWeek: number = 1;
 	let selectedYear: number = new Date().getFullYear();
 
 	// currentYear placeholder for select-year input element
@@ -37,7 +36,7 @@
 		} else {
 			teams = [];
 		}
-		selectedWeek = 1;
+		$selectedWeek = 1;
 	}
 
 	// Toggle selection / deselection of teams
@@ -60,11 +59,12 @@
 
 	$: {
 		selectedTeamsArray = $selectedTeams;
+		$selectedWeek = $selectedWeek;
 	}
 </script>
 
-<section class="select-section" class:light={!$theme} class:dark={$theme}>
-	<div class="selection-wrapper">
+<div class="select-wrapper" class:light={!$theme} class:dark={$theme}>
+	<section class="selection-section">
 		<form class="selector-form" class:light={!$theme} class:dark={$theme}>
 			<h2>Select Your Teams</h2>
 
@@ -95,7 +95,7 @@
 						id="select-week"
 						class:light={!$theme}
 						class:dark={$theme}
-						bind:value={selectedWeek}
+						bind:value={$selectedWeek}
 					>
 						{#each [...Array(12).keys()] as week}
 							<option value={week + 1}>{week + 1}</option>
@@ -166,15 +166,15 @@
 				{/each}
 			</ul>
 		</div>
-	</div>
-</section>
+	</section>
+</div>
 
 <section class="submit-section" class:light={!$theme} class:dark={$theme}>
 	<div class="button-container">
 		<!-- Only enable submit button to redirect to games page if there are selected teams -->
 		<a
 			href={selectedTeamsArray.length > 0
-				? `/games?teams=${selectedTeamsArray.join(',')}&year=${selectedYear}&week=${selectedWeek}`
+				? `/games?teams=${selectedTeamsArray.join(',')}&year=${selectedYear}&week=${$selectedWeek}`
 				: '#'}
 			data-sveltekit-prefetch
 		>
@@ -186,7 +186,29 @@
 </section>
 
 <style module>
-	.select-section {
+	.light {
+		--text-color: #1a202c;
+		--form-background-color: #eeeef0;
+		--form-sub-background-color: #f4f4f5;
+		--form-text-color: #09090b;
+		--highlight-text-color: #18181b;
+		--highlight-color: #b2e7cb;
+		--button-disabled-background-color: #7c7c7c;
+		--button-disabled-hover-color: #5f5f5f;
+	}
+
+	.dark {
+		--text-color: #f9f9f9;
+		--form-background-color: #1d232e;
+		--form-sub-background-color: #242b38;
+		--form-text-color: #f8fafc;
+		--highlight-text-color: #f9f9f9;
+		--highlight-color: #336699;
+		--button-disabled-background-color: #707070;
+		--button-disabled-hover-color: #5c5c5c;
+	}
+
+	.select-wrapper {
 		display: flex;
 		justify-content: center;
 		align-items: flex-start;
@@ -196,7 +218,7 @@
 		transition: background-color 0.2s ease;
 	}
 
-	.selection-wrapper {
+	.selection-section {
 		display: flex;
 		justify-content: center;
 		gap: 4rem;
@@ -429,31 +451,9 @@
 		background-color: var(--button-disabled-hover-color);
 	}
 
-	.light {
-		--text-color: #1a202c;
-		--form-background-color: #eeeef0;
-		--form-sub-background-color: #f4f4f5;
-		--form-text-color: #09090b;
-		--highlight-text-color: #18181b;
-		--highlight-color: #b2e7cb;
-		--button-disabled-background-color: #7c7c7c;
-		--button-disabled-hover-color: #5f5f5f;
-	}
-
-	.dark {
-		--text-color: #f9f9f9;
-		--form-background-color: #1d232e;
-		--form-sub-background-color: #242b38;
-		--form-text-color: #f8fafc;
-		--highlight-text-color: #f9f9f9;
-		--highlight-color: #336699;
-		--button-disabled-background-color: #707070;
-		--button-disabled-hover-color: #5c5c5c;
-	}
-
 	/* Media query for mobile devices */
 	@media screen and (max-width: 768px) {
-		.selection-wrapper {
+		.selection-section {
 			display: flex;
 			flex-direction: column;
 			align-items: center;
@@ -467,13 +467,17 @@
 			margin-top: 0;
 		}
 
-		.select-section {
+		.select-wrapper {
 			width: 100%;
 			margin: 0 auto;
 		}
 
 		.team-selector-wrapper {
 			align-self: end;
+		}
+
+		#select-year {
+			max-width: 4rem;
 		}
 
 		.selected-teams {

@@ -1,6 +1,6 @@
 <script>
 	import { theme } from '$lib/stores/theme.js';
-	import ThemeIcons from '../components/ThemeIcons.svelte';
+	import ThemeIcons from './ThemeIcons.svelte';
 
 	function toggleTheme() {
 		theme.update((currentTheme) => {

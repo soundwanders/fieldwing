@@ -8,11 +8,11 @@
 	export let data: { matchupData?: any };
 	const { matchupData } = data;
 
-  if (!data || !data.matchupData) {
-    // Handle empty or invalid data
-    goto('/matchup');
-  }
-	
+	if (!data || !data.matchupData) {
+		// Handle empty or invalid data
+		goto('/matchup');
+	}
+
 	let team1: string;
 	let team2: string;
 
@@ -24,31 +24,33 @@
 	console.log('matchupData', matchupData);
 </script>
 
-<section class="wrapper">
-	<section class="results-section" class:light={!$theme} class:dark={$theme}>
-		<div class="results-container">
+<div class="wrapper">
+	<div class="results-section" class:light={!$theme} class:dark={$theme}>
+		<section class="results-container">
 			{#if matchupData}
-				<div class="header-image-container">
-					<img class="h2h-image" src="/h2h.png" alt="Head to Head Matchups" />
-					<h1 class="main-title" class:light={!$theme} class:dark={$theme}>
-						{team1} 
-						vs
-						{team2}
-						from {matchupData.startYear} to {matchupData.endYear}
-					</h1>
+				<div class="header-image-wrapper">
+					<figure>
+						<img class="h2h-image" src="/h2h.png" alt="Head to Head Matchups" />
+						<h1 class="main-title" class:light={!$theme} class:dark={$theme}>
+							{team1}
+							vs
+							{team2}
+							from {matchupData.startYear} to {matchupData.endYear}
+						</h1>
+					</figure>
 				</div>
-			
+
 				<div class="head-to-head-container">
 					{#each matchupData.games as gameResult, index (index)}
 						{#if gameResult && gameResult.awayTeam && gameResult.homeTeam}
-							<div class="head-to-head">
+							<article class="head-to-head">
 								<h2 class="matchup-teams" class:light={!$theme} class:dark={$theme}>
 									<span class="team1">
-										{gameResult.awayTeam} 
-									</span>	
-										at
+										{gameResult.awayTeam}
+									</span>
+									at
 									<span class="team2">
-										{gameResult.homeTeam} 
+										{gameResult.homeTeam}
 									</span>
 								</h2>
 
@@ -63,7 +65,7 @@
 								<p class="matchup-result">
 									{gameResult.winner} won with a score of {gameResult.homeScore} - {gameResult.awayScore}
 								</p>
-							</div>
+							</article>
 						{/if}
 					{/each}
 				</div>
@@ -72,9 +74,9 @@
 					Sorry, it seems like there is no head-to-head matchup data available for those two teams.
 				</p>
 			{/if}
-		</div>
-	</section>
-</section>
+		</section>
+	</div>
+</div>
 
 <style>
 	.light {
@@ -92,8 +94,8 @@
 	}
 
 	.wrapper {
-		width: 100%;
 		min-height: 100vh;
+		width: 100%;
 		display: flex;
 		align-items: baseline;
 		justify-content: center;
@@ -110,7 +112,7 @@
 		color: var(--text-color);
 	}
 
-	.header-image-container {
+	.header-image-wrapper {
 		display: flex;
 		justify-content: center;
 		align-items: center;
@@ -118,8 +120,8 @@
 	}
 
 	.h2h-image {
-		width: 3.5%;
 		height: auto;
+		width: 3.5%;
 		margin-right: 0.75rem;
 		margin-bottom: 0.75rem;
 	}
@@ -138,7 +140,7 @@
 		text-align: center;
 		color: var(--text-color);
 	}
-	
+
 	.team1 {
 		color: var(--team-name-color);
 	}
@@ -201,8 +203,8 @@
 
 	@media (max-width: 768px) {
 		.wrapper {
-			width: 100%;
 			min-height: 100%;
+			width: 100%;
 			margin: 0;
 			padding: 0;
 		}
@@ -216,7 +218,7 @@
 			line-height: 1.75rem;
 		}
 
-		.header-image-container {
+		.header-image-wrapper {
 			width: 90%;
 			margin-bottom: 1rem;
 		}
@@ -233,7 +235,8 @@
 			line-height: 1.5rem;
 		}
 
-		.matchup-info, .matchup-result {	
+		.matchup-info,
+		.matchup-result {
 			font-size: 0.875rem;
 			line-height: 1.25rem;
 		}

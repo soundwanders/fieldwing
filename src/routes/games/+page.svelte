@@ -19,26 +19,28 @@
 	}
 </script>
 
-<section class="wrapper">
-	<section class="results-section" class:light={!$theme} class:dark={$theme}>
-		<div class="results-container">
+<div class="wrapper">
+	<div class="results-container" class:light={!$theme} class:dark={$theme}>
+		<section class="results-section">
 			<div class="header-image-container">
-				{#if gameResults && gameResults[0]?.data[0]}
-					<img class="games-image" src="/gameresults.png" alt="Game Results" />
-					<h1>
-						Week {gameResults[0].data[0].week}, {gameResults[0].data[0].season} Results for
-						<span class="header-teams" class:light={!$theme} class:dark={$theme}>
-							{teamTitleList}
-						</span>
-					</h1>
-				{/if}
+				<figure>
+					{#if gameResults && gameResults[0]?.data[0]}
+						<img class="games-image" src="/gameresults.png" alt="Game Results" />
+						<h1>
+							Week {gameResults[0].data[0].week}, {gameResults[0].data[0].season} Results for
+							<span class="header-teams" class:light={!$theme} class:dark={$theme}>
+								{teamTitleList}
+							</span>
+						</h1>
+					{/if}
+				</figure>
 			</div>
 
 			{#if gameResults}
 				{#each gameResults as { team, data } (team)}
 					{#each data as gameResult (gameResult.id)}
 						<div class="game-results-container">
-							<div class="game-results" class:light={!$theme} class:dark={$theme}>
+							<section class="game-results" class:light={!$theme} class:dark={$theme}>
 								<h2 class="team-names" class:light={!$theme} class:dark={$theme}>
 									{gameResult.home_team} vs {gameResult.away_team}
 								</h2>
@@ -48,7 +50,7 @@
 								</p>
 
 								<!-- Scoreboard-like design for home and away points -->
-								<div class="scoreboard">
+								<article class="scoreboard">
 									<div class="team-score">
 										<p class="team-name">{gameResult.home_team}</p>
 										<p class="points">{gameResult.home_points}</p>
@@ -57,7 +59,7 @@
 										<p class="team-name">{gameResult.away_team}</p>
 										<p class="points">{gameResult.away_points}</p>
 									</div>
-								</div>
+								</article>
 
 								<p class="game-info">
 									Date: {formatStartDate(gameResult.start_date)}
@@ -71,18 +73,18 @@
 								<p class="game-info">
 									Completed: {gameResult.completed ? 'Yes' : 'No'}
 								</p>
-							</div>
+							</section>
 						</div>
 					{/each}
 				{/each}
 			{/if}
-		</div>
-	</section>
+		</section>
+	</div>
 
 	<section class="search-section">
 		<ResubmitSearch />
 	</section>
-</section>
+</div>
 
 <style>
 	.light {
@@ -114,13 +116,13 @@
 	}
 
 	.wrapper {
-		width: 100vw;
 		height: 100vh;
+		width: 100vw;
 		background-color: var(--background-color);
 		background-image: var(--background-image);
 	}
 
-	.results-section {
+	.results-container {
 		display: flex;
 		justify-content: center;
 		width: 100vw;
@@ -137,18 +139,18 @@
 	}
 
 	.games-image {
-		width: 3.5%;
 		height: auto;
+		width: 3.5%;
 		margin-right: 0.75rem;
 	}
 
-	.results-container {
+	.results-section {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		width: 100%;
 		height: 100%;
+		width: 100%;
 	}
 
 	.game-results-container {
@@ -229,18 +231,18 @@
 	/* Media query for mobile devices */
 	@media (max-width: 768px) {
 		.wrapper {
-			width: 100%;
 			height: 100%;
+			width: 100%;
 			margin: 0;
 			padding: 0;
 		}
 
-		.results-section {
+		.results-container {
 			width: 100%;
 			margin: 0 auto;
 		}
 
-		.results-container {
+		.results-section {
 			width: 100%;
 		}
 
@@ -250,8 +252,8 @@
 		}
 
 		.games-image {
-			width: 25%;
 			height: auto;
+			width: 25%;
 			margin-right: -0.5rem;
 			margin-left: -1rem;
 			margin-bottom: 0.75rem;

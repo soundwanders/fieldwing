@@ -4,7 +4,7 @@
 	import { onMount } from 'svelte';
 	import fbsData from '../data/fbs.json';
 	import fcsData from '../data/fcs.json';
-	import { selectedTeams } from '$lib/stores/store';
+	import { selectedTeams, selectedWeek } from '$lib/stores/store';
 	import { theme } from '$lib/stores/theme';
 
 	let searchQuery: string = '';
@@ -43,10 +43,14 @@
 		// Trigger a re-render to update searchResults and highlight selected team
 		searchTeams();
 	}
+
+	$: {
+		$selectedWeek = $selectedWeek;
+	}
 </script>
 
-<div class="search-wrapper">
-	<div class="search-flex-container">
+<section class="search-wrapper">
+	<div class="searchbar-flex-container">
 		<div class="label-wrapper">
 			<label for="teamSearch">Search for a Team:</label>
 		</div>
@@ -65,7 +69,20 @@
 		</div>
 	</div>
 
-	<div class="search-flex-container">
+	<div class="searchbar-flex-container">
+		<div class="label-wrapper">
+			<label for="week-selector">Week:</label>
+		</div>
+		<div class="select-wrapper">
+			<select id="week-selector" bind:value={$selectedWeek}>
+				{#each [...Array(12).keys()] as week}
+					<option value={week + 1}>{week + 1}</option>
+				{/each}
+			</select>
+		</div>
+	</div>
+
+	<div class="searchbar-flex-container">
 		<div class="label-wrapper">
 			<p id="search-query">
 				You searched for:
@@ -98,51 +115,23 @@
 			</div>
 		</div>
 	</div>
-</div>
+</section>
 
 <style module>
 	.search-wrapper {
 		display: flex;
 		justify-content: center;
 		align-items: flex-start;
-		width: 100vw;
 		height: 100%;
+		width: 100vw;
 	}
 
-	.search-flex-container {
+	.searchbar-flex-container {
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: space-between;
 		align-items: flex-start;
 		width: min-content;
-	}
-
-	.team-searchbar {
-		flex-grow: 1;
-		height: 2.5rem;
-		width: 370px;
-		padding: 0.3rem;
-		margin: 0.75rem 0;
-		box-sizing: border-box;
-		border: 1px solid #c3c8d0;
-		border-radius: 0.25rem;
-		background-color: transparent;
-		color: var(--form-text-color);
-	}
-
-	.search-results {
-		flex-grow: 1;
-		min-height: 3.75rem;
-		max-height: 3.75rem;
-		width: 370px;
-		overflow-y: auto;
-		padding: 0.3rem;
-		margin: 0.75rem 0;
-		border: 1px solid #c3c8d0;
-		border-radius: 0.25rem;
-		background-color: var(--form-background-color);
-		color: var(--form-text-color);
-		box-sizing: border-box;
 	}
 
 	.label-wrapper {
@@ -157,6 +146,55 @@
 		margin: 0 2rem;
 	}
 
+	.team-searchbar {
+		flex-grow: 1;
+		height: 2.5rem;
+		width: 262px;
+		padding: 0.3rem;
+		margin: 0.75rem 0;
+		box-sizing: border-box;
+		border: 1px solid #c3c8d0;
+		border-radius: 0.25rem;
+		background-color: transparent;
+		color: var(--form-text-color);
+	}
+
+	.select-wrapper {
+		display: flex;
+		height: fit-content;
+		margin: 0 2rem;
+		margin-left: auto;
+		align-items: flex-start;
+	}
+
+	#week-selector {
+		background-color: var(--form-sub-background-color);
+		margin-top: 0.75rem;
+		padding: 0.5rem;
+		font-size: 0.875rem;
+		line-height: 1.25rem;
+		border: 1px solid #ced4da;
+		border-radius: 0.25rem;
+		color: inherit;
+		box-sizing: content-box;
+		margin-left: auto;
+	}
+	
+	.search-results {
+		flex-grow: 1;
+		min-height: 3.875rem;
+		max-height: 3.875rem;
+		width: 370px;
+		overflow-y: auto;
+		padding: 0.3rem;
+		margin: 0.75rem 0;
+		border: 1px solid #c3c8d0;
+		border-radius: 0.25rem;
+		background-color: var(--form-background-color);
+		color: var(--form-text-color);
+		box-sizing: border-box;
+	}
+
 	.team-list {
 		font-size: 0.875rem;
 		line-height: 1rem;
@@ -169,7 +207,7 @@
 
 	.team-list-items {
 		list-style-type: none;
-		padding: 0.125rem 0;
+		padding: 0.175rem 0;
 	}
 
 	#search-query {
@@ -178,10 +216,6 @@
 	}
 
 	.query-result {
-		font-weight: bold;
-	}
-
-	label {
 		font-weight: bold;
 	}
 
@@ -219,19 +253,24 @@
 	@media screen and (max-width: 768px) {
 		.search-wrapper {
 			flex-direction: column;
-			width: 100%;
 			height: 100%;
+			width: 100%;
 			padding: 0;
 			margin: 0 auto;
 		}
 
-		.search-flex-container,
+		.searchbar-flex-container,
+		.select-wrapper,
 		.input-wrapper {
+			height: 100%;
 			width: 100%;
 			max-width: min-content;
-			height: 100%;
-			flex-direction: column;
 			padding: 0;
+		}
+
+		.select-wrapper {
+			margin: 0 2rem;
+			margin-bottom: 1.25rem;
 		}
 
 		.team-searchbar,

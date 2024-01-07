@@ -4,11 +4,11 @@
 	import '../styles/main.css';
 </script>
 
-<div class="container" class:light={!$theme} class:dark={$theme}>
+<main class="container" class:light={!$theme} class:dark={$theme}>
 	<div class="landing-page" class:light={!$theme} class:dark={$theme}>
-		<main class="main-container">
-			<div class="landing-container">
-				<div class="landing-hero">
+		<div class="main-container">
+			<section class="landing-container">
+				<article class="landing-hero">
 					<h2>Your Front Row Seat to College Football Data</h2>
 					<p>Browse game results and explore statistics for all your favorite teams</p>
 					<a href="/selection" role="button" aria-label="Get Started">
@@ -16,15 +16,17 @@
 							Get Started
 						</button>
 					</a>
-				</div>
+				</article>
 
-				<div class="landing-image">
-					<img src="/gameday.svg" alt="Game Day" class="hero-image" />
+				<div class="landing-image-wrapper">
+					<figure>
+						<img src="/gameday.svg" alt="Game Day" class="hero-image" />
+					</figure>
 				</div>
-			</div>
+			</section>
 
-			<div class="landing-container">
-				<div class="landing-details">
+			<section class="landing-container">
+				<article class="landing-details">
 					<div class="landing-ctas">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -90,18 +92,18 @@
 						<h3>Unlock Updates</h3>
 						<p>Stay connected every week with current data for all your favorite teams</p>
 					</div>
-				</div>
-			</div>
-		</main>
+				</article>
+			</section>
+		</div>
 
 		<Footer />
 	</div>
-</div>
+</main>
 
 <style>
 	.container {
-		width: 100vw;
 		min-height: 100vh;
+		width: 100vw;
 		background-color: var(--background-color);
 		background-image: var(--background-image);
 		color: var(--text-color);
@@ -121,8 +123,8 @@
 	.landing-page {
 		display: flex;
 		flex-direction: column;
-		width: 100%;
 		min-height: 90vh;
+		width: 100%;
 		background-color: var(--background-color);
 		background-image: var(--background-image);
 		color: var(--text-color);
@@ -147,7 +149,7 @@
 		text-align: center;
 	}
 
-	.landing-image {
+	.landing-image-wrapper {
 		width: 40%;
 		padding: 0;
 	}
@@ -248,8 +250,8 @@
 	/* Media query for mobile devices */
 	@media (max-width: 768px) {
 		.container {
-			width: 100%;
 			min-height: 100%;
+			width: 100%;
 		}
 
 		.landing-container {
@@ -271,7 +273,7 @@
 			margin-top: 0;
 		}
 
-		.landing-image {
+		.landing-image-wrapper {
 			display: none;
 		}
 

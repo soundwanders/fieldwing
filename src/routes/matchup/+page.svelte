@@ -36,9 +36,9 @@
 	/* Media query for mobile devices */
 	@media (max-width: 768px) {
 		section {
-			width: 100%;
 			min-height: 100%;
 			height: 100%;
+			width: 100%;
 		}
 	}
 </style>

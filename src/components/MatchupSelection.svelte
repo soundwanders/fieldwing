@@ -13,7 +13,7 @@
 	let maxYear = '';
 	let teams: string[] = [];
 	let selectedTeamsArray = $selectedMatchupTeams;
-  let errorMessage: string = '';
+	let errorMessage: string = '';
 
 	function loadTeams() {
 		if (selectedConference === 'All') {
@@ -36,35 +36,35 @@
 		}
 	}
 
-  function validateData() {
-    if (!selectedTeamsArray[0] || !selectedTeamsArray[1]) {
-      errorMessage = 'Please select both teams.';
-      return false;
-    }
+	function validateData() {
+		if (!selectedTeamsArray[0] || !selectedTeamsArray[1]) {
+			errorMessage = 'Please select both teams.';
+			return false;
+		}
 
-    if (minYear && maxYear && parseInt(minYear) > parseInt(maxYear)) {
-      errorMessage = 'Min year should be less than or equal to max year.';
-      return false;
-    }
+		if (minYear && maxYear && parseInt(minYear) > parseInt(maxYear)) {
+			errorMessage = 'Min year should be less than or equal to max year.';
+			return false;
+		}
 
-    errorMessage = '';
-    return true;
-  }
+		errorMessage = '';
+		return true;
+	}
 
-  async function handleSubmit() {
-    if (validateData()) {
-      // if valid data, go to head to head matchup results
-      goto(getHeadToHeadURL());
-    }
-  }
+	async function handleSubmit() {
+		if (validateData()) {
+			// if valid data, go to head to head matchup results
+			goto(getHeadToHeadURL());
+		}
+	}
 
-  function getHeadToHeadURL() {
-    return `/head-to-head?team1=${encodeURIComponent(
-      selectedTeamsArray[0]
-    )}&team2=${encodeURIComponent(selectedTeamsArray[1])}&conference=${encodeURIComponent(
-      selectedConference
-    )}${minYear ? `&minYear=${minYear}` : ''}${maxYear ? `&maxYear=${maxYear}` : ''}`;
-  }
+	function getHeadToHeadURL() {
+		return `/head-to-head?team1=${encodeURIComponent(
+			selectedTeamsArray[0]
+		)}&team2=${encodeURIComponent(selectedTeamsArray[1])}&conference=${encodeURIComponent(
+			selectedConference
+		)}${minYear ? `&minYear=${minYear}` : ''}${maxYear ? `&maxYear=${maxYear}` : ''}`;
+	}
 
 	onMount(() => {
 		selectedTeamsArray = $selectedMatchupTeams;
@@ -76,9 +76,9 @@
 </script>
 
 <section class="select-section" class:light={!$theme} class:dark={$theme}>
-	<div class="vs-wrapper">
-		<img src="/matchup.png" alt="Head to head matchups" />
-	</div>
+	<figure class="vs-wrapper">
+		<img class="matchup-image" src="/matchup.png" alt="Head to head matchups" />
+	</figure>
 
 	<div class="selection-wrapper">
 		<form class="selector-form" class:light={!$theme} class:dark={$theme}>
@@ -165,7 +165,7 @@
 						Submit
 					</button>
 				</div>
-			
+
 				{#if errorMessage}
 					<p class="error-message">{errorMessage}</p>
 				{/if}
@@ -190,9 +190,9 @@
 		width: 100%;
 	}
 
-	.vs-wrapper img {
-		width: 8%;
+	.matchup-image {
 		height: auto;
+		width: 8%;
 	}
 
 	.selection-wrapper {

@@ -7,6 +7,13 @@ body {
 	font-family: 'DM Sans', Arial, Helvetica, sans-serif;
 }
 
+section,
+article,
+figure {
+	margin: 0;
+	padding: 0;
+}
+
 *,
 *:before,
 *:after {

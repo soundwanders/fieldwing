@@ -1,5 +1,5 @@
 <script>
-	import Selection from '../../components/GameSelection.svelte';
+	import GameSelection from '../../components/GameSelection.svelte';
 	import Searchbar from '../../components/Searchbar.svelte';
 	import Footer from '$lib/Footer.svelte';
 	import '../../styles/main.css';
@@ -11,12 +11,12 @@
 <div class="selection-page">
 	<main>
 		<section>
-			<div class="selection-img-wrapper">
+			<figure class="selection-img-wrapper">
 				<img class="selection-image" src="/selection.png" alt="Game Results Selection" />
-			</div>
+			</figure>
 
 			<Searchbar />
-			<Selection {conferences} {selectedConference} />
+			<GameSelection {conferences} {selectedConference} />
 		</section>
 		<Footer />
 	</main>
@@ -54,9 +54,9 @@
 	/* Media query for mobile devices */
 	@media (max-width: 768px) {
 		section {
-			width: 100%;
 			min-height: 100%;
 			height: 100%;
+			width: 100%;
 		}
 
 		.selection-image {

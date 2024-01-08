@@ -29,15 +29,13 @@
 		<section class="results-container">
 			{#if matchupData}
 				<div class="header-image-wrapper">
-					<figure>
-						<img class="h2h-image" src="/h2h.png" alt="Head to Head Matchups" />
-						<h1 class="main-title" class:light={!$theme} class:dark={$theme}>
-							{team1}
-							vs
-							{team2}
-							from {matchupData.startYear} to {matchupData.endYear}
-						</h1>
-					</figure>
+					<img class="h2h-image" src="/h2h.png" alt="Head to Head Matchups" />
+					<h1 class="main-title" class:light={!$theme} class:dark={$theme}>
+						{team1}
+						vs
+						{team2}
+						from {matchupData.startYear} to {matchupData.endYear}
+					</h1>
 				</div>
 
 				<div class="head-to-head-container">

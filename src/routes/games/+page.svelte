@@ -23,17 +23,15 @@
 	<div class="results-container" class:light={!$theme} class:dark={$theme}>
 		<section class="results-section">
 			<div class="header-image-container">
-				<figure>
-					{#if gameResults && gameResults[0]?.data[0]}
-						<img class="games-image" src="/gameresults.png" alt="Game Results" />
-						<h1>
-							Week {gameResults[0].data[0].week}, {gameResults[0].data[0].season} Results for
-							<span class="header-teams" class:light={!$theme} class:dark={$theme}>
-								{teamTitleList}
-							</span>
-						</h1>
-					{/if}
-				</figure>
+				{#if gameResults && gameResults[0]?.data[0]}
+					<img class="games-image" src="/gameresults.png" alt="Game Results" />
+					<h1>
+						Week {gameResults[0].data[0].week}, {gameResults[0].data[0].season} Results for
+						<span class="header-teams" class:light={!$theme} class:dark={$theme}>
+							{teamTitleList}
+						</span>
+					</h1>
+				{/if}
 			</div>
 
 			{#if gameResults}

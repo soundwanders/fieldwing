@@ -1,5 +1,5 @@
 <script>
-	import GameSelection from '../../components/GameSelection.svelte';
+	import TeamSelection from '../../components/TeamSelection.svelte';
 	import Searchbar from '../../components/Searchbar.svelte';
 	import Footer from '$lib/Footer.svelte';
 	import '../../styles/main.css';
@@ -16,7 +16,7 @@
 			</figure>
 
 			<Searchbar />
-			<GameSelection {conferences} {selectedConference} />
+			<TeamSelection {conferences} {selectedConference} />
 		</section>
 		<Footer />
 	</main>

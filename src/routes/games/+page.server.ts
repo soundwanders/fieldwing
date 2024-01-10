@@ -1,4 +1,5 @@
 // routes/games/+page.server.ts
+
 import type { PageServerLoad } from './$types';
 import { CFBD_API_KEY } from '$env/static/private';
 import { getCurrentWeek } from '$lib/utils/getCurrentWeek';

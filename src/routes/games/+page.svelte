@@ -1,4 +1,5 @@
 <!-- +page.svelte -->
+
 <script lang="ts">
 	import { theme } from '$lib/stores/theme';
 	import { formatStartDate } from '$lib/utils/formatStartDate';

@@ -1,4 +1,5 @@
 <!-- +page.svelte -->
+
 <script lang="ts">
 	import { theme } from '$lib/stores/theme';
 	import { formatStartDate } from '$lib/utils/formatStartDate';
@@ -10,7 +11,7 @@
 
 	if (!data || !data.matchupData) {
 		// Handle empty or invalid data
-		goto('/matchup');
+		goto('/matchups');
 	}
 
 	let team1: string;

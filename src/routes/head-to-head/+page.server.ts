@@ -1,4 +1,4 @@
-// routes/matchup/+page.server.ts
+// routes/matchups/+page.server.ts
 
 import type { PageServerLoad } from './$types';
 import { CFBD_API_KEY } from '$env/static/private';

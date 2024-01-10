@@ -179,7 +179,7 @@
 		box-sizing: content-box;
 		margin-left: auto;
 	}
-	
+
 	.search-results {
 		flex-grow: 1;
 		min-height: 3.875rem;

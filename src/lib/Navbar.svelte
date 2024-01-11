@@ -56,7 +56,7 @@
 		>
 			Player Stats
 		</a>
-		
+
 		<span id="button-wrapper">
 			<button
 				id="theme"

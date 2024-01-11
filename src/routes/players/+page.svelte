@@ -1,5 +1,5 @@
 <script lang="ts">
-  import StatSearch from "../../components/StatSearch.svelte";
+	import StatSearch from '../../components/StatSearch.svelte';
 	import Footer from '$lib/Footer.svelte';
 	import '../../styles/main.css';
 </script>
@@ -7,7 +7,7 @@
 <div class="selection-page">
 	<main>
 		<section>
-      <StatSearch />
+			<StatSearch />
 		</section>
 	</main>
 

@@ -1,78 +1,74 @@
 <!-- src/routes/stats/+page.svelte -->
 <script lang="ts">
-  import { theme } from '$lib/stores/theme';
-  import '../../styles/main.css';
+	import { theme } from '$lib/stores/theme';
+	import '../../styles/main.css';
 
 	export let data: { playerStatsData?: any };
 	const { playerStatsData } = data;
 </script>
 
 <div class="wrapper">
-  <div class="results-section" class:light={!$theme} class:dark={$theme}>
-    <section class="results-container">
-      {#if playerStatsData && playerStatsData.length > 0}
-        <div class="header-image-wrapper">
-          <img class="h2h-image" src="/h2h.png" alt="Player Stats" />
-          <h1 class="main-title" class:light={!$theme} class:dark={$theme}>
-            Player Statistics
-          </h1>
-        </div>
+	<div class="results-section" class:light={!$theme} class:dark={$theme}>
+		<section class="results-container">
+			{#if playerStatsData && playerStatsData.length > 0}
+				<div class="header-image-wrapper">
+					<img class="h2h-image" src="/h2h.png" alt="Player Stats" />
+					<h1 class="main-title" class:light={!$theme} class:dark={$theme}>Player Statistics</h1>
+				</div>
 
-        <div class="player-stats-container">
-          {#each playerStatsData as playerStats}
-            <article class="player-stats">
-              <h2 class="player-name" class:light={!$theme} class:dark={$theme}>
-                {playerStats.player}
-              </h2>
+				<div class="player-stats-container">
+					{#each playerStatsData as playerStats}
+						<article class="player-stats">
+							<h2 class="player-name" class:light={!$theme} class:dark={$theme}>
+								{playerStats.player}
+							</h2>
 
-              {#if playerStats.team}
-                <div class="info-container">
-                  <p><strong>Team:</strong> {playerStats.team}</p>
-                </div>
-              {/if}
+							{#if playerStats.team}
+								<div class="info-container">
+									<p><strong>Team:</strong> {playerStats.team}</p>
+								</div>
+							{/if}
 
-              {#if playerStats.conference}
-                <div class="info-container">
-                  <p><strong>Conference:</strong> {playerStats.conference}</p>
-                </div>
-              {/if}
+							{#if playerStats.conference}
+								<div class="info-container">
+									<p><strong>Conference:</strong> {playerStats.conference}</p>
+								</div>
+							{/if}
 
-              {#if playerStats.startWeek && playerStats.endWeek}
-                <div class="info-container">
-                  <p><strong>Start Week:</strong> {playerStats.startWeek}</p>
-                  <p><strong>End Week:</strong> {playerStats.endWeek}</p>
-                </div>
-              {/if}
+							{#if playerStats.startWeek && playerStats.endWeek}
+								<div class="info-container">
+									<p><strong>Start Week:</strong> {playerStats.startWeek}</p>
+									<p><strong>End Week:</strong> {playerStats.endWeek}</p>
+								</div>
+							{/if}
 
-              {#if playerStats.seasonType}
-                <div class="info-container">
-                  <p><strong>Season Type:</strong> {playerStats.seasonType}</p>
-                </div>
-              {/if}
+							{#if playerStats.seasonType}
+								<div class="info-container">
+									<p><strong>Season Type:</strong> {playerStats.seasonType}</p>
+								</div>
+							{/if}
 
-              {#if playerStats.category}
-                <div class="info-container">
-                  <p><strong>Category:</strong> {playerStats.category}</p>
-                </div>
-              {/if}
+							{#if playerStats.category}
+								<div class="info-container">
+									<p><strong>Category:</strong> {playerStats.category}</p>
+								</div>
+							{/if}
 
-              {#if playerStats.stats && playerStats.stats.length > 0}
-                <div class="stats-container">
-                  {#each playerStats.stats as stat}
-                    <p>{stat.label}: {stat.value}</p>
-                  {/each}
-                </div>
-              {/if}
-            </article>
-          {/each}
-        </div>
-      {:else}
-        <p class="no-data-message">
-          No player stats data available.
-        </p>
-      {/if}
-    </section>
-  </div>
+							{#if playerStats.stats && playerStats.stats.length > 0}
+								<div class="stats-container">
+									{#each playerStats.stats as stat}
+										<p>{stat.label}: {stat.value}</p>
+									{/each}
+								</div>
+							{/if}
+						</article>
+					{/each}
+				</div>
+			{:else}
+				<p class="no-data-message">No player stats data available.</p>
+			{/if}
+		</section>
+	</div>
 </div>
 
 <style module>
@@ -207,4 +203,3 @@
 		}
 	}
 </style>
-

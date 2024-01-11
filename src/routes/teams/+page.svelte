@@ -4,8 +4,8 @@
 	import Footer from '$lib/Footer.svelte';
 	import '../../styles/main.css';
 
-	let conferences = ['All', 'FBS', 'FCS'];
-	let selectedConference = '';
+	let divisions = ['All', 'FBS', 'FCS'];
+	let selectedDivision = '';
 </script>
 
 <div class="selection-page">
@@ -16,7 +16,7 @@
 			</figure>
 
 			<Searchbar />
-			<TeamSelection {conferences} {selectedConference} />
+			<TeamSelection {divisions} {selectedDivision} />
 		</section>
 		<Footer />
 	</main>

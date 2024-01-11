@@ -6,9 +6,9 @@ Fieldwing is a web application powered by SvelteKit, designed to provide users w
 
 ## Features
 
-### Conference Selection
+### Division Selection
 
-- Users can select a college football conference from a dropdown list, or view all FBS and FCS teams at once.
+- Users can select a college football division (FBS or FCS) from a dropdown list, or view all teams at once.
 - A dropdown list selection dynamically populates the teams container, allowing user to scroll through and select their favorite teams.
 
 ### Week and Year Selection

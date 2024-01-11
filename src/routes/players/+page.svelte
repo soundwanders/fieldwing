@@ -1,16 +1,13 @@
-<script>
-	import MatchupSelection from '../../components/MatchupSelection.svelte';
+<script lang="ts">
+  import StatSearch from "../../components/StatSearch.svelte";
 	import Footer from '$lib/Footer.svelte';
 	import '../../styles/main.css';
-
-	let divisions = ['All', 'FBS', 'FCS'];
-	let selectedDivision = '';
 </script>
 
 <div class="selection-page">
 	<main>
 		<section>
-			<MatchupSelection {divisions} {selectedDivision} />
+      <StatSearch />
 		</section>
 	</main>
 

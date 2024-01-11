@@ -77,7 +77,7 @@
 	</div>
 </div>
 
-<style>
+<style module>
 	.light {
 		--background-color: #f9f9f9;
 		--text-color: #1a202c;

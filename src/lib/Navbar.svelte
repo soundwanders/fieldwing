@@ -25,12 +25,12 @@
 		</a>
 
 		<a
-			id="selection-shortcut"
+			id="teams-shortcut"
 			class="link"
 			class:light={!$theme}
 			class:dark={$theme}
-			href="/selection"
-			aria-label="Go to Game Selection page"
+			href="/teams"
+			aria-label="Go to Team Selection page"
 		>
 			Games
 		</a>
@@ -40,12 +40,23 @@
 			class="link"
 			class:light={!$theme}
 			class:dark={$theme}
-			href="/matchup"
+			href="/matchups"
 			aria-label="Go to Head-to-Head Matchups page"
 		>
 			Matchups
 		</a>
 
+		<a
+			id="players-shortcut"
+			class="link"
+			class:light={!$theme}
+			class:dark={$theme}
+			href="/players"
+			aria-label="Go to Player Statistics page"
+		>
+			Player Stats
+		</a>
+		
 		<span id="button-wrapper">
 			<button
 				id="theme"
@@ -114,8 +125,9 @@
 	}
 
 	#home-shortcut,
-	#selection-shortcut,
-	#matchup-shortcut {
+	#teams-shortcut,
+	#matchup-shortcut,
+	#players-shortcut {
 		padding: 1rem 2rem;
 		font-size: 0.875rem;
 		line-height: 1.25rem;
@@ -123,7 +135,7 @@
 		background: transparent;
 	}
 
-	#matchup-shortcut {
+	#players-shortcut {
 		margin-right: auto;
 	}
 
@@ -166,8 +178,9 @@
 		}
 
 		#home-shortcut,
-		#selection-shortcut,
-		#matchup-shortcut {
+		#teams-shortcut,
+		#matchup-shortcut,
+		#players-shortcut {
 			font-size: 0.75rem;
 			line-height: 1rem;
 			padding: 1rem;

@@ -6,8 +6,8 @@
 	import { theme } from '$lib/stores/theme';
 	import { goto } from '$app/navigation';
 
-	export let conferences: string[];
-	export let selectedConference: string;
+	export let divisions: string[];
+	export let selectedDivision: string;
 
 	let minYear = '';
 	let maxYear = '';
@@ -16,17 +16,17 @@
 	let errorMessage: string = '';
 
 	function loadTeams() {
-		if (selectedConference === 'All') {
+		if (selectedDivision === 'All') {
 			import('../data/fbs.json').then((fbsData) => {
 				import('../data/fcs.json').then((fcsData) => {
 					teams = [...fbsData.default, ...fcsData.default];
 				});
 			});
-		} else if (selectedConference === 'FBS') {
+		} else if (selectedDivision === 'FBS') {
 			import('../data/fbs.json').then((data) => {
 				teams = data.default;
 			});
-		} else if (selectedConference === 'FCS') {
+		} else if (selectedDivision === 'FCS') {
 			import('../data/fcs.json').then((data) => {
 				teams = data.default;
 				selectedTeamsArray = $selectedMatchupTeams;
@@ -61,8 +61,8 @@
 	function getHeadToHeadURL() {
 		return `/head-to-head?team1=${encodeURIComponent(
 			selectedTeamsArray[0]
-		)}&team2=${encodeURIComponent(selectedTeamsArray[1])}&conference=${encodeURIComponent(
-			selectedConference
+		)}&team2=${encodeURIComponent(selectedTeamsArray[1])}&division=${encodeURIComponent(
+			selectedDivision
 		)}${minYear ? `&minYear=${minYear}` : ''}${maxYear ? `&maxYear=${maxYear}` : ''}`;
 	}
 
@@ -87,18 +87,18 @@
 			<div class="selector-container">
 				<div class="team-selector-wrapper">
 					<!-- Dropdown container for team lists -->
-					<label for="conference-select">Select a Conference:</label>
+					<label for="division-select">Select a Division:</label>
 					<select
-						class="conferences-dropdown"
-						id="conference-select"
+						class="divisions-dropdown"
+						id="division-select"
 						class:light={!$theme}
 						class:dark={$theme}
-						bind:value={selectedConference}
+						bind:value={selectedDivision}
 						on:change={loadTeams}
 					>
 						<option value="" disabled>...</option>
-						{#each conferences as conference}
-							<option value={conference}>{conference}</option>
+						{#each divisions as division}
+							<option value={division}>{division}</option>
 						{/each}
 					</select>
 				</div>

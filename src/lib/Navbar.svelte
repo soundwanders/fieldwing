@@ -21,7 +21,7 @@
 			href="/"
 			aria-label="Go to Home"
 		>
-			Fieldwing
+			<img class="fieldwing-logo" src="/fieldwing.png" alt="Fieldwing Logo" />
 		</a>
 
 		<a
@@ -54,7 +54,7 @@
 			href="/players"
 			aria-label="Go to Player Statistics page"
 		>
-			Player Stats
+			Players
 		</a>
 
 		<span id="button-wrapper">
@@ -101,20 +101,16 @@
 		transition: background-color 0.2s ease;
 	}
 
-	@keyframes fadeIn {
-		from {
-			opacity: 0;
-		}
-		to {
-			opacity: 1;
-		}
-	}
-
 	.navbar {
 		padding: 2rem 10rem;
 		display: flex;
 		flex-direction: row;
 		justify-content: space-around;
+	}
+
+	.fieldwing-logo {
+		height: auto;
+		width: 1.875rem;
 	}
 
 	.link {
@@ -171,10 +167,24 @@
 	button:active {
 		translate: 0 1px;
 	}
+	
+	@keyframes fadeIn {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
+	}
 
 	@media screen and (max-width: 768px) {
 		.navbar {
 			padding: 2rem;
+		}
+
+		.fieldwing-logo {
+			height: auto;
+			width: 1.675rem;
 		}
 
 		#home-shortcut,
@@ -183,7 +193,7 @@
 		#players-shortcut {
 			font-size: 0.75rem;
 			line-height: 1rem;
-			padding: 1rem;
+			padding: 1rem 0.875rem;
 		}
 
 		button {

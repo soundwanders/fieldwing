@@ -1,23 +1,39 @@
-<!-- src/routes/stats/+page.svelte -->
+<!-- src/routes/player-stats/+page.svelte -->
 <script lang="ts">
+	import { page } from '$app/stores';
 	import { theme } from '$lib/stores/theme';
 	import '../../styles/main.css';
 
-	export let data: { playerStatsData?: any };
-	const { playerStatsData } = data;
+	export let data: { playerData?: any };
+	const { playerData } = data;
+
+	let pageSize: number = 15;
+
+	$: totalItems = playerData ? playerData.total : 0;
+	$: totalPages = Math.ceil(totalItems / pageSize);
+	$: currentPage = (Number($page.url.searchParams.get('skip')) || 0) / pageSize;
+
+	$: {
+		console.log('totalItems:', totalItems);
+		console.log('totalPages:', totalPages);
+		console.log('pageSize:', pageSize);
+		console.log('currentPage:', currentPage);
+	}
+
+	console.log('player data', playerData);
 </script>
 
 <div class="wrapper">
-	<div class="results-section" class:light={!$theme} class:dark={$theme}>
-		<section class="results-container">
-			{#if playerStatsData && playerStatsData.length > 0}
+	<div class="results-container" class:light={!$theme} class:dark={$theme}>
+		<section class="results-section">
+			{#if playerData && playerData.playerStatsData && playerData.playerStatsData.length > 0}
 				<div class="header-image-wrapper">
-					<img class="h2h-image" src="/h2h.png" alt="Player Stats" />
+					<img class="playerstats-image" src="/playerstats.png" alt="Player Stats" />
 					<h1 class="main-title" class:light={!$theme} class:dark={$theme}>Player Statistics</h1>
 				</div>
 
 				<div class="player-stats-container">
-					{#each playerStatsData as playerStats}
+					{#each playerData.playerStatsData as playerStats}
 						<article class="player-stats">
 							<h2 class="player-name" class:light={!$theme} class:dark={$theme}>
 								{playerStats.player}
@@ -64,6 +80,18 @@
 						</article>
 					{/each}
 				</div>
+
+				<!-- Add pagination controls using $page -->
+				<div class="pagination">
+					{#each Array(totalPages) as _, idx}
+						<a
+							href="?limit={pageSize}&skip={pageSize * idx}"
+							class={currentPage === idx ? 'text-emerald-300' : ''}
+						>
+							{idx + 1}
+						</a>
+					{/each}
+				</div>
 			{:else}
 				<p class="no-data-message">No player stats data available.</p>
 			{/if}
@@ -98,11 +126,18 @@
 		padding: 0;
 	}
 
-	.results-section {
+	.results-container {
 		display: flex;
 		justify-content: center;
 		width: 100vw;
 		color: var(--text-color);
+	}
+
+	.results-section {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
 	}
 
 	.header-image-wrapper {
@@ -114,16 +149,9 @@
 
 	.h2h-image {
 		height: auto;
-		width: 3.5%;
+		width: 4.5%;
 		margin-right: 0.75rem;
-		margin-bottom: 0.75rem;
-	}
-
-	.results-container {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
+		margin-bottom: 0.5rem;
 	}
 
 	.main-title {
@@ -172,6 +200,13 @@
 			padding: 0;
 		}
 
+		.h2h-image {
+			height: auto;
+			width: 12%;
+			margin-right: 0.675rem;
+			margin-bottom: 0.75rem;
+		}
+
 		.player-stats {
 			flex: 1 1 auto;
 		}
@@ -184,13 +219,6 @@
 		.header-image-wrapper {
 			width: 90%;
 			margin-bottom: 1rem;
-		}
-
-		.h2h-image {
-			width: 25%;
-			height: auto;
-			margin-right: -1rem;
-			margin-bottom: 0;
 		}
 	}
 

@@ -167,7 +167,7 @@
 	button:active {
 		translate: 0 1px;
 	}
-	
+
 	@keyframes fadeIn {
 		from {
 			opacity: 0;

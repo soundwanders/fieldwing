@@ -11,7 +11,7 @@
 
 	$: totalItems = playerData ? playerData.total : 0;
 	$: totalPages = Math.ceil(totalItems / pageSize);
-	$: currentPage = (Number($page.url.searchParams.get('skip')) || 0) / pageSize;
+	$: currentPage = Number($page.url.searchParams.get('skip')) / pageSize || 0;
 
 	$: {
 		console.log('totalItems:', totalItems);
@@ -28,12 +28,12 @@
 		<section class="results-section">
 			{#if playerData && playerData.playerStatsData && playerData.playerStatsData.length > 0}
 				<div class="header-image-wrapper">
-					<img class="playerstats-image" src="/playerstats.png" alt="Player Stats" />
+					<img class="players-image" src="/players.png" alt="Player Stats" />
 					<h1 class="main-title" class:light={!$theme} class:dark={$theme}>Player Statistics</h1>
 				</div>
 
 				<div class="player-stats-container">
-					{#each playerData.playerStatsData as playerStats}
+					{#each playerData.playerStatsData.slice(currentPage * pageSize, (currentPage + 1) * pageSize) as playerStats}
 						<article class="player-stats">
 							<h2 class="player-name" class:light={!$theme} class:dark={$theme}>
 								{playerStats.player}
@@ -82,11 +82,11 @@
 				</div>
 
 				<!-- Add pagination controls using $page -->
-				<div class="pagination">
+				<div class="pagination" class:light={!$theme} class:dark={$theme}>
 					{#each Array(totalPages) as _, idx}
 						<a
 							href="?limit={pageSize}&skip={pageSize * idx}"
-							class={currentPage === idx ? 'text-emerald-300' : ''}
+							class="pagination-item {currentPage === idx ? 'active' : ''}"
 						>
 							{idx + 1}
 						</a>
@@ -147,11 +147,11 @@
 		margin-bottom: 2rem;
 	}
 
-	.h2h-image {
+	.players-image {
 		height: auto;
-		width: 4.5%;
+		width: 5%;
 		margin-right: 0.75rem;
-		margin-bottom: 0.5rem;
+		margin-bottom: 0.75rem;
 	}
 
 	.main-title {
@@ -192,6 +192,44 @@
 		color: var(--text-color);
 	}
 
+  .pagination {
+    display: flex;
+    list-style: none;
+    padding: 0;
+		margin: 2rem 0;
+  }
+
+	.pagination a {
+		color: var(--text-color);
+		text-decoration: none;
+	}
+
+  .pagination-item {
+    margin: 0 5px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+		background-color: var(--background-color);
+    transition: background-color 0.3s ease;
+  }
+
+  .pagination-item:hover {
+    background-color: #ddd;
+  }
+
+  .pagination-item.active {
+    background-color: #0051a8;
+    color: #fff;
+  }
+
+  .light .pagination-item:hover {
+    background-color: #ddd;
+  }
+
+  .dark .pagination-item:hover {
+    background-color: #555;
+  }
+
 	@media (max-width: 768px) {
 		.wrapper {
 			min-height: 100%;
@@ -200,7 +238,7 @@
 			padding: 0;
 		}
 
-		.h2h-image {
+		.players-image {
 			height: auto;
 			width: 12%;
 			margin-right: 0.675rem;

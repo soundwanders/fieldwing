@@ -85,7 +85,7 @@
 			<!-- Dropdown container for choosing which week to fetch -->
 			<label for="resubmit-week">Select Week:</label>
 			<select id="resubmit-week" bind:value={selectedWeek}>
-				{#each [...Array(12).keys()] as week}
+				{#each [...Array(14).keys()] as week}
 					<option value={week + 1}>{week + 1}</option>
 				{/each}
 			</select>

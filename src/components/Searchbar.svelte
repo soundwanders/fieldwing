@@ -75,7 +75,7 @@
 		</div>
 		<div class="select-wrapper">
 			<select id="week-selector" bind:value={$selectedWeek}>
-				{#each [...Array(12).keys()] as week}
+				{#each [...Array(14).keys()] as week}
 					<option value={week + 1}>{week + 1}</option>
 				{/each}
 			</select>

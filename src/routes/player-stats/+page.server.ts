@@ -7,7 +7,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 	const year = url.searchParams.get('year') || '';
 
 	try {
-		const limit = Number(url.searchParams.get('itemsPerPage')) || 15; // Default to 15 items per page
+		const limit = Number(url.searchParams.get('itemsPerPage')) || 15;
 		const skip = Number(url.searchParams.get('skip')) || 0;
 
 		// Define the list of optional parameters
@@ -21,9 +21,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 		];
 
 		// Construct the URL based on user input
-		let apiUrl = `https://api.collegefootballdata.com/stats/player/season?year=${encodeURIComponent(
-			year
-		)}&limit=${limit}&skip=${skip}`;
+		let apiUrl = `https://api.collegefootballdata.com/stats/player/season?year=${encodeURIComponent(year)}&limit=${limit}&skip=${skip}`;
 
 		// Filter out optional parameters that are not provided
 		// Explicitly check for null, undefined, and empty string values before including them in query params
@@ -44,7 +42,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 		}
 
 		async function getPlayers(limit: number = 15, skip: number = 0) {
-			const response = await fetch(`${apiUrl}&limit=${limit}&skip=${skip}`, {
+			const response = await fetch(`${apiUrl}`, {
 				headers: {
 					Authorization: `Bearer ${CFBD_API_KEY}`
 				}

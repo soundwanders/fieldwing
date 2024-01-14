@@ -1,5 +1,6 @@
 <!-- StatSearch.svelte -->
 <script lang="ts">
+	import { page } from '$app/stores';
 	import { theme } from '$lib/stores/theme';
 	import { goto } from '$app/navigation';
 	import { getSchoolName } from '$lib/utils/getSchoolName';
@@ -11,6 +12,9 @@
 	let endWeek: number | '' = '';
 	let seasonType: string = '';
 	let category: string = '';
+
+	let pageSize: number = 15;
+	$: currentPage = (Number($page.url.searchParams.get('skip')) || 0) / pageSize;
 
 	// Limit input changes to a number between 1 and 14
 	function handleWeekInput(
@@ -35,10 +39,20 @@
 			return;
 		}
 
+		if (startWeek > endWeek) {
+			alert('Please make sure the start week is a lower number than the end week.');
+			return;
+		}
+
+		if (endWeek < startWeek) {
+			alert('Please make sure the end week is a greater number than the start week.');
+			return;
+		}
+
 		// trim school mascot name if its present to only allow school name in query param
 		let schoolName = getSchoolName(team);
 
-		// Construct the URL with the provided parameters, leave out the unused parameters
+		// Construct the URL with the provided parameters, and leave out any unused parameters
 		const queryParams = [
 			`year=${encodeURIComponent(year)}`,
 			`team=${encodeURIComponent(schoolName)}`,
@@ -46,7 +60,9 @@
 			`startWeek=${isValidWeek(startWeek) ? startWeek : ''}`,
 			`endWeek=${isValidWeek(endWeek) ? endWeek : ''}`,
 			`seasonType=${encodeURIComponent(seasonType)}`,
-			`category=${encodeURIComponent(category)}`
+			`category=${encodeURIComponent(category)}`,
+			`limit=${pageSize}`,
+			`skip=${currentPage * pageSize}`
 		]
 			.filter((param) => param.split('=')[1] !== '')
 			.join('&');
@@ -61,7 +77,7 @@
 <section class="stats-section" class:light={!$theme} class:dark={$theme}>
 	<div class="stats-wrapper">
 		<figure class="players-wrapper">
-			<img class="players-image" src="/players.png" alt="Player statistics" />
+			<img class="playerstats-image" src="/playerstats.png" alt="Player statistics" />
 		</figure>
 
 		<div class="stat-search-container">
@@ -111,9 +127,9 @@
 				</label>
 
 				<div class="button-container">
-					<button class="submit-button" type="submit" class:light={!$theme} class:dark={$theme}
-						>Search</button
-					>
+					<button class="submit-button" type="submit" class:light={!$theme} class:dark={$theme}>
+						Search
+					</button>
 				</div>
 			</form>
 		</div>
@@ -136,7 +152,7 @@
 		width: 100%;
 	}
 
-	.players-image {
+	.playerstats-image {
 		height: auto;
 		width: 8%;
 	}

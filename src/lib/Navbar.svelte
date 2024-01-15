@@ -32,7 +32,7 @@
 			href="/teams"
 			aria-label="Go to Team Selection page"
 		>
-			Games
+			Teams
 		</a>
 
 		<a
@@ -193,7 +193,7 @@
 		#players-shortcut {
 			font-size: 0.75rem;
 			line-height: 1rem;
-			padding: 1rem 0.875rem;
+			padding: 1rem 0.675rem;
 		}
 
 		button {

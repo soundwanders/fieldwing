@@ -454,17 +454,12 @@
 	/* Media query for mobile devices */
 	@media screen and (max-width: 768px) {
 		.selection-section {
-			display: flex;
 			flex-direction: column;
 			align-items: center;
+			gap: 2.5rem;
 			width: 90%;
 			min-height: 100%;
 			margin-top: 0.25rem;
-			gap: 2.5rem;
-		}
-
-		h2 {
-			margin-top: 0;
 		}
 
 		.select-wrapper {
@@ -472,6 +467,10 @@
 			margin: 0 auto;
 		}
 
+		h2 {
+			margin-top: 0;
+		}
+		
 		.team-selector-wrapper {
 			align-self: end;
 		}

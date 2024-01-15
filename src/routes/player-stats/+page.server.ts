@@ -7,8 +7,6 @@ export const load: PageServerLoad = async ({ params, url }) => {
 	const year = url.searchParams.get('year') || '';
 
 	try {
-		const limit = Number(url.searchParams.get('itemsPerPage')) || 15;
-		const skip = Number(url.searchParams.get('skip')) || 0;
 
 		// Define the list of optional parameters
 		const optionalParamsList = [
@@ -21,7 +19,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 		];
 
 		// Construct the URL based on user input
-		let apiUrl = `https://api.collegefootballdata.com/stats/player/season?year=${encodeURIComponent(year)}&limit=${limit}&skip=${skip}`;
+		let apiUrl = `https://api.collegefootballdata.com/stats/player/season?year=${encodeURIComponent(year)}`;
 
 		// Filter out optional parameters that are not provided
 		// Explicitly check for null, undefined, and empty string values before including them in query params
@@ -62,7 +60,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 		}
 
 		return {
-			playerData: await getPlayers(limit, skip)
+			playerData: await getPlayers()
 		};
 	} catch (error) {
 		console.error(error);

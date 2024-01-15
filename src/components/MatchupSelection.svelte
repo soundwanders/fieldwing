@@ -76,7 +76,7 @@
 </script>
 
 <section class="select-section" class:light={!$theme} class:dark={$theme}>
-	<figure class="vs-wrapper">
+	<figure class="matchup-img-wrapper">
 		<img class="matchup-image" src="/matchup.png" alt="Head to head matchups" />
 	</figure>
 
@@ -183,7 +183,7 @@
 		align-items: center;
 	}
 
-	.vs-wrapper {
+	.matchup-img-wrapper {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
@@ -327,10 +327,9 @@
 			margin-bottom: 4rem;
 		}
 
-		.vs-wrapper img {
+		.matchup-image {
 			width: 33%;
 			height: auto;
-			margin-right: -0.5rem;
 		}
 
 		.selector-form {

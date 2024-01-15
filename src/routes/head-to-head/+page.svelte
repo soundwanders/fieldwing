@@ -169,7 +169,8 @@
 	}
 
 	.head-to-head:hover {
-		transform: scale(1.05);
+		transform: scale(1.02);
+		transition: transform 0.3s ease-out;
 	}
 
 	.matchup-teams {

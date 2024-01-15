@@ -12,8 +12,8 @@
 	let endWeek: number | '' = '';
 	let seasonType: string = '';
 	let category: string = '';
-
-	let pageSize: number = 15;
+	
+	let pageSize: number = 16;
 	$: currentPage = (Number($page.url.searchParams.get('skip')) || 0) / pageSize;
 
 	// Limit input changes to a number between 1 and 14
@@ -52,6 +52,8 @@
 		// trim school mascot name if its present to only allow school name in query param
 		let schoolName = getSchoolName(team);
 
+		console.log('schoolName', schoolName);
+ 
 		// Construct the URL with the provided parameters, and leave out any unused parameters
 		const queryParams = [
 			`year=${encodeURIComponent(year)}`,
@@ -76,7 +78,7 @@
 
 <section class="stats-section" class:light={!$theme} class:dark={$theme}>
 	<div class="stats-wrapper">
-		<figure class="players-wrapper">
+		<figure class="stats-img-wrapper">
 			<img class="playerstats-image" src="/playerstats.png" alt="Player statistics" />
 		</figure>
 
@@ -118,7 +120,7 @@
 
 				<label>
 					Season Type:
-					<input type="text" bind:value={seasonType} />
+					<input type="text" placeholder="Regular is the default value" bind:value={seasonType} />
 				</label>
 
 				<label>
@@ -145,7 +147,14 @@
 		align-items: center;
 	}
 
-	.players-wrapper {
+	.stats-wrapper {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		width: 100%;
+	}
+
+	.stats-img-wrapper {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
@@ -157,13 +166,6 @@
 		width: 8%;
 	}
 
-	.stats-wrapper {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		width: 100%;
-	}
-
 	.stat-search-container {
 		margin: 2rem auto;
 		padding: 1rem 2rem;
@@ -173,6 +175,7 @@
 	}
 
 	.stats-title {
+		text-align: center;
 		margin: 0;
 		padding: 1rem 0 2rem 0;
 	}
@@ -184,7 +187,7 @@
 
 	input {
 		width: 100%;
-		padding: 0.5rem 0;
+		padding: 0.5rem 0.25rem;
 		margin: 0.5rem 0;
 		border: 1px solid #ccc;
 		border-radius: 4px;
@@ -197,7 +200,7 @@
 	.button-container {
 		display: flex;
 		justify-content: center;
-		margin-top: 20px;
+		margin-top: 1.5rem;
 	}
 
 	.submit-button {
@@ -222,4 +225,22 @@
 	.submit-button:hover:disabled {
 		background-color: var(--button-disabled-hover-color);
 	}
+
+	/* Add media query for smaller screens */
+	@media screen and (max-width: 768px) {
+		.stats-wrapper {
+			width: 95%;
+			margin-bottom: 4rem;
+		}
+
+		.button-container {
+			margin-bottom: -1.5rem;
+		}
+
+		.playerstats-image {
+			width: 33%;
+			height: auto;
+		}
+	}
+
 </style>

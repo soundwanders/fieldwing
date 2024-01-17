@@ -7,7 +7,6 @@ export const load: PageServerLoad = async ({ params, url }) => {
 	const year = url.searchParams.get('year') || '';
 
 	try {
-
 		// Define the list of optional parameters
 		const optionalParamsList = [
 			'team',
@@ -19,7 +18,9 @@ export const load: PageServerLoad = async ({ params, url }) => {
 		];
 
 		// Construct the URL based on user input
-		let apiUrl = `https://api.collegefootballdata.com/stats/player/season?year=${encodeURIComponent(year)}`;
+		let apiUrl = `https://api.collegefootballdata.com/stats/player/season?year=${encodeURIComponent(
+			year
+		)}`;
 
 		// Filter out optional parameters that are not provided
 		// Explicitly check for null, undefined, and empty string values before including them in query params

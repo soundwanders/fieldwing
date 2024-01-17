@@ -12,7 +12,7 @@
 	let endWeek: number | '' = '';
 	let seasonType: string = '';
 	let category: string = '';
-	
+
 	let pageSize: number = 16;
 	$: currentPage = (Number($page.url.searchParams.get('skip')) || 0) / pageSize;
 
@@ -53,7 +53,7 @@
 		let schoolName = getSchoolName(team);
 
 		console.log('schoolName', schoolName);
- 
+
 		// Construct the URL with the provided parameters, and leave out any unused parameters
 		const queryParams = [
 			`year=${encodeURIComponent(year)}`,
@@ -242,5 +242,4 @@
 			height: auto;
 		}
 	}
-
 </style>

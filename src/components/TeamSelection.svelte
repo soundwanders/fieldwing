@@ -470,7 +470,7 @@
 		h2 {
 			margin-top: 0;
 		}
-		
+
 		.team-selector-wrapper {
 			align-self: end;
 		}

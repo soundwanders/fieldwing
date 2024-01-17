@@ -2,11 +2,31 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { theme } from '$lib/stores/theme';
+	import { capitalizeFirstChar } from '$lib/utils/capitalizeFirstChar';
 	import { onMount } from 'svelte';
 	import '../../styles/main.css';
 
 	export let data: { playerData?: any };
 	const { playerData } = data;
+
+	// Define types for player stats
+	interface PlayerStat {
+		playerId: string;
+		player: string;
+		team: string;
+		conference: string;
+		startWeek: number;
+		endWeek: number;
+		seasonType: string;
+		category: string;
+		statType: string;
+		stat: string;
+	}
+
+	// Define types for player data
+	interface PlayerData {
+		playerStatsData: PlayerStat[];
+	}
 
 	let pageSize: number = 16;
 
@@ -14,30 +34,57 @@
 	$: totalPages = Math.ceil(totalItems / pageSize);
 	$: currentPage = Number($page.url.searchParams.get('skip')) / pageSize || 0;
 
-  $: year = $page.url.searchParams.get('year') || '';
-  $: team = $page.url.searchParams.get('team') || '';
-  $: conference = $page.url.searchParams.get('conference') || '';
-  $: startWeek = $page.url.searchParams.get('startWeek') || '';
-  $: endWeek = $page.url.searchParams.get('endWeek') || '';
-  $: seasonType = $page.url.searchParams.get('seasonType') || '';
-  $: category = $page.url.searchParams.get('category') || '';
+	$: year = $page.url.searchParams.get('year') || '';
+	$: team = $page.url.searchParams.get('team') || '';
+	$: conference = $page.url.searchParams.get('conference') || '';
+	$: startWeek = $page.url.searchParams.get('startWeek') || '';
+	$: endWeek = $page.url.searchParams.get('endWeek') || '';
+	$: seasonType = $page.url.searchParams.get('seasonType') || '';
+	$: category = $page.url.searchParams.get('category') || '';
 
-  let pageTitle: string = 'Player Statistics';
+	let pageTitle: string = 'Player Statistics';
 
-  onMount(() => {
-		let formattedTeamName = team.charAt(0).toUpperCase() + team.slice(1);
-		let formattedseasonType = seasonType.charAt(0).toUpperCase() + seasonType.slice(1);
+	onMount(() => {
+		let formattedTeamName = capitalizeFirstChar(team);
+		let formattedseasonType = capitalizeFirstChar(seasonType);
+		let formattedCategory = capitalizeFirstChar(category);
 		let formattedConference = conference.toUpperCase();
 
-    // Build the title based on the presence of each parameter
-    if (year) pageTitle += ` - ${year}`;
-    if (team) pageTitle += ` - ${formattedTeamName}`;
-    if (conference) pageTitle += ` - ${formattedConference}`;
-    if (startWeek) pageTitle += ` - Week ${startWeek}`;
-    if (endWeek) pageTitle += ` to ${endWeek}`;
-    if (seasonType) pageTitle += ` - ${formattedseasonType}`;
-    if (category) pageTitle += ` - ${category}`;
-  });
+		// Build the title based on the presence of each parameter
+		if (year) pageTitle += ` - ${year}`;
+		if (team) pageTitle += ` - ${formattedTeamName}`;
+		if (conference) pageTitle += ` - ${formattedConference}`;
+		if (startWeek) pageTitle += ` - Week ${startWeek}`;
+		if (endWeek) pageTitle += ` to ${endWeek}`;
+		if (seasonType) pageTitle += ` - ${formattedseasonType}`;
+		if (category) pageTitle += ` - ${formattedCategory}`;
+	});
+
+	let sortOrder: 'asc' | 'desc' = 'desc';
+
+	// Function to toggle the sort order
+	function toggleSortOrder() {
+		sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+		// Update the sortedPlayerStatsData based on the new sort order
+		sortedPlayerStatsData = sortPlayerStatsData(playerData?.playerStatsData || []);
+	}
+
+	// Sort function for playerStatsData
+	function sortPlayerStatsData(playerStatsData: PlayerStat[]): PlayerStat[] {
+		return playerStatsData.sort((a, b) => {
+			// First, sort by statType
+			if (a.statType < b.statType) return sortOrder === 'asc' ? -1 : 1;
+			if (a.statType > b.statType) return sortOrder === 'asc' ? 1 : -1;
+
+			// If statTypes are equal, sort by stat
+			const aStat = parseFloat(a.stat);
+			const bStat = parseFloat(b.stat);
+
+			return sortOrder === 'asc' ? aStat - bStat : bStat - aStat;
+		});
+	}
+
+	$: sortedPlayerStatsData = sortPlayerStatsData(playerData?.playerStatsData || []);
 
 	$: {
 		console.log('totalItems:', totalItems);
@@ -48,7 +95,7 @@
 
 <div class="stats-wrapper" class:light={!$theme} class:dark={$theme}>
 	<section class="stats-section">
-		{#if playerData && playerData.playerStatsData && playerData.playerStatsData.length > 0}
+		{#if sortedPlayerStatsData && sortedPlayerStatsData.length > 0}
 			<div class="header-image-wrapper">
 				<img class="players-image" src="/players.png" alt="Player Stats" />
 				<h1 class="main-title" class:light={!$theme} class:dark={$theme}>
@@ -57,7 +104,14 @@
 			</div>
 
 			<div class="player-stats-container">
-				{#each playerData.playerStatsData.slice(currentPage * pageSize, (currentPage + 1) * pageSize) as playerStats}
+				<div class="sort-container">
+					<button on:click={() => toggleSortOrder()} class="sort-button">
+						Sort Stats {sortOrder === 'asc' ? '' : ''}
+						<span class="arrow">{sortOrder === 'asc' ? '▼' : '▲'}</span>
+					</button>
+				</div>
+
+				{#each sortedPlayerStatsData.slice(currentPage * pageSize, (currentPage + 1) * pageSize) as playerStats}
 					<article class="player-stats">
 						<h2 class="player-name" class:light={!$theme} class:dark={$theme}>
 							{playerStats.player}
@@ -90,15 +144,19 @@
 
 						{#if playerStats.category}
 							<div class="info-container">
-								<p><strong>Category:</strong> {playerStats.category}</p>
+								<p><strong>Category:</strong> {capitalizeFirstChar(playerStats.category)}</p>
 							</div>
 						{/if}
 
-						{#if playerStats.stats && playerStats.stats.length > 0}
-							<div class="stats-container">
-								{#each playerStats.stats as stat}
-									<p>{stat.label}: {stat.value}</p>
-								{/each}
+						{#if playerStats.statType}
+							<div class="info-container">
+								<p><strong>Stat Type:</strong> {playerStats.statType}</p>
+							</div>
+						{/if}
+
+						{#if playerStats.stat}
+							<div class="info-container">
+								<p><strong>Stat:</strong> {playerStats.stat}</p>
 							</div>
 						{/if}
 					</article>
@@ -216,37 +274,56 @@
 		color: var(--text-color);
 	}
 
-  .pagination {
-    display: flex;
+	.pagination {
+		display: flex;
 		width: 80%;
-    list-style: none;
-    padding: 0;
+		list-style: none;
+		padding: 0;
 		margin: 2rem 0;
 		overflow-x: auto;
-  }
+	}
 
 	.pagination a {
 		color: var(--text-color);
 		text-decoration: none;
 	}
 
-  .pagination-item {
-    margin: 0 5px;
-    padding: 8px 12px;
-    border-radius: 4px;
-    cursor: pointer;
+	.pagination-item {
+		margin: 0 5px;
+		padding: 8px 12px;
+		border-radius: 4px;
+		cursor: pointer;
 		background-color: var(--background-color);
-    transition: background-color 0.3s ease;
-  }
+		transition: background-color 0.3s ease;
+	}
 
-  .pagination-item.active {
-    background-color: #0051a8;
-    color: #fff;
-  }
+	.pagination-item.active {
+		background-color: #0051a8;
+		color: #fff;
+	}
 
-  .pagination-item:hover {
-    background-color: #555;
-  }
+	.pagination-item:hover {
+		background-color: #555;
+	}
+
+	.sort-container {
+		display: block;
+		width: 100%;
+	}
+
+	.sort-button {
+		background-color: var(--background-color);
+		color: var(--text-color);
+		border: none;
+		padding: 10px;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+	}
+
+	.arrow {
+		margin-left: 5px;
+	}
 
 	@media (max-width: 768px) {
 		.stats-wrapper {
@@ -279,6 +356,7 @@
 
 		.player-stats {
 			flex: 1 1 auto;
+			width: 100%;
 		}
 
 		.main-title {

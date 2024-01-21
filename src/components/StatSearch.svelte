@@ -10,8 +10,9 @@
 	let conference: string = '';
 	let startWeek: number | '' = '';
 	let endWeek: number | '' = '';
-	let seasonType: string = '';
 	let category: string = '';
+	let statType: string = '';
+	let seasonType: string = '';
 
 	let pageSize: number = 16;
 	$: currentPage = (Number($page.url.searchParams.get('skip')) || 0) / pageSize;
@@ -63,6 +64,7 @@
 			`endWeek=${isValidWeek(endWeek) ? endWeek : ''}`,
 			`seasonType=${encodeURIComponent(seasonType)}`,
 			`category=${encodeURIComponent(category)}`,
+			`statType=${encodeURIComponent(statType)}`,
 			`limit=${pageSize}`,
 			`skip=${currentPage * pageSize}`
 		]
@@ -119,13 +121,18 @@
 				</label>
 
 				<label>
-					Season Type:
-					<input type="text" placeholder="Regular is the default value" bind:value={seasonType} />
+					Category:
+					<input type="text" bind:value={category} required />
 				</label>
 
 				<label>
-					Category:
-					<input type="text" bind:value={category} />
+					Stat Type:
+					<input type="text" bind:value={statType} />
+				</label>
+
+				<label>
+					Season Type:
+					<input type="text" placeholder="Regular is the default value" bind:value={seasonType} />
 				</label>
 
 				<div class="button-container">

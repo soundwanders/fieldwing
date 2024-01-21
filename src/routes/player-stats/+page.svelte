@@ -29,6 +29,7 @@
 	}
 
 	let pageSize: number = 16;
+	let pageTitle: string = '';
 
 	$: totalItems = playerData ? playerData.total : 0;
 	$: totalPages = Math.ceil(totalItems / pageSize);
@@ -42,7 +43,30 @@
 	$: seasonType = $page.url.searchParams.get('seasonType') || '';
 	$: category = $page.url.searchParams.get('category') || '';
 
-	let pageTitle: string = 'Player Statistics';
+	let sortOrder: 'asc' | 'desc' = 'desc';
+	let sortBy: keyof PlayerStat = 'player';
+
+	function toggleSortOrder(column: keyof PlayerStat) {
+		sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+		sortBy = column;
+		// Update the sortedPlayerStatsData based on the new sort order and column
+		sortedPlayerStatsData = sortPlayerStatsData(playerData?.playerStatsData || []);
+	}
+
+	// Sort function for playerStatsData
+	function sortPlayerStatsData(playerStatsData: PlayerStat[]): PlayerStat[] {
+		return playerStatsData.sort((a, b) => {
+			// Always sort 'stat' from high to low
+			if (sortBy === 'stat') {
+				return parseFloat(b.stat) - parseFloat(a.stat);
+			}
+
+			// Sort other columns based on the current sorting order
+			if (a[sortBy] < b[sortBy]) return sortOrder === 'asc' ? -1 : 1;
+			if (a[sortBy] > b[sortBy]) return sortOrder === 'asc' ? 1 : -1;
+			return 0;
+		});
+	}
 
 	onMount(() => {
 		let formattedTeamName = capitalizeFirstChar(team);
@@ -51,46 +75,22 @@
 		let formattedConference = conference.toUpperCase();
 
 		// Build the title based on the presence of each parameter
-		if (year) pageTitle += ` - ${year}`;
-		if (team) pageTitle += ` - ${formattedTeamName}`;
+		if (team) pageTitle += `${formattedTeamName}`;
 		if (conference) pageTitle += ` - ${formattedConference}`;
+		if (year) pageTitle += ` - ${year}`;
 		if (startWeek) pageTitle += ` - Week ${startWeek}`;
 		if (endWeek) pageTitle += ` to ${endWeek}`;
 		if (seasonType) pageTitle += ` - ${formattedseasonType}`;
 		if (category) pageTitle += ` - ${formattedCategory}`;
 	});
 
-	let sortOrder: 'asc' | 'desc' = 'desc';
-
-	// Function to toggle the sort order
-	function toggleSortOrder() {
-		sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
-		// Update the sortedPlayerStatsData based on the new sort order
-		sortedPlayerStatsData = sortPlayerStatsData(playerData?.playerStatsData || []);
-	}
-
-	// Sort function for playerStatsData
-	function sortPlayerStatsData(playerStatsData: PlayerStat[]): PlayerStat[] {
-		return playerStatsData.sort((a, b) => {
-			// First, sort by statType
-			if (a.statType < b.statType) return sortOrder === 'asc' ? -1 : 1;
-			if (a.statType > b.statType) return sortOrder === 'asc' ? 1 : -1;
-
-			// If statTypes are equal, sort by stat
-			const aStat = parseFloat(a.stat);
-			const bStat = parseFloat(b.stat);
-
-			return sortOrder === 'asc' ? aStat - bStat : bStat - aStat;
-		});
-	}
-
-	$: sortedPlayerStatsData = sortPlayerStatsData(playerData?.playerStatsData || []);
-
 	$: {
 		console.log('totalItems:', totalItems);
 		console.log('totalPages:', totalPages);
 		console.log('pageTitle:', pageTitle);
 	}
+
+	$: sortedPlayerStatsData = sortPlayerStatsData(playerData?.playerStatsData || []);
 </script>
 
 <div class="stats-wrapper" class:light={!$theme} class:dark={$theme}>
@@ -104,63 +104,30 @@
 			</div>
 
 			<div class="player-stats-container">
-				<div class="sort-container">
-					<button on:click={() => toggleSortOrder()} class="sort-button">
-						Sort Stats {sortOrder === 'asc' ? '' : ''}
-						<span class="arrow">{sortOrder === 'asc' ? '▼' : '▲'}</span>
-					</button>
-				</div>
-
-				{#each sortedPlayerStatsData.slice(currentPage * pageSize, (currentPage + 1) * pageSize) as playerStats}
-					<article class="player-stats">
-						<h2 class="player-name" class:light={!$theme} class:dark={$theme}>
-							{playerStats.player}
-						</h2>
-
-						{#if playerStats.team}
-							<div class="info-container">
-								<p><strong>Team:</strong> {playerStats.team}</p>
-							</div>
-						{/if}
-
-						{#if playerStats.conference}
-							<div class="info-container">
-								<p><strong>Conference:</strong> {playerStats.conference}</p>
-							</div>
-						{/if}
-
-						{#if playerStats.startWeek && playerStats.endWeek}
-							<div class="info-container">
-								<p><strong>Start Week:</strong> {playerStats.startWeek}</p>
-								<p><strong>End Week:</strong> {playerStats.endWeek}</p>
-							</div>
-						{/if}
-
-						{#if playerStats.seasonType}
-							<div class="info-container">
-								<p><strong>Season Type:</strong> {playerStats.seasonType}</p>
-							</div>
-						{/if}
-
-						{#if playerStats.category}
-							<div class="info-container">
-								<p><strong>Category:</strong> {capitalizeFirstChar(playerStats.category)}</p>
-							</div>
-						{/if}
-
-						{#if playerStats.statType}
-							<div class="info-container">
-								<p><strong>Stat Type:</strong> {playerStats.statType}</p>
-							</div>
-						{/if}
-
-						{#if playerStats.stat}
-							<div class="info-container">
-								<p><strong>Stat:</strong> {playerStats.stat}</p>
-							</div>
-						{/if}
-					</article>
-				{/each}
+				<table class="player-stats-table">
+					<thead>
+						<tr>
+							<th><button on:click={() => toggleSortOrder('player')}>Player</button></th>
+							<th><button on:click={() => toggleSortOrder('team')}>Team</button></th>
+							<th><button on:click={() => toggleSortOrder('conference')}>Conference</button></th>
+							<th><button on:click={() => toggleSortOrder('category')}>Category</button></th>
+							<th><button on:click={() => toggleSortOrder('statType')}>Stat Type</button></th>
+							<th><button on:click={() => toggleSortOrder('stat')}>Stat</button></th>
+						</tr>
+					</thead>
+					<tbody>
+						{#each sortedPlayerStatsData.slice(currentPage * pageSize, (currentPage + 1) * pageSize) as playerStats}
+							<tr>
+								<td class="td-player">{playerStats.player}</td>
+								<td class="td-team">{playerStats.team}</td>
+								<td class="td-conference">{playerStats.conference}</td>
+								<td class="td-category">{capitalizeFirstChar(playerStats.category)}</td>
+								<td class="td-statType">{playerStats.statType}</td>
+								<td class="td-stat">{playerStats.stat}</td>
+							</tr>
+						{/each}
+					</tbody>
+				</table>
 			</div>
 
 			<!-- Add pagination controls using $page -->
@@ -225,7 +192,7 @@
 
 	.players-image {
 		height: auto;
-		width: 4%;
+		width: 4.5%;
 		margin-right: 0.75rem;
 		margin-bottom: 1.25rem;
 	}
@@ -246,26 +213,57 @@
 		gap: 2rem;
 	}
 
-	.player-name {
-		color: var(--player-name-color);
+	.player-stats-table {
+		width: 66%;
+		border-collapse: collapse;
+		margin-top: 1rem;
 	}
 
-	.player-stats {
-		flex: 0 0 calc(25% - 1.5rem);
-		width: 30%;
-		text-align: center;
-		margin-bottom: 0.5rem;
-		padding: 1.25rem;
-		border: 1px solid #c3c8d0;
-		border-radius: 0.75rem;
-		box-sizing: border-box;
-		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-		transition: transform 0.3s ease-in-out;
+	.player-stats-table th,
+	.player-stats-table td {
+		border: 1px solid #ddd;
+		padding: 0.5rem;
+		text-align: left;
 	}
 
-	.player-stats:hover {
-		transform: scale(1.02);
-		transition: transform 0.3s ease-out;
+	.player-stats-table th {
+		background-color: #f2f2f2;
+		cursor: pointer;
+	}
+
+	.player-stats-table th button {
+		background: none;
+		border: none;
+		cursor: pointer;
+		outline: none;
+	}
+
+	.player-stats-table th button:hover {
+		text-decoration: underline;
+	}
+
+	.td-player {
+		width: 15%;
+	}
+
+	.td-team {
+		width: 13%;
+	}
+
+	.td-conference {
+		width: 8%;
+	}
+
+	.td-category {
+		width: 13%;
+	}
+
+	.td-statType {
+		width: 13%;
+	}
+
+	.td-stat {
+		width: 13%;
 	}
 
 	.no-data-message {
@@ -306,7 +304,7 @@
 		background-color: #555;
 	}
 
-	.sort-container {
+	/* .sort-container {
 		display: block;
 		width: 100%;
 	}
@@ -323,7 +321,7 @@
 
 	.arrow {
 		margin-left: 5px;
-	}
+	} */
 
 	@media (max-width: 768px) {
 		.stats-wrapper {
@@ -354,14 +352,13 @@
 			margin-bottom: 1.25rem;
 		}
 
-		.player-stats {
-			flex: 1 1 auto;
-			width: 100%;
-		}
-
 		.main-title {
 			font-size: 1.25rem;
 			line-height: 1.75rem;
+		}
+
+		.player-stats-table {
+			width: 90%;
 		}
 
 		.pagination {

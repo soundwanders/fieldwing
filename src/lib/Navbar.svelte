@@ -1,6 +1,23 @@
 <script>
 	import { theme } from '$lib/stores/theme.js';
+	import { media } from '$lib/utils/media';
 	import ThemeIcons from './ThemeIcons.svelte';
+	import MobileNavbar from './MobileNavbar.svelte';
+	import { onMount } from 'svelte';
+
+	let isMobile = false;
+
+	const updateIsMobile = () => {
+		isMobile = media('(max-width: 768px)');
+	};
+
+	onMount(() => {
+		updateIsMobile();
+		window.addEventListener('resize', updateIsMobile);
+		return () => {
+			window.removeEventListener('resize', updateIsMobile);
+		};
+	});
 
 	function toggleTheme() {
 		theme.update((currentTheme) => {
@@ -11,65 +28,71 @@
 	}
 </script>
 
-<div class="nav-container">
-	<nav class="navbar" class:light={!$theme} class:dark={$theme}>
-		<a
-			id="home-shortcut"
-			class="link"
-			class:light={!$theme}
-			class:dark={$theme}
-			href="/"
-			aria-label="Go to Home"
-		>
-			<img class="fieldwing-logo" src="/fieldwing.png" alt="Fieldwing Logo" />
-		</a>
-
-		<a
-			id="teams-shortcut"
-			class="link"
-			class:light={!$theme}
-			class:dark={$theme}
-			href="/teams"
-			aria-label="Go to Team Selection page"
-		>
-			Teams
-		</a>
-
-		<a
-			id="matchup-shortcut"
-			class="link"
-			class:light={!$theme}
-			class:dark={$theme}
-			href="/matchups"
-			aria-label="Go to Head-to-Head Matchups page"
-		>
-			Matchups
-		</a>
-
-		<a
-			id="players-shortcut"
-			class="link"
-			class:light={!$theme}
-			class:dark={$theme}
-			href="/players"
-			aria-label="Go to Player Statistics page"
-		>
-			Players
-		</a>
-
-		<span id="button-wrapper">
-			<button
-				id="theme"
+{#if isMobile}
+	<div class="mobile-container">
+		<MobileNavbar />
+	</div>
+{:else}
+	<div class="nav-container">
+		<nav class="navbar" class:light={!$theme} class:dark={$theme}>
+			<a
+				id="home-shortcut"
+				class="link"
 				class:light={!$theme}
 				class:dark={$theme}
-				on:click={toggleTheme}
-				aria-label={`Toggle ${$theme ? 'light' : 'dark'} theme`}
+				href="/"
+				aria-label="Go to Home"
 			>
-				<ThemeIcons />
-			</button>
-		</span>
-	</nav>
-</div>
+				<img class="fieldwing-logo" src="/fieldwing.png" alt="Fieldwing Logo" />
+			</a>
+
+			<a
+				id="teams-shortcut"
+				class="link"
+				class:light={!$theme}
+				class:dark={$theme}
+				href="/teams"
+				aria-label="Go to Team Selection page"
+			>
+				Teams
+			</a>
+
+			<a
+				id="matchup-shortcut"
+				class="link"
+				class:light={!$theme}
+				class:dark={$theme}
+				href="/matchups"
+				aria-label="Go to Head-to-Head Matchups page"
+			>
+				Matchups
+			</a>
+
+			<a
+				id="players-shortcut"
+				class="link"
+				class:light={!$theme}
+				class:dark={$theme}
+				href="/players"
+				aria-label="Go to Player Statistics page"
+			>
+				Players
+			</a>
+
+			<span id="button-wrapper">
+				<button
+					id="theme"
+					class:light={!$theme}
+					class:dark={$theme}
+					on:click={toggleTheme}
+					aria-label={`Toggle ${$theme ? 'light' : 'dark'} theme`}
+				>
+					<ThemeIcons />
+				</button>
+			</span>
+		</nav>
+	</div>
+{/if}
 
 <style>
 	:root {
@@ -97,8 +120,7 @@
 
 	.nav-container {
 		max-height: 128px;
-		animation: fadeIn 0.8s forwards ease-out;
-		transition: background-color 0.2s ease;
+		animation: fadeIn 0.2s forwards ease-out;
 	}
 
 	.navbar {

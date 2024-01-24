@@ -153,6 +153,7 @@
 		--text-color: #1a202c;
 		--teams-color: #bb0000;
 		--player-name-color: #005ebb;
+		--table-border: #d6d6d6;
 	}
 
 	.dark {
@@ -160,6 +161,7 @@
 		--text-color: #f9f9f9;
 		--teams-color: #ff9195;
 		--player-name-color: #abaeff;
+		--table-border: #444e64;
 	}
 
 	.stats-wrapper {
@@ -221,7 +223,7 @@
 
 	.player-stats-table th,
 	.player-stats-table td {
-		border: 1px solid #ddd;
+		border: 1px solid var(--table-border);
 		padding: 0.5rem;
 		text-align: left;
 	}
@@ -236,6 +238,7 @@
 		border: none;
 		cursor: pointer;
 		outline: none;
+		font-weight: bold;
 	}
 
 	.player-stats-table th button:hover {
@@ -303,25 +306,6 @@
 	.pagination-item:hover {
 		background-color: #555;
 	}
-
-	/* .sort-container {
-		display: block;
-		width: 100%;
-	}
-
-	.sort-button {
-		background-color: var(--background-color);
-		color: var(--text-color);
-		border: none;
-		padding: 10px;
-		cursor: pointer;
-		display: flex;
-		align-items: center;
-	}
-
-	.arrow {
-		margin-left: 5px;
-	} */
 
 	@media (max-width: 768px) {
 		.stats-wrapper {

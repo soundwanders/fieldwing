@@ -426,6 +426,7 @@
 		display: flex;
 		justify-content: center;
 		margin: 2rem 0;
+		padding-bottom: 4rem;
 	}
 
 	.submit-button {

@@ -11,7 +11,6 @@
 	let startWeek: number | '' = '';
 	let endWeek: number | '' = '';
 	let category: string = '';
-	let statType: string = '';
 	let seasonType: string = '';
 
 	let pageSize: number = 16;
@@ -64,7 +63,6 @@
 			`endWeek=${isValidWeek(endWeek) ? endWeek : ''}`,
 			`seasonType=${encodeURIComponent(seasonType)}`,
 			`category=${encodeURIComponent(category)}`,
-			`statType=${encodeURIComponent(statType)}`,
 			`limit=${pageSize}`,
 			`skip=${currentPage * pageSize}`
 		]
@@ -88,13 +86,13 @@
 			<h2 class="stats-title">Search Player Stats</h2>
 			<form on:submit|preventDefault={handleSubmit}>
 				<label>
-					Year:
-					<input type="number" bind:value={year} required />
+					Team:
+					<input type="text" bind:value={team} />
 				</label>
 
 				<label>
-					Team:
-					<input type="text" bind:value={team} />
+					Year:
+					<input type="number" bind:value={year} required />
 				</label>
 
 				<label>
@@ -121,13 +119,8 @@
 				</label>
 
 				<label>
-					Category:
+					Stat Category:
 					<input type="text" bind:value={category} required />
-				</label>
-
-				<label>
-					Stat Type:
-					<input type="text" bind:value={statType} />
 				</label>
 
 				<label>
@@ -160,7 +153,7 @@
 		align-items: center;
 		width: 100%;
 	}
-
+	
 	.stats-img-wrapper {
 		display: flex;
 		flex-direction: column;
@@ -176,10 +169,29 @@
 	.stat-search-container {
 		margin: 2rem auto;
 		padding: 1rem 2rem;
-		padding-bottom: 4rem;
+		padding-bottom: 3rem;
+		margin-bottom: 5rem;
 		border: 1px solid #ccc;
 		border-radius: 8px;
+		width: 35%;
 	}
+
+	.stat-search-container form {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .stat-search-container label:nth-child(1) {
+		width: 55%;
+		margin: 0 auto;
+	}
+
+  .stat-search-container label {
+    width: 47%;
+		padding: 0.175rem 0;
+    box-sizing: border-box;
+  }
 
 	.stats-title {
 		text-align: center;
@@ -207,6 +219,7 @@
 	.button-container {
 		display: flex;
 		justify-content: center;
+		width: 100%;
 		margin-top: 1.5rem;
 	}
 
@@ -237,16 +250,39 @@
 	@media screen and (max-width: 768px) {
 		.stats-wrapper {
 			width: 95%;
+			padding: 0 2rem;
 			margin-bottom: 4rem;
 		}
-
-		.button-container {
-			margin-bottom: -1.5rem;
-		}
-
 		.playerstats-image {
 			width: 33%;
 			height: auto;
+		}
+
+		.stats-title {
+			font-size: 1.25rem;
+			line-height: 1.75rem;
+			padding: 1.75rem 0;
+		}
+
+		.stat-search-container {
+			width: 100%;
+			padding: 0;
+			margin-bottom: 2rem;
+		}
+
+		.stat-search-container label {
+			width: 100%;
+			padding: 0.175rem 2rem;
+			box-sizing: border-box;
+		}
+
+		.stat-search-container label:nth-child(1) {
+			width: 100%;
+			padding: 0.175rem 2rem;
+		}
+
+		.button-container {
+			padding-bottom: 2.5rem;
 		}
 	}
 </style>

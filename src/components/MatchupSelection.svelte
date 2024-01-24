@@ -175,6 +175,34 @@
 </section>
 
 <style module>
+		/* Light Theme */
+		.light {
+		--text-color: #333;
+		--form-background-color: #eeeef0;
+		--form-sub-background-color: #f4f4f5;
+		--label-color: #555;
+		--input-background-color: #f9f9f9;
+		--input-text-color: #333;
+		--button-hover-color: #e0e0e0;
+		--button-disabled-background-color: #7c7c7c;
+		--button-disabled-hover-color: #5f5f5f;
+		--placeholder-color: #888;
+	}
+
+	/* Dark Theme */
+	.dark {
+		--text-color: #f9f9f9;
+		--form-background-color: #1d232e;
+		--form-sub-background-color: #242b38;
+		--label-color: #b0b0b0;
+		--input-background-color: #2b2b2b;
+		--input-text-color: #f9f9f9;
+		--button-hover-color: #444;
+		--button-disabled-background-color: #707070;
+		--button-disabled-hover-color: #5c5c5c;
+		--placeholder-color: #666;
+	}
+
 	.select-section {
 		width: 100%;
 		display: flex;
@@ -266,7 +294,7 @@
 	.button-container {
 		display: flex;
 		justify-content: center;
-		margin-top: 20px;
+		padding: 1.5rem 0;
 	}
 
 	.submit-button {
@@ -292,39 +320,11 @@
 		background-color: var(--button-disabled-hover-color);
 	}
 
-	/* Light Theme */
-	.light {
-		--text-color: #333;
-		--form-background-color: #eeeef0;
-		--form-sub-background-color: #f4f4f5;
-		--label-color: #555;
-		--input-background-color: #f9f9f9;
-		--input-text-color: #333;
-		--button-hover-color: #e0e0e0;
-		--button-disabled-background-color: #7c7c7c;
-		--button-disabled-hover-color: #5f5f5f;
-		--placeholder-color: #888;
-	}
-
-	/* Dark Theme */
-	.dark {
-		--text-color: #f9f9f9;
-		--form-background-color: #1d232e;
-		--form-sub-background-color: #242b38;
-		--label-color: #b0b0b0;
-		--input-background-color: #2b2b2b;
-		--input-text-color: #f9f9f9;
-		--button-hover-color: #444;
-		--button-disabled-background-color: #707070;
-		--button-disabled-hover-color: #5c5c5c;
-		--placeholder-color: #666;
-	}
-
 	/* Add media query for smaller screens */
 	@media screen and (max-width: 768px) {
 		.selection-wrapper {
 			width: 90%;
-			margin-bottom: 4rem;
+			margin-bottom: 5rem;
 		}
 
 		.matchup-image {
@@ -353,6 +353,12 @@
 		.input-selector-wrapper {
 			width: 44%;
 			max-width: 44%;
+		}
+
+		.button-container {
+			display: flex;
+			justify-content: center;
+			padding: 1.5rem 0 0 0;
 		}
 	}
 </style>

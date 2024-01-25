@@ -1,4 +1,4 @@
-<!-- Selector.svelte -->
+<!-- TeamSelection.svelte -->
 
 <script lang="ts">
 	import { selectedTeams, selectedWeek } from '$lib/stores/store';

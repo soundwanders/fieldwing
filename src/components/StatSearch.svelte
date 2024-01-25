@@ -1,9 +1,10 @@
 <!-- StatSearch.svelte -->
+
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { theme } from '$lib/stores/theme';
 	import { goto } from '$app/navigation';
-	import { getSchoolName } from '$lib/utils/getSchoolName';
+	import { statsNameTrim } from '$lib/utils/statsNameTrim';
 
 	let year: string = '';
 	let team: string = '';
@@ -12,6 +13,19 @@
 	let endWeek: number | '' = '';
 	let category: string = '';
 	let seasonType: string = '';
+
+	let categoryOptions = [
+		'defense',
+		'fumbles',
+		'interceptions',
+		'kicking',
+		'kickReturns',
+		'passing',
+		'punting',
+		'puntReturns',
+		'receiving',
+		'rushing'
+	];
 
 	let pageSize: number = 16;
 	$: currentPage = (Number($page.url.searchParams.get('skip')) || 0) / pageSize;
@@ -50,9 +64,7 @@
 		}
 
 		// trim school mascot name if its present to only allow school name in query param
-		let schoolName = getSchoolName(team);
-
-		console.log('schoolName', schoolName);
+		let schoolName = statsNameTrim(team);
 
 		// Construct the URL with the provided parameters, and leave out any unused parameters
 		const queryParams = [
@@ -85,6 +97,17 @@
 		<div class="stat-search-container">
 			<h2 class="stats-title">Search Player Stats</h2>
 			<form on:submit|preventDefault={handleSubmit}>
+				<label class="select-label">
+					Stat Category:
+					<div class="input-container">
+						<select bind:value={category} required class="category-select">
+							{#each categoryOptions as option}
+								<option value={option}>{option}</option>
+							{/each}
+						</select>
+					</div>
+				</label>
+
 				<label>
 					Team:
 					<input type="text" bind:value={team} />
@@ -119,11 +142,6 @@
 				</label>
 
 				<label>
-					Stat Category:
-					<input type="text" bind:value={category} required />
-				</label>
-
-				<label>
 					Season Type:
 					<input type="text" placeholder="Regular is the default value" bind:value={seasonType} />
 				</label>
@@ -153,7 +171,7 @@
 		align-items: center;
 		width: 100%;
 	}
-	
+
 	.stats-img-wrapper {
 		display: flex;
 		flex-direction: column;
@@ -177,21 +195,23 @@
 	}
 
 	.stat-search-container form {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-  }
-
-  .stat-search-container label:nth-child(1) {
-		width: 55%;
-		margin: 0 auto;
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-between;
 	}
 
-  .stat-search-container label {
-    width: 47%;
+	.stat-search-container label {
+		width: 47%;
 		padding: 0.175rem 0;
-    box-sizing: border-box;
-  }
+		margin-bottom: 0.5rem;
+		box-sizing: border-box;
+	}
+
+	.stat-search-container label:nth-child(1) {
+		width: 100%;
+		padding: 0.5rem 0.25rem;
+		text-align: center;
+	}
 
 	.stats-title {
 		text-align: center;
@@ -199,12 +219,13 @@
 		padding: 1rem 0 2rem 0;
 	}
 
-	label {
-		display: block;
-		margin-bottom: 10px;
+	.input-container {
+		width: 47%;
+		margin: 0 auto;
 	}
 
-	input {
+	input,
+	.category-select {
 		width: 100%;
 		padding: 0.5rem 0.25rem;
 		margin: 0.5rem 0;
@@ -277,8 +298,12 @@
 		}
 
 		.stat-search-container label:nth-child(1) {
-			width: 100%;
 			padding: 0.175rem 2rem;
+			text-align: left;
+		}
+
+		.input-container {
+			width: 100%;
 		}
 
 		.button-container {

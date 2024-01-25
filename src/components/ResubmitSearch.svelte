@@ -1,3 +1,5 @@
+<!-- ResubmitSearch.svelte -->
+
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import fbsData from '../data/fbs.json';

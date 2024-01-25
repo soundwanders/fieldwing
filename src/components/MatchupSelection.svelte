@@ -175,8 +175,8 @@
 </section>
 
 <style module>
-		/* Light Theme */
-		.light {
+	/* Light Theme */
+	.light {
 		--text-color: #333;
 		--form-background-color: #eeeef0;
 		--form-sub-background-color: #f4f4f5;

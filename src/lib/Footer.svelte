@@ -4,17 +4,25 @@
 
 <footer class="footer">
 	<nav class:light={!$theme} class:dark={$theme}>
-		<a href="/tos">Terms of Service</a>
-		<a href="https://github.com/soundwanders" target="_blank">Github</a>
-		<a href="https://api.collegefootballdata.com/api/docs/?url=/api-docs.json" target="_blank"
-			>API</a
+		<a href="/tos" role="button" aria-label="Go to Terms of Service">Terms of Service</a>
+		<a
+			href="https://github.com/soundwanders"
+			role="button"
+			target="_blank"
+			aria-label="Go to Github Repository">Github</a
+		>
+		<a
+			href="https://api.collegefootballdata.com/api/docs/?url=/api-docs.json"
+			role="button"
+			target="_blank"
+			aria-label="Go to API documentation">API</a
 		>
 	</nav>
 
 	<div id="made-with-love">
 		<p>
 			made with
-			<span style:font-size="0.7rem" style:padding="0 1px"> ❤️ </span>
+			<span style:font-size="0.7rem" style:padding="0 1px" aria-label="love"> ❤️ </span>
 		</p>
 	</div>
 </footer>

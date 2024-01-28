@@ -85,7 +85,7 @@
 			<h2>Select Teams for Matchup</h2>
 
 			<div class="selector-container">
-				<div class="team-selector-wrapper">
+				<article class="team-selector-wrapper">
 					<!-- Dropdown container for team lists -->
 					<label for="division-select">Select a Division:</label>
 					<select
@@ -101,9 +101,9 @@
 							<option value={division}>{division}</option>
 						{/each}
 					</select>
-				</div>
+				</article>
 
-				<div class="team-selector-wrapper">
+				<article class="team-selector-wrapper">
 					<label for="team1-select">Select Team 1:</label>
 					<select
 						id="team1-select"
@@ -115,12 +115,12 @@
 							<option value={team}>{team}</option>
 						{/each}
 					</select>
-				</div>
+				</article>
 
-				<div class="team-selector-wrapper">
+				<article class="team-selector-wrapper">
 					<label for="team2-select">Select Team 2:</label>
 					<select
-						id="team1-select"
+						id="team2-select"
 						bind:value={selectedTeamsArray[1]}
 						class:light={!$theme}
 						class:dark={$theme}
@@ -129,9 +129,9 @@
 							<option value={team}>{team}</option>
 						{/each}
 					</select>
-				</div>
+				</article>
 
-				<div class="year-selector-wrapper">
+				<article class="year-selector-wrapper">
 					<div class="input-selector-wrapper">
 						<label for="minYear">Min Year:</label>
 						<input
@@ -153,13 +153,14 @@
 							class:dark={$theme}
 						/>
 					</div>
-				</div>
+				</article>
 
 				<div class="button-container">
 					<button
 						type="button"
 						class="submit-button"
 						disabled={!selectedTeamsArray[0] || !selectedTeamsArray[1]}
+						aria-label="Submit Matchups Form"
 						on:click={handleSubmit}
 					>
 						Submit

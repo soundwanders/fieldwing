@@ -1,5 +1,3 @@
-<!-- +page.svelte -->
-
 <script lang="ts">
 	import { theme } from '$lib/stores/theme';
 	import { formatStartDate } from '$lib/utils/formatStartDate';
@@ -30,7 +28,7 @@
 		<section class="results-container">
 			{#if matchupData}
 				<div class="header-image-wrapper">
-					<img class="h2h-image" src="/h2h.png" alt="Head to Head Matchups" />
+					<img class="h2h-image" src="/h2h.png" alt="Head to Head Matchups" aria-hidden="true" />
 					<h1 class="main-title" class:light={!$theme} class:dark={$theme}>
 						{team1}
 						vs

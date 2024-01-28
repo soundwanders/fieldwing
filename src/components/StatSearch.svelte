@@ -94,13 +94,13 @@
 			<img class="playerstats-image" src="/playerstats.png" alt="Player statistics" />
 		</figure>
 
-		<div class="stat-search-container">
+		<article class="stat-search-container">
 			<h2 class="stats-title">Search Player Stats</h2>
-			<form on:submit|preventDefault={handleSubmit}>
-				<label class="select-label">
+			<form on:submit|preventDefault={handleSubmit} class:light={!$theme} class:dark={$theme}>
+				<label for="stat-category" class="select-label">
 					Stat Category:
 					<div class="input-container">
-						<select bind:value={category} required class="category-select">
+						<select id="stat-category" class="category-select" bind:value={category} required>
 							{#each categoryOptions as option}
 								<option value={option}>{option}</option>
 							{/each}
@@ -108,51 +108,64 @@
 					</div>
 				</label>
 
-				<label>
+				<label for="team">
 					Team:
-					<input type="text" bind:value={team} />
+					<input id="team" type="number" bind:value={team} required />
 				</label>
 
-				<label>
+				<label for="year">
 					Year:
-					<input type="number" bind:value={year} required />
+					<input id="year" type="number" bind:value={year} required />
 				</label>
 
-				<label>
+				<label for="conference">
 					Conference:
-					<input type="text" bind:value={conference} />
+					<input id="conference" type="text" bind:value={conference} />
 				</label>
 
-				<label>
+				<label for="start-week">
 					Start Week:
 					<input
+						id="start-week"
 						type="number"
 						bind:value={startWeek}
 						on:input={(e) => handleWeekInput(e, 'startWeek')}
 					/>
 				</label>
 
-				<label>
+				<label for="end-week">
 					End Week:
 					<input
+						id="end-week"
 						type="number"
 						bind:value={endWeek}
 						on:input={(e) => handleWeekInput(e, 'endWeek')}
 					/>
 				</label>
 
-				<label>
+				<label for="season-type">
 					Season Type:
-					<input type="text" placeholder="Regular is the default value" bind:value={seasonType} />
+					<input
+						id="season-type"
+						type="text"
+						placeholder="Regular season is the default value"
+						bind:value={seasonType}
+					/>
 				</label>
 
 				<div class="button-container">
-					<button class="submit-button" type="submit" class:light={!$theme} class:dark={$theme}>
+					<button
+						class="submit-button"
+						type="submit"
+						class:light={!$theme}
+						class:dark={$theme}
+						aria-label="Submit player stats search"
+					>
 						Search
 					</button>
 				</div>
 			</form>
-		</div>
+		</article>
 	</div>
 </section>
 

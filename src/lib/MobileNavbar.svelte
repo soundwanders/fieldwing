@@ -27,10 +27,10 @@
 	};
 </script>
 
-<div class="nav-container" class:light={!$theme} class:dark={$theme}>
-	<nav class="navbar">
+<div class="nav-container" role="navigation">
+	<nav class="navbar class:light={!$theme} class:dark={$theme}">
 		<div class="left-section">
-			<a id="home-shortcut" class="link" href="/" aria-label="Go to Home">
+			<a id="home-shortcut" class="link" href="/" role="button" aria-label="Go to Home">
 				<img class="fieldwing-logo" src="/fieldwing.png" alt="Fieldwing Logo" />
 			</a>
 
@@ -48,9 +48,9 @@
 		</div>
 
 		<div class="right-section">
-			<span class="hamburger">
+			<span class="hamburger" aria-label="navigation-toggle-icon">
 				<button
-					class="hamburger-icon"
+					class="hamburger-toggle-icon"
 					class:light={!$theme}
 					class:dark={$theme}
 					on:click={toggleMenu}
@@ -62,11 +62,21 @@
 			</span>
 
 			<div class={showMenu ? 'dropdown-container show visible' : 'dropdown-container'}>
-				<div class="nav-links" class:show={showMenu}>
-					<select bind:value={selectedPage} class="nav-dropdown" on:change={navigateToPage}>
-						<option class="nav-item" id="teams-shortcut" value="/teams" selected>Teams</option>
-						<option class="nav-item" id="matchups-shortcut" value="/matchups">Matchups</option>
-						<option class="nav-item" id="players-shortcut" value="/players">Players</option>
+				<div class="nav-links" class:show={showMenu} role="navigation">
+					<label for="navigation-link-options" class="sr-only">Select Week:</label>
+					<select
+						bind:value={selectedPage}
+						class="nav-dropdown"
+						id="navigation-link-options"
+						on:change={navigateToPage}
+					>
+						<option class="nav-item" id="teams-shortcut" value="/teams" role="button">Teams</option>
+						<option class="nav-item" id="matchups-shortcut" value="/matchups" role="button"
+							>Matchups</option
+						>
+						<option class="nav-item" id="players-shortcut" value="/players" role="button"
+							>Players</option
+						>
 					</select>
 				</div>
 			</div>

@@ -49,73 +49,75 @@
 	}
 </script>
 
-<section class="search-wrapper">
-	<div class="searchbar-flex-container">
-		<div class="label-wrapper">
-			<label for="teamSearch">Search for a Team:</label>
-		</div>
-
-		<div class="input-wrapper">
-			<input
-				type="text"
-				class="team-searchbar"
-				class:light={!$theme}
-				class:dark={$theme}
-				id="teamSearch"
-				bind:value={searchQuery}
-				placeholder="Enter team name"
-				on:input={searchTeams}
-			/>
-		</div>
-	</div>
-
-	<div class="searchbar-flex-container">
-		<div class="label-wrapper">
-			<label for="week-selector">Week:</label>
-		</div>
-		<div class="select-wrapper">
-			<select id="week-selector" bind:value={$selectedWeek}>
-				{#each [...Array(14).keys()] as week}
-					<option value={week + 1}>{week + 1}</option>
-				{/each}
-			</select>
-		</div>
-	</div>
-
-	<div class="searchbar-flex-container">
-		<div class="label-wrapper">
-			<p id="search-query">
-				You searched for:
-				<span class="query-result">{searchQuery}</span>
-			</p>
-		</div>
-
-		<div class="input-wrapper">
-			<div class="search-results" class:light={!$theme} class:dark={$theme}>
-				{#if searchResults.length > 0}
-					<ul class="team-list">
-						{#each searchResults as team (team)}
-							<li class="team-list-items">
-								<button
-									class="teams-button"
-									on:mousedown={(event) => selectTeam(event, team)}
-									class:selected={$selectedTeams.includes(team)}
-									class:light={!$theme}
-									class:dark={$theme}
-									tabindex="0"
-								>
-									{team}
-								</button>
-							</li>
-						{/each}
-					</ul>
-				{:else if searchQuery.length >= minQueryLength}
-					<p>No teams found!</p>
-				{/if}
+<div class="search-wrapper">
+	<section class="searchbar-section">
+		<article class="searchbar-flex-container">
+			<div class="label-wrapper">
+				<label for="teamSearch">Search for a Team:</label>
 			</div>
-		</div>
-	</div>
-</section>
+
+			<div class="input-wrapper">
+				<input
+					type="text"
+					class="team-searchbar"
+					class:light={!$theme}
+					class:dark={$theme}
+					id="teamSearch"
+					bind:value={searchQuery}
+					placeholder="Enter team name"
+					on:input={searchTeams}
+				/>
+			</div>
+		</article>
+
+		<article class="searchbar-flex-container">
+			<div class="label-wrapper">
+				<label for="week-selector">Week:</label>
+			</div>
+			<div class="select-wrapper">
+				<select id="week-selector" bind:value={$selectedWeek}>
+					{#each [...Array(14).keys()] as week}
+						<option value={week + 1}>{week + 1}</option>
+					{/each}
+				</select>
+			</div>
+		</article>
+
+		<article class="searchbar-flex-container">
+			<div class="label-wrapper">
+				<p id="search-query">
+					You searched for:
+					<span class="query-result">{searchQuery}</span>
+				</p>
+			</div>
+
+			<div class="input-wrapper">
+				<div class="search-results" class:light={!$theme} class:dark={$theme}>
+					{#if searchResults.length > 0}
+						<ul class="team-list">
+							{#each searchResults as team (team)}
+								<li class="team-list-items">
+									<button
+										class="teams-button"
+										on:mousedown={(event) => selectTeam(event, team)}
+										class:selected={$selectedTeams.includes(team)}
+										class:light={!$theme}
+										class:dark={$theme}
+										tabindex="0"
+									>
+										{team}
+									</button>
+								</li>
+							{/each}
+						</ul>
+					{:else if searchQuery.length >= minQueryLength}
+						<p>No teams found!</p>
+					{/if}
+				</div>
+			</div>
+		</article>
+	</section>
+</div>
 
 <style module>
 	.search-wrapper {

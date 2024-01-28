@@ -33,7 +33,7 @@
 		<MobileNavbar />
 	</div>
 {:else}
-	<div class="nav-container">
+	<div class="nav-container" role="navigation">
 		<nav class="navbar" class:light={!$theme} class:dark={$theme}>
 			<a
 				id="home-shortcut"

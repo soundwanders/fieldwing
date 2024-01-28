@@ -1,4 +1,3 @@
-<!-- src/routes/player-stats/+page.svelte -->
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { theme } from '$lib/stores/theme';
@@ -84,12 +83,6 @@
 		if (category) pageTitle += ` - ${formattedCategory}`;
 	});
 
-	$: {
-		console.log('totalItems:', totalItems);
-		console.log('totalPages:', totalPages);
-		console.log('pageTitle:', pageTitle);
-	}
-
 	$: sortedPlayerStatsData = sortPlayerStatsData(playerData?.playerStatsData || []);
 </script>
 
@@ -97,7 +90,7 @@
 	<section class="stats-section">
 		{#if sortedPlayerStatsData && sortedPlayerStatsData.length > 0}
 			<div class="header-image-wrapper">
-				<img class="players-image" src="/players.png" alt="Player Stats" />
+				<img class="players-image" src="/players.png" alt="Player Stats" aria-hidden="true" />
 				<h1 class="main-title" class:light={!$theme} class:dark={$theme}>
 					{pageTitle}
 				</h1>
@@ -107,12 +100,24 @@
 				<table class="player-stats-table">
 					<thead>
 						<tr>
-							<th><button on:click={() => toggleSortOrder('player')}>Player</button></th>
-							<th><button on:click={() => toggleSortOrder('team')}>Team</button></th>
-							<th><button on:click={() => toggleSortOrder('conference')}>Conference</button></th>
-							<th><button on:click={() => toggleSortOrder('category')}>Category</button></th>
-							<th><button on:click={() => toggleSortOrder('statType')}>Stat Type</button></th>
-							<th><button on:click={() => toggleSortOrder('stat')}>Stat</button></th>
+							<th scope="col">
+								<button on:click={() => toggleSortOrder('player')}>Player</button>
+							</th>
+							<th scope="col">
+								<button on:click={() => toggleSortOrder('team')}>Team</button>
+							</th>
+							<th scope="col">
+								<button on:click={() => toggleSortOrder('conference')}>Conference</button>
+							</th>
+							<th scope="col">
+								<button on:click={() => toggleSortOrder('category')}>Category</button>
+							</th>
+							<th scope="col">
+								<button on:click={() => toggleSortOrder('statType')}>Stat Type</button>
+							</th>
+							<th scope="col">
+								<button on:click={() => toggleSortOrder('stat')}>Stat</button>
+							</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -131,18 +136,42 @@
 			</div>
 
 			<!-- Add pagination controls using $page -->
-			<div class="pagination" class:light={!$theme} class:dark={$theme}>
+			<div class="pagination" class:light={!$theme} class:dark={$theme} role="navigation">
 				{#each Array(totalPages) as _, idx}
 					<a
 						href="?limit={pageSize}&skip={pageSize * idx}"
 						class="pagination-item {currentPage === idx ? 'active' : ''}"
+						aria-label="Page number {currentPage}"
 					>
 						{idx + 1}
 					</a>
 				{/each}
 			</div>
 		{:else}
-			<p class="no-data-message">No player stats data available.</p>
+			<p class="no-data-message">
+				No player stats data available,
+				<a
+					class="link"
+					class:light={!$theme}
+					class:dark={$theme}
+					href="/players"
+					role="button"
+					aria-label="Return to Player Stat Search page"
+				>
+					click here to try a different search!
+				</a>
+				or
+				<a
+					class="link"
+					class:light={!$theme}
+					class:dark={$theme}
+					href="/"
+					role="button"
+					aria-label="Return to Home page"
+				>
+					return to the home page.
+				</a>
+			</p>
 		{/if}
 	</section>
 </div>

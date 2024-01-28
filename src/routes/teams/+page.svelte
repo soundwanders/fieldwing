@@ -8,7 +8,7 @@
 	let selectedDivision = '';
 </script>
 
-<div class="selection-page">
+<div class="team-selection-page">
 	<main>
 		<section>
 			<figure class="selection-img-wrapper">

@@ -1,5 +1,3 @@
-<!-- +page.svelte -->
-
 <script lang="ts">
 	import { theme } from '$lib/stores/theme';
 	import { formatStartDate } from '$lib/utils/formatStartDate';
@@ -25,7 +23,7 @@
 		<section class="results-section">
 			<div class="header-image-container">
 				{#if gameResults && gameResults[0]?.data[0]}
-					<img class="games-image" src="/gameresults.png" alt="Game Results" />
+					<img class="games-image" src="/gameresults.png" alt="Game Results" aria-hidden="true" />
 					<h1>
 						Week {gameResults[0].data[0].week}, {gameResults[0].data[0].season} Results for
 						<span class="header-teams" class:light={!$theme} class:dark={$theme}>

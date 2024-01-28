@@ -138,6 +138,7 @@
 				? `/games?teams=${selectedTeamsArray.join(',')}&year=${selectedYear}&week=${selectedWeek}`
 				: '#'}
 			data-sveltekit-reload
+			role="button"
 		>
 			<button type="button" class="resubmit-button" disabled={selectedTeamsArray.length === 0}>
 				Submit

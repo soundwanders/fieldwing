@@ -65,91 +65,93 @@
 
 <div class="select-wrapper" class:light={!$theme} class:dark={$theme}>
 	<section class="selection-section">
-		<form class="selector-form" class:light={!$theme} class:dark={$theme}>
-			<h2>Select Your Teams</h2>
+		<article class="team-selection-form">
+			<form class="selector-form" class:light={!$theme} class:dark={$theme}>
+				<h2>Select Your Teams</h2>
 
-			<div class="selector-container">
-				<div class="team-selector-wrapper">
-					<!-- Dropdown container for team lists -->
-					<label for="division-select">Select a Division:</label>
-					<select
-						class="divisions-dropdown"
-						id="division-select"
-						class:light={!$theme}
-						class:dark={$theme}
-						bind:value={selectedDivision}
-						on:change={loadTeams}
-					>
-						<option value="" disabled>...</option>
-						{#each divisions as division}
-							<option value={division}>{division}</option>
-						{/each}
-					</select>
-				</div>
-
-				<!-- Dropdown for selecting the week -->
-				<div class="team-selector-wrapper">
-					<label for="select-week">Select Week:</label>
-					<select
-						class="weeks-dropdown"
-						id="select-week"
-						class:light={!$theme}
-						class:dark={$theme}
-						bind:value={$selectedWeek}
-					>
-						{#each [...Array(14).keys()] as week}
-							<option value={week + 1}>{week + 1}</option>
-						{/each}
-					</select>
-				</div>
-
-				<!-- Dropdown for selecting the year -->
-				<div class="team-selector-wrapper">
-					<label for="select-year">Select Year:</label>
-					<input
-						type="number"
-						class="year-input"
-						id="select-year"
-						class:light={!$theme}
-						class:dark={$theme}
-						bind:value={selectedYear}
-						min={1900}
-						max={currentYear}
-						placeholder={yearString}
-					/>
-				</div>
-			</div>
-
-			<div class="selector-container">
-				<div class="teams-container" class:light={!$theme} class:dark={$theme}>
-					<ul>
-						{#if teams.length > 0}
-							{#each teams as team}
-								<li class="teams-container-list-item">
-									<button
-										on:mousedown={(event) => {
-											event.preventDefault();
-											toggleSelection(event, team);
-										}}
-										class="teams-button"
-										class:light={!$theme}
-										class:dark={$theme}
-										class:selected={$selectedTeams.includes(team)}
-										tabindex="0"
-									>
-										{team}
-									</button>
-								</li>
+				<div class="selector-container">
+					<div class="team-selector-wrapper">
+						<!-- Dropdown container for team lists -->
+						<label for="division-select">Select a Division:</label>
+						<select
+							class="divisions-dropdown"
+							id="division-select"
+							class:light={!$theme}
+							class:dark={$theme}
+							bind:value={selectedDivision}
+							on:change={loadTeams}
+						>
+							<option value="" disabled>...</option>
+							{#each divisions as division}
+								<option value={division}>{division}</option>
 							{/each}
-						{:else}
-							<p class="select-division-placeholder">🏈 Select a division to view teams</p>
-						{/if}
-					</ul>
-				</div>
-			</div>
-		</form>
+						</select>
+					</div>
 
-		<div class="selected-teams" class:light={!$theme} class:dark={$theme}>
+					<!-- Dropdown for selecting the week -->
+					<div class="team-selector-wrapper">
+						<label for="select-week">Select Week:</label>
+						<select
+							class="weeks-dropdown"
+							id="select-week"
+							class:light={!$theme}
+							class:dark={$theme}
+							bind:value={$selectedWeek}
+						>
+							{#each [...Array(14).keys()] as week}
+								<option value={week + 1}>{week + 1}</option>
+							{/each}
+						</select>
+					</div>
+
+					<!-- Dropdown for selecting the year -->
+					<div class="team-selector-wrapper">
+						<label for="select-year">Select Year:</label>
+						<input
+							type="number"
+							class="year-input"
+							id="select-year"
+							class:light={!$theme}
+							class:dark={$theme}
+							bind:value={selectedYear}
+							min={1900}
+							max={currentYear}
+							placeholder={yearString}
+						/>
+					</div>
+				</div>
+
+				<div class="selector-container">
+					<div class="teams-container" class:light={!$theme} class:dark={$theme}>
+						<ul>
+							{#if teams.length > 0}
+								{#each teams as team}
+									<li class="teams-container-list-item">
+										<button
+											on:mousedown={(event) => {
+												event.preventDefault();
+												toggleSelection(event, team);
+											}}
+											class="teams-button"
+											class:light={!$theme}
+											class:dark={$theme}
+											class:selected={$selectedTeams.includes(team)}
+											tabindex="0"
+										>
+											{team}
+										</button>
+									</li>
+								{/each}
+							{:else}
+								<p class="select-division-placeholder">🏈 Select a division to view teams</p>
+							{/if}
+						</ul>
+					</div>
+				</div>
+			</form>
+		</article>
+
+		<article class="selected-teams" class:light={!$theme} class:dark={$theme}>
 			<h2>Selected Teams</h2>
 			<ul>
 				{#each selectedTeamsArray.filter(Boolean) as selectedTeam (selectedTeam)}
@@ -165,7 +167,7 @@
 					</li>
 				{/each}
 			</ul>
-		</div>
+		</article>
 	</section>
 </div>
 

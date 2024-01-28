@@ -4,7 +4,7 @@
 	import '../../styles/main.css';
 </script>
 
-<div class="selection-page">
+<div class="player-stats-selection-page">
 	<main>
 		<section>
 			<StatSearch />

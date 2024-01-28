@@ -7,7 +7,7 @@
 	let selectedDivision = '';
 </script>
 
-<div class="selection-page">
+<div class="matchup-selection-page">
 	<main>
 		<section>
 			<MatchupSelection {divisions} {selectedDivision} />

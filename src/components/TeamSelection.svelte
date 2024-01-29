@@ -63,7 +63,7 @@
 	}
 </script>
 
-<div class="select-wrapper" class:light={!$theme} class:dark={$theme}>
+<div class="team-select-wrapper" class:light={!$theme} class:dark={$theme}>
 	<section class="selection-section">
 		<article class="team-selection-form">
 			<form class="selector-form" class:light={!$theme} class:dark={$theme}>
@@ -190,9 +190,6 @@
 <style module>
 	.light {
 		--text-color: #1a202c;
-		--form-background-color: #eeeef0;
-		--form-sub-background-color: #f4f4f5;
-		--form-text-color: #09090b;
 		--highlight-text-color: #18181b;
 		--highlight-color: #b2e7cb;
 		--button-disabled-background-color: #7c7c7c;
@@ -201,16 +198,13 @@
 
 	.dark {
 		--text-color: #f9f9f9;
-		--form-background-color: #1d232e;
-		--form-sub-background-color: #242b38;
-		--form-text-color: #f8fafc;
 		--highlight-text-color: #f9f9f9;
 		--highlight-color: #336699;
 		--button-disabled-background-color: #707070;
 		--button-disabled-hover-color: #5c5c5c;
 	}
 
-	.select-wrapper {
+	.team-select-wrapper {
 		display: flex;
 		justify-content: center;
 		align-items: flex-start;
@@ -465,7 +459,7 @@
 			margin-top: 0.25rem;
 		}
 
-		.select-wrapper {
+		.team-select-wrapper {
 			width: 100%;
 			margin: 0 auto;
 		}

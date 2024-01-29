@@ -75,7 +75,7 @@
 				<label for="week-selector">Week:</label>
 			</div>
 			<div class="select-wrapper">
-				<select id="week-selector" bind:value={$selectedWeek}>
+				<select class="week-select" id="week-selector" bind:value={$selectedWeek}>
 					{#each [...Array(14).keys()] as week}
 						<option value={week + 1}>{week + 1}</option>
 					{/each}
@@ -120,6 +120,16 @@
 </div>
 
 <style module>
+	.light {
+		--highlight-text-color: #18181b;
+		--highlight-color: #b2e7cb;
+	}
+
+	.dark {
+		--highlight-text-color: #f9f9f9;
+		--highlight-color: #336699;
+	}
+
 	.search-wrapper {
 		display: flex;
 		justify-content: center;
@@ -157,7 +167,7 @@
 		box-sizing: border-box;
 		border: 1px solid #c3c8d0;
 		border-radius: 0.25rem;
-		background-color: transparent;
+		background-color: var(--form-sub-background-color);
 		color: var(--form-text-color);
 	}
 
@@ -165,13 +175,10 @@
 		display: flex;
 		height: fit-content;
 		margin: 0 2rem;
-		margin-left: auto;
 		align-items: flex-start;
 	}
 
 	#week-selector {
-		background-color: var(--form-sub-background-color);
-		margin-top: 0.75rem;
 		padding: 0.5rem;
 		font-size: 0.875rem;
 		line-height: 1.25rem;
@@ -179,7 +186,9 @@
 		border-radius: 0.25rem;
 		color: inherit;
 		box-sizing: content-box;
+		margin: 0.75rem 0;
 		margin-left: auto;
+		background-color: var(--form-sub-background-color);
 	}
 
 	.search-results {
@@ -192,7 +201,7 @@
 		margin: 0.75rem 0;
 		border: 1px solid #c3c8d0;
 		border-radius: 0.25rem;
-		background-color: var(--form-background-color);
+		background-color: var(--form-sub-background-color);
 		color: var(--form-text-color);
 		box-sizing: border-box;
 	}
@@ -232,23 +241,6 @@
 
 	button.selected {
 		background-color: var(--highlight-color);
-	}
-
-	.light {
-		--form-background-color: #eeeef0;
-		--form-sub-background-color: #f4f4f5;
-		--form-text-color: #09090b;
-		--highlight-text-color: #18181b;
-		--highlight-color: #b2e7cb;
-	}
-
-	.dark {
-		--form-background-color: #1d232e;
-		--form-sub-background-color: #242b38;
-		--form-text-color: #09090b;
-		--form-text-color: #f8fafc;
-		--highlight-text-color: #f9f9f9;
-		--highlight-color: #336699;
 	}
 
 	/* Media query for mobile devices */

@@ -179,8 +179,6 @@
 	/* Light Theme */
 	.light {
 		--text-color: #333;
-		--form-background-color: #eeeef0;
-		--form-sub-background-color: #f4f4f5;
 		--label-color: #555;
 		--input-background-color: #f9f9f9;
 		--input-text-color: #333;
@@ -193,8 +191,6 @@
 	/* Dark Theme */
 	.dark {
 		--text-color: #f9f9f9;
-		--form-background-color: #1d232e;
-		--form-sub-background-color: #242b38;
 		--label-color: #b0b0b0;
 		--input-background-color: #2b2b2b;
 		--input-text-color: #f9f9f9;

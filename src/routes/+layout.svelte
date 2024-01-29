@@ -41,12 +41,18 @@
 		--background-color: #f9f9f9;
 		--background-image: linear-gradient(180deg, #f9f9f9 59%, #c7cbe9 93%);
 		--text-color: #1a202c;
+		--form-background-color: #eeeef0;
+		--form-sub-background-color: #f4f4f5;
+		--form-text-color: #09090b;
 	}
 
 	.dark {
 		--background-color: #2b4162;
 		--background-image: linear-gradient(180deg, #1a202c 59%, #1b293e 93%);
 		--text-color: #f9f9f9;
+		--form-background-color: #1d232e;
+		--form-sub-background-color: #242b38;
+		--form-text-color: #f8fafc;
 	}
 
 	/* Media query for smaller screens */

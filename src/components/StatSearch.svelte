@@ -110,7 +110,7 @@
 
 				<label for="team">
 					Team:
-					<input id="team" type="number" bind:value={team} required />
+					<input id="team" type="text" bind:value={team} required />
 				</label>
 
 				<label for="year">
@@ -148,7 +148,7 @@
 					<input
 						id="season-type"
 						type="text"
-						placeholder="Regular season is the default value"
+						placeholder="Regular is the default value"
 						bind:value={seasonType}
 					/>
 				</label>
@@ -160,6 +160,7 @@
 						class:light={!$theme}
 						class:dark={$theme}
 						aria-label="Submit player stats search"
+						disabled={category.length === 0}
 					>
 						Search
 					</button>
@@ -170,6 +171,32 @@
 </section>
 
 <style>
+	.light {
+		--form-background-color: #eeeef0;
+		--form-sub-background-color: #f4f4f5;
+		--label-color: #555;
+		--input-background-color: #f9f9f9;
+		--input-text-color: #333;
+		--button-hover-color: #e0e0e0;
+		--button-disabled-background-color: #7c7c7c;
+		--button-disabled-hover-color: #5f5f5f;
+		--placeholder-color: #888;
+	}
+
+	/* Dark Theme */
+	.dark {
+		--form-background-color: #1d232e;
+		--form-sub-background-color: #242b38;
+		--label-color: #b0b0b0;
+		--input-background-color: #2b2b2b;
+		--input-text-color: #f9f9f9;
+		--button-hover-color: #444;
+		--button-disabled-background-color: #707070;
+		--button-disabled-hover-color: #5c5c5c;
+		--placeholder-color: #666;
+	}
+
+
 	.stats-section {
 		width: 100%;
 		display: flex;

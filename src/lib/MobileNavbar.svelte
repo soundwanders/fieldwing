@@ -27,8 +27,8 @@
 	};
 </script>
 
-<div class="nav-container" role="navigation">
-	<nav class="navbar class:light={!$theme} class:dark={$theme}">
+<div class="nav-container" role="navigation" class:light={!$theme} class:dark={$theme}>
+	<nav class="navbar">
 		<div class="left-section">
 			<a id="home-shortcut" class="link" href="/" role="button" aria-label="Go to Home">
 				<img class="fieldwing-logo" src="/fieldwing.png" alt="Fieldwing Logo" />
@@ -63,7 +63,6 @@
 
 			<div class={showMenu ? 'dropdown-container show visible' : 'dropdown-container'}>
 				<div class="nav-links" class:show={showMenu} role="navigation">
-					<label for="navigation-link-options" class="sr-only">Select Week:</label>
 					<select
 						bind:value={selectedPage}
 						class="nav-dropdown"
@@ -124,7 +123,7 @@
 		z-index: 10;
 	}
 
-	.hamburger-icon {
+	.hamburger-toggle-icon {
 		margin-right: auto;
 		background-color: transparent;
 	}
@@ -143,7 +142,7 @@
 
 	.dropdown-container {
 		position: fixed;
-		right: 2.75rem;
+		right: 12vw;
 		padding: 1rem;
 		margin-bottom: 0.25rem;
 		transition: transform 0.3s ease;

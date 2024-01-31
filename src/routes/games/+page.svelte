@@ -249,11 +249,7 @@
 		}
 
 		.games-image {
-			height: auto;
-			width: 25%;
-			margin-right: -0.5rem;
-			margin-left: -1rem;
-			margin-bottom: 0.75rem;
+			display: none;
 		}
 
 		.game-results {

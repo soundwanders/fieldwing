@@ -110,7 +110,7 @@
 
 				<label for="team">
 					Team:
-					<input id="team" type="text" bind:value={team} required />
+					<input id="team" type="text" bind:value={team} />
 				</label>
 
 				<label for="year">

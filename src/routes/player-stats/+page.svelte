@@ -68,14 +68,18 @@
 	}
 
 	onMount(() => {
-		let formattedTeamName = capitalizeFirstChar(team);
+		let formattedTeamName = team ? capitalizeFirstChar(team) : '';
+		let formattedConference = conference ? `${conference.toUpperCase()}` : '';
 		let formattedseasonType = capitalizeFirstChar(seasonType);
 		let formattedCategory = capitalizeFirstChar(category);
-		let formattedConference = conference.toUpperCase();
 
 		// Build the title based on the presence of each parameter
-		if (team) pageTitle += `${formattedTeamName}`;
-		if (conference) pageTitle += ` - ${formattedConference}`;
+		if (team && !conference) { pageTitle += `${formattedTeamName}`; }
+
+		else if (!team && conference) { pageTitle += `${formattedConference}`; }
+
+		else if (team && conference) { pageTitle += `${formattedTeamName} - ${formattedConference}`; }
+
 		if (year) pageTitle += ` - ${year}`;
 		if (startWeek) pageTitle += ` - Week ${startWeek}`;
 		if (endWeek) pageTitle += ` to ${endWeek}`;
@@ -100,22 +104,22 @@
 				<table class="player-stats-table">
 					<thead>
 						<tr>
-							<th scope="col">
-								<button on:click={() => toggleSortOrder('player')}>Player</button>
+							<th class="player-table-header" scope="col">
+								<button on:click={() => toggleSortOrder('player')}>PLAYER</button>
 							</th>
-							<th scope="col">
-								<button on:click={() => toggleSortOrder('team')}>Team</button>
+							<th class="team-table-header" scope="col">
+								<button on:click={() => toggleSortOrder('team')}>TEAM</button>
 							</th>
-							<th scope="col">
-								<button on:click={() => toggleSortOrder('conference')}>Conference</button>
+							<th class="conference-table-header" scope="col">
+								<button on:click={() => toggleSortOrder('conference')}>CONF.</button>
 							</th>
-							<th scope="col">
-								<button on:click={() => toggleSortOrder('category')}>Category</button>
+							<th class="category-table-header" scope="col">
+								<button on:click={() => toggleSortOrder('category')}>CATEGORY</button>
 							</th>
-							<th scope="col">
-								<button on:click={() => toggleSortOrder('statType')}>Stat Type</button>
+							<th class="stat-type-table-header" scope="col">
+								<button on:click={() => toggleSortOrder('statType')}>TYPE</button>
 							</th>
-							<th scope="col">
+							<th class="stat-table-header" scope="col">
 								<button on:click={() => toggleSortOrder('stat')}>Stat</button>
 							</th>
 						</tr>
@@ -258,7 +262,7 @@
 	}
 
 	.player-stats-table th {
-		background-color: #f2f2f2;
+		background-color: var(--form-sub-background-color);
 		cursor: pointer;
 	}
 
@@ -268,6 +272,7 @@
 		cursor: pointer;
 		outline: none;
 		font-weight: bold;
+		color: var(--text-color) !important;
 	}
 
 	.player-stats-table th button:hover {
@@ -346,8 +351,7 @@
 
 		.stats-section {
 			flex-direction: column;
-			align-items: center;
-			gap: 2.5rem;
+			gap: 0;
 			min-height: 100%;
 			width: 90%;
 			margin-top: 0.25rem;
@@ -359,21 +363,33 @@
 		}
 
 		.players-image {
-			height: auto;
-			width: 18%;
-			margin-right: 0.5rem;
-			margin-bottom: 1.25rem;
+			display: none;
 		}
 
 		.main-title {
 			font-size: 1.25rem;
 			line-height: 1.75rem;
+			margin-left: -1rem;
+		}
+
+		.player-stats-table th button {
+			font-size: 0.675rem;
 		}
 
 		.player-stats-table {
-			width: 90%;
+			width: max-content;
+			font-size: 0.675rem;
 		}
 
+		.player-stats-table th,
+		.player-stats-table td {
+			padding: 0.375rem 0.175rem;
+		}
+
+		/* .conference-table-header, .td-conference {
+			display: none;
+		} */
+	
 		.pagination {
 			margin: 1rem 0 4rem 0;
 		}

@@ -222,10 +222,7 @@
 		}
 
 		.h2h-image {
-			width: 25%;
-			height: auto;
-			margin-right: -1rem;
-			margin-bottom: 0;
+			display: none;
 		}
 
 		.matchup-teams {

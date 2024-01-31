@@ -279,6 +279,7 @@
 
 		.search-results {
 			margin-bottom: 1.25rem;
+			padding: 0.3rem 0;
 		}
 
 		.label-wrapper {

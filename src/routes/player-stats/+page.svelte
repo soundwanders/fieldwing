@@ -152,30 +152,32 @@
 				{/each}
 			</div>
 		{:else}
-			<p class="no-data-message">
-				No player stats data available,
-				<a
-					class="link"
-					class:light={!$theme}
-					class:dark={$theme}
-					href="/players"
-					role="button"
-					aria-label="Return to Player Stat Search page"
-				>
-					click here to try a different search!
-				</a>
-				or
-				<a
-					class="link"
-					class:light={!$theme}
-					class:dark={$theme}
-					href="/"
-					role="button"
-					aria-label="Return to Home page"
-				>
-					return to the home page.
-				</a>
-			</p>
+			<div class="error-wrapper">
+				<p class="no-data-message">
+					No player stats data available,
+					<a
+						class="link"
+						class:light={!$theme}
+						class:dark={$theme}
+						href="/players"
+						role="button"
+						aria-label="Return to Player Stat Search page"
+					>
+						click here to try a different search!
+					</a>
+					or
+					<a
+						class="link"
+						class:light={!$theme}
+						class:dark={$theme}
+						href="/"
+						role="button"
+						aria-label="Return to Home page"
+					>
+						return to the home page.
+					</a>
+				</p>
+			</div>
 		{/if}
 	</section>
 </div>
@@ -303,10 +305,24 @@
 		width: 13%;
 	}
 
+	.error-wrapper {
+		min-height: 100vh;
+		width: 100%;
+		display: flex;
+		align-items: baseline;
+		justify-content: center;
+		background-color: var(--background-color);
+		background-image: none;
+		margin: 0;
+		padding: 0;
+	}
+
 	.no-data-message {
-		font-size: 1.2rem;
-		line-height: 1.5rem;
+		font-size: 1.125rem;
+		line-height: 1.75rem;
 		color: var(--text-color);
+		background-color: var(--background-color);
+		background-image: none;
 	}
 
 	.pagination {

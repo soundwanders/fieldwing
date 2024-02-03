@@ -142,7 +142,7 @@
 
 	.dropdown-container {
 		position: fixed;
-		right: 12vw;
+		right: 13vw;
 		padding: 1rem;
 		margin-bottom: 0.25rem;
 		transition: transform 0.3s ease;

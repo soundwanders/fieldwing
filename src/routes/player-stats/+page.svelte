@@ -45,26 +45,20 @@
 	let sortOrder: 'asc' | 'desc' = 'desc';
 	let sortBy: keyof PlayerStat = 'player';
 
+	// Ascending/Descending Sort function for playerStatsData
+	function sortPlayerStatsData(playerStatsData: PlayerStat[]): PlayerStat[] {
+		return playerStatsData.sort((a, b) => {
+			if (a[sortBy] < b[sortBy]) return sortOrder === 'asc' ? -1 : 1;
+			if (a[sortBy] > b[sortBy]) return sortOrder === 'asc' ? 1 : -1;
+			return 0;
+		});
+	}
+
 	function toggleSortOrder(column: keyof PlayerStat) {
 		sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
 		sortBy = column;
 		// Update the sortedPlayerStatsData based on the new sort order and column
 		sortedPlayerStatsData = sortPlayerStatsData(playerData?.playerStatsData || []);
-	}
-
-	// Sort function for playerStatsData
-	function sortPlayerStatsData(playerStatsData: PlayerStat[]): PlayerStat[] {
-		return playerStatsData.sort((a, b) => {
-			// Always sort 'stat' from high to low
-			if (sortBy === 'stat') {
-				return parseFloat(b.stat) - parseFloat(a.stat);
-			}
-
-			// Sort other columns based on the current sorting order
-			if (a[sortBy] < b[sortBy]) return sortOrder === 'asc' ? -1 : 1;
-			if (a[sortBy] > b[sortBy]) return sortOrder === 'asc' ? 1 : -1;
-			return 0;
-		});
 	}
 
 	onMount(() => {
@@ -327,7 +321,7 @@
 
 	.pagination {
 		display: flex;
-		width: 80%;
+		max-width: 80%;
 		list-style: none;
 		padding: 0;
 		margin: 2rem 0;

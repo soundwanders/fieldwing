@@ -6,29 +6,42 @@
 	import { goto } from '$app/navigation';
 	import { statsNameTrim } from '$lib/utils/statsNameTrim';
 
+	let selectedCategory: string = '';
 	let year: string = '';
 	let team: string = '';
 	let conference: string = '';
 	let startWeek: number | '' = '';
 	let endWeek: number | '' = '';
-	let category: string = '';
 	let seasonType: string = '';
-
-	let categoryOptions = [
-		'defense',
-		'fumbles',
-		'interceptions',
-		'kicking',
-		'kickReturns',
-		'passing',
-		'punting',
-		'puntReturns',
-		'receiving',
-		'rushing'
-	];
 
 	let pageSize: number = 16;
 	$: currentPage = (Number($page.url.searchParams.get('skip')) || 0) / pageSize;
+
+  let categoryOptions = [
+    'defense',
+    'fumbles',
+    'interceptions',
+    'kicking',
+    'kickReturns',
+    'passing',
+    'punting',
+    'puntReturns',
+    'receiving',
+    'rushing'
+  ];
+
+  const categoryDisplayNames: Record<string, string> = {
+    defense: 'Defense',
+    fumbles: 'Fumbles',
+    interceptions: 'Interceptions',
+    kicking: 'Kicking',
+    kickReturns: 'Kick Returns',
+    passing: 'Passing',
+    punting: 'Punting',
+    puntReturns: 'Punt Returns',
+    receiving: 'Receiving',
+    rushing: 'Rushing'
+  };
 
 	// Limit input changes to a number between 1 and 14
 	function handleWeekInput(
@@ -63,7 +76,7 @@
 			return;
 		}
 
-		// trim school mascot name if its present to only allow school name in query param
+		// Trim school mascot name if its present to only allow school name in query param
 		let schoolName = statsNameTrim(team);
 
 		// Construct the URL with the provided parameters, and leave out any unused parameters
@@ -74,7 +87,7 @@
 			`startWeek=${isValidWeek(startWeek) ? startWeek : ''}`,
 			`endWeek=${isValidWeek(endWeek) ? endWeek : ''}`,
 			`seasonType=${encodeURIComponent(seasonType)}`,
-			`category=${encodeURIComponent(category)}`,
+			`category=${encodeURIComponent(selectedCategory)}`,
 			`limit=${pageSize}`,
 			`skip=${currentPage * pageSize}`
 		]
@@ -83,7 +96,7 @@
 
 		const apiUrl = `/player-stats?${queryParams}`;
 
-		// Use Svelte's goto function to navigate to the player-stats route
+		// Use Svelte goto function to navigate to the player-stats route
 		goto(apiUrl);
 	}
 </script>
@@ -100,9 +113,9 @@
 				<label for="stat-category" class="select-label">
 					Stat Category:
 					<div class="input-container">
-						<select id="stat-category" class="category-select" bind:value={category} required>
-							{#each categoryOptions as option}
-								<option value={option}>{option}</option>
+						<select id="stat-category" class="category-select" bind:value={selectedCategory} required>
+							{#each categoryOptions as category (category)}
+								<option value={category}>{categoryDisplayNames[category]}</option>
 							{/each}
 						</select>
 					</div>
@@ -116,11 +129,6 @@
 				<label for="year">
 					Year:
 					<input id="year" type="number" bind:value={year} required />
-				</label>
-
-				<label for="conference">
-					Conference:
-					<input id="conference" type="text" bind:value={conference} />
 				</label>
 
 				<label for="start-week">
@@ -142,6 +150,11 @@
 						on:input={(e) => handleWeekInput(e, 'endWeek')}
 					/>
 				</label>
+				
+				<label for="conference">
+					Conference:
+					<input id="conference" type="text" bind:value={conference} />
+				</label>
 
 				<label for="season-type">
 					Season Type:
@@ -160,7 +173,7 @@
 						class:light={!$theme}
 						class:dark={$theme}
 						aria-label="Submit player stats search"
-						disabled={category.length === 0}
+						disabled={selectedCategory.length === 0}
 					>
 						Search
 					</button>

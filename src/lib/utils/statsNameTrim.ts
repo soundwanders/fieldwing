@@ -1,6 +1,6 @@
 import { mascotNames } from '$lib/utils/mascots';
 
-// Function to extract the school name from the full team name
+// Function specifically created for stats component, to extract school name from the full team name
 export function statsNameTrim(fullTeamName: string): string {
 	// Convert the full team name to lowercase for case-insensitive matching
 	const lowerCaseName = fullTeamName.toLowerCase();

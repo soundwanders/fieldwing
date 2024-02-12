@@ -2,6 +2,7 @@
 	import { page } from '$app/stores';
 	import { theme } from '$lib/stores/theme';
 	import { capitalizeFirstChar } from '$lib/utils/capitalizeFirstChar';
+	import StatSearchWidget from '../../components/StatSearchWidget.svelte';
 	import { onMount } from 'svelte';
 	import '../../styles/main.css';
 
@@ -92,6 +93,10 @@
 				<h1 class="main-title" class:light={!$theme} class:dark={$theme}>
 					{pageTitle}
 				</h1>
+			</div>
+
+			<div class="stat-search-widget">
+				<StatSearchWidget />
 			</div>
 
 			<div class="player-stats-container">

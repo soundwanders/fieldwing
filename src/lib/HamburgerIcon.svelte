@@ -17,7 +17,7 @@
 	/>
 </svg>
 
-<style>
+<style module>
 	svg {
 		width: 24px;
 		height: 24px;

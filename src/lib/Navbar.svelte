@@ -94,7 +94,7 @@
 	</div>
 {/if}
 
-<style>
+<style module>
 	:root {
 		--theme-background-color-light: #ffd586;
 		--theme-background-color-dark: #3730a3;

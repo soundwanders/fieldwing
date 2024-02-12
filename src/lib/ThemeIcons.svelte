@@ -49,7 +49,7 @@
 	{/if}
 </div>
 
-<style>
+<style module>
 	.theme-icons {
 		padding: 0.4rem;
 		margin: -0.4rem;

@@ -1,4 +1,4 @@
-<!-- Searchbar.svelte -->
+<!-- TeamSearchbar.svelte -->
 
 <script lang="ts">
 	import { onMount } from 'svelte';
@@ -71,7 +71,7 @@
 		</article>
 
 		<article class="searchbar-flex-container">
-			<div class="label-wrapper">
+			<div class="label-wrapper week-label">
 				<label for="week-selector">Week:</label>
 			</div>
 			<div class="select-wrapper">
@@ -150,6 +150,10 @@
 		width: 100%;
 		height: fit-content;
 		text-align: left;
+		margin: 0 1.375rem;
+	}
+
+	.week-label {
 		margin: 0 2rem;
 	}
 

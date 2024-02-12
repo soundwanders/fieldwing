@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { theme } from '$lib/stores/theme';
 	import { formatStartDate } from '$lib/utils/formatStartDate';
-	import ResubmitSearch from '../../components/ResubmitSearch.svelte';
+	import ResubmitTeams from '../../components/ResubmitTeams.svelte';
 	import '../../styles/main.css';
 
 	export let data: { gameResults?: any[]; teams?: string[] };
@@ -79,7 +79,7 @@
 	</div>
 
 	<section class="search-section">
-		<ResubmitSearch />
+		<ResubmitTeams />
 	</section>
 </div>
 

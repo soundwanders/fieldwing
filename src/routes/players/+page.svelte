@@ -14,7 +14,7 @@
 	<Footer />
 </div>
 
-<style>
+<style module>
 	section {
 		min-height: 100vh;
 		animation: fadeIn 0.8s forwards;

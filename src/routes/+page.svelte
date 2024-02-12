@@ -103,7 +103,7 @@
 	</div>
 </main>
 
-<style>
+<style module>
 	.container {
 		min-height: 100vh;
 		width: 100vw;

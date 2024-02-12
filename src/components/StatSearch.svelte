@@ -56,7 +56,7 @@
 		}
 	}
 
-	// Function to handle form submission
+	// Handle form submission on submit button click
 	function handleSubmit() {
 		// Validate startWeek and endWeek
 		const isValidWeek = (value: number | '') => value === '' || (value >= 1 && value <= 14);
@@ -183,7 +183,7 @@
 	</div>
 </section>
 
-<style>
+<style module>
 	.light {
 		--form-background-color: #eeeef0;
 		--form-sub-background-color: #f4f4f5;
@@ -208,7 +208,6 @@
 		--button-disabled-hover-color: #5c5c5c;
 		--placeholder-color: #666;
 	}
-
 
 	.stats-section {
 		width: 100%;

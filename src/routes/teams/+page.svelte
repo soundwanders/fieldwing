@@ -1,6 +1,6 @@
 <script>
 	import TeamSelection from '../../components/TeamSelection.svelte';
-	import Searchbar from '../../components/Searchbar.svelte';
+	import TeamSearchbar from '../../components/TeamSearchbar.svelte';
 	import Footer from '$lib/Footer.svelte';
 	import '../../styles/main.css';
 
@@ -15,14 +15,14 @@
 				<img class="selection-image" src="/selection.png" alt="Game Results Selection" />
 			</figure>
 
-			<Searchbar />
+			<TeamSearchbar />
 			<TeamSelection {divisions} {selectedDivision} />
 		</section>
 		<Footer />
 	</main>
 </div>
 
-<style>
+<style module>
 	section {
 		min-height: 100vh;
 		animation: fadeIn 0.8s forwards;

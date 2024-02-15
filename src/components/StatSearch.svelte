@@ -222,6 +222,7 @@
 		flex-direction: column;
 		align-items: center;
 		width: 100%;
+		margin-bottom: 3rem;
 	}
 
 	.stats-img-wrapper {
@@ -242,7 +243,7 @@
 		padding-bottom: 3rem;
 		margin-bottom: 5rem;
 		border: 1px solid #ccc;
-		border-radius: 8px;
+		border-radius: 0.5rem;
 		width: 35%;
 	}
 
@@ -282,7 +283,7 @@
 		padding: 0.5rem 0.25rem;
 		margin: 0.5rem 0;
 		border: 1px solid #ccc;
-		border-radius: 4px;
+		border-radius: 0.25rem;
 		font-size: 0.9rem;
 		background-color: var(--form-sub-background-color);
 		color: var(--input-text-color);

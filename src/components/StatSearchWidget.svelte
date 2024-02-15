@@ -155,7 +155,6 @@
       <input
         id="season-type"
         type="text"
-        placeholder="Regular is the default value"
         bind:value={seasonType}
       />
     </label>
@@ -203,13 +202,13 @@
     align-items: center;
     align-content: center;
     width: 100%;
-    padding: 0 2rem;
+    padding: 0;
   }
 
   form {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 0.5rem;
     width: 100%;
   }
 
@@ -226,18 +225,18 @@
   }
 
   select, input {
-    width: 100%;
-    padding: 8px;
+    width: 80%;
+    padding: 0.5rem;
     box-sizing: border-box;
 		background-color: var(--form-sub-background-color);
 		color: var(--input-text-color);
 		border: 1px solid #ccc;
-		border-radius: 8px;
+		border-radius: 0.5rem;
   }
 
   .button-container {
     flex: 0 0 auto;
-    margin: 1rem 0;
+    margin: 2rem 0 1rem 0;
   }
 
   .submit-button {

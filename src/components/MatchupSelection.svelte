@@ -282,7 +282,7 @@
 	select {
 		padding: 0.5rem;
 		border: 1px solid #ccc;
-		border-radius: 4px;
+		border-radius: 0.25rem;
 		font-size: 0.9rem;
 		background-color: var(--form-sub-background-color);
 		color: var(--input-text-color);
@@ -291,7 +291,7 @@
 	.button-container {
 		display: flex;
 		justify-content: center;
-		padding: 1.5rem 0;
+		padding: 0 0 1.5rem 0;
 	}
 
 	.submit-button {

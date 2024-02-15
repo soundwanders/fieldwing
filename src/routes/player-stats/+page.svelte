@@ -339,9 +339,9 @@
 	}
 
 	.pagination-item {
-		margin: 0 5px;
-		padding: 8px 12px;
-		border-radius: 4px;
+		margin: 0 0.3rem;
+		padding: 0.5rem 0.75rem;
+		border-radius: 0.25rem;
 		cursor: pointer;
 		background-color: var(--background-color);
 		transition: background-color 0.3s ease;

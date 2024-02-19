@@ -36,20 +36,30 @@
 						from {matchupData.startYear} to {matchupData.endYear}
 					</h1>
 				</div>
-
 				<div class="head-to-head-container">
 					{#each matchupData.games as gameResult, index (index)}
 						{#if gameResult && gameResult.awayTeam && gameResult.homeTeam}
 							<article class="head-to-head">
-								<h2 class="matchup-teams" class:light={!$theme} class:dark={$theme}>
-									<span class="team1">
-										{gameResult.awayTeam}
-									</span>
-									at
-									<span class="team2">
-										{gameResult.homeTeam}
-									</span>
-								</h2>
+								<div class="matchup-teams" class:light={!$theme} class:dark={$theme}>
+									<div class="team-row">
+										<span class="team1">
+											{gameResult.awayTeam}
+										</span>
+										<span class="at">at</span>
+										<span class="team2">
+											{gameResult.homeTeam}
+										</span>
+									</div>
+									<div class="score-row">
+										<span class="score">{gameResult.awayScore}</span>
+										<span class="dash">-</span>
+										<span class="score">{gameResult.homeScore}</span>
+									</div>
+								</div>
+
+								<p class="matchup-result">
+									{gameResult.winner} won with a score of {gameResult.homeScore} - {gameResult.awayScore}
+								</p>
 
 								<p class="matchup-info">
 									Date: {formatStartDate(gameResult.date)}
@@ -58,14 +68,10 @@
 								<p class="matchup-info">
 									Venue: {gameResult.venue}
 								</p>
-
-								<p class="matchup-result">
-									{gameResult.winner} won with a score of {gameResult.homeScore} - {gameResult.awayScore}
-								</p>
 							</article>
 						{/if}
 					{/each}
-				</div>
+			</div>
 			{:else}
 				<p class="no-data-message">
 					Sorry, it seems like there is no head-to-head matchup data available for those two teams.
@@ -172,6 +178,8 @@
 	}
 
 	.matchup-teams {
+		text-wrap: balance;
+		text-align: center;
 		font-size: 1.5rem;
 		line-height: 2rem;
 		color: var(--teams-color);
@@ -193,6 +201,34 @@
 		color: var(--teams-color);
 	}
 
+	.team-row {
+    display: flex;
+		justify-content: center;
+    align-items: center;
+	}
+
+	.at {
+		color: var(--text-color);
+		margin: 0 0.5rem;
+	}
+
+	.score-row {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		font-size: 2.5rem;
+		line-height: 1;
+		padding: 1rem 0 0.5rem 0;
+		color: var(--teams-color);
+	}
+
+	.score {
+		border: 1px solid #ccc;
+		padding: 0.875rem;
+		border-radius: 0.25rem;
+		margin: 0 2rem;
+	}
+
 	.no-data-message {
 		font-size: 1.2rem;
 		line-height: 1.5rem;
@@ -205,6 +241,8 @@
 			width: 100%;
 			margin: 0;
 			padding: 0;
+			background-color: transparent;
+			background-image: none;
 		}
 
 		.head-to-head {
@@ -223,6 +261,10 @@
 
 		.h2h-image {
 			display: none;
+		}
+
+		.head-to-head {
+			width: 90%;
 		}
 
 		.matchup-teams {

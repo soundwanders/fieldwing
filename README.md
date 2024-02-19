@@ -26,8 +26,8 @@ Fieldwing is a web application powered by SvelteKit, designed to provide users w
 ### Search for Player Statistics
 
 - Users can customize their search with various criteria, including team, year, conference, start and end weeks, stat category, and season type.
-- The player statistics is displayed via a table with sortable columns, enabling users to easily arrange data by player name, team, and various statistics.
-- Each table header is a clickable buttons, allowing users to sort statistics in alphabetical, ascending or descending order depending on the data type.
+- The player statistics are displayed via a table with sortable columns, enabling users to easily arrange data by player name, team, and various statistics.
+- Each table header is a clickable button, allowing users to sort statistics in alphabetical, ascending or descending order depending on the data type.
 - **Search Criteria:**
   - Team
   - Year
@@ -35,6 +35,18 @@ Fieldwing is a web application powered by SvelteKit, designed to provide users w
   - Start and End Weeks
   - Stat Category
   - Season Type
+ 
+### Search for Team Statistics
+
+- Users can customize their search with various criteria, including team, year, conference, start and end weeks.
+- The team statistics are displayed via a table with sortable columns, allowing users to sort data in ascending or descending order.
+- **Team Statistics Data Structure:**
+  - Team
+  - Year
+  - Conference
+  - Start and End Weeks
+  - Stat Type
+  - Stat Name
 
 ### Selected Teams Container
 
@@ -106,9 +118,9 @@ Fieldwing is a web application powered by SvelteKit, designed to provide users w
 
 2. Open your browser and visit [http://localhost:5000](http://localhost:5000) to view the application.
 
-## Icons
+## Credits
 
-All icons from [FlatIcon](https://www.flaticon.com/)
+All icons/images are from **[FlatIcon](https://www.flaticon.com/)**
 
 ## Issues
 

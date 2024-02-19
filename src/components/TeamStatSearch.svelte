@@ -1,4 +1,4 @@
-<!-- StatSearch.svelte -->
+<!-- TeamStatSearch.svelte -->
 
 <script lang="ts">
 	import { page } from '$app/stores';
@@ -12,36 +12,9 @@
 	let conference: string = '';
 	let startWeek: number | '' = '';
 	let endWeek: number | '' = '';
-	let seasonType: string = '';
 
 	let pageSize: number = 16;
 	$: currentPage = (Number($page.url.searchParams.get('skip')) || 0) / pageSize;
-
-  let categoryOptions = [
-    'defense',
-    'fumbles',
-    'interceptions',
-    'kicking',
-    'kickReturns',
-    'passing',
-    'punting',
-    'puntReturns',
-    'receiving',
-    'rushing'
-  ];
-
-  const categoryDisplayNames: Record<string, string> = {
-    defense: 'Defense',
-    fumbles: 'Fumbles',
-    interceptions: 'Interceptions',
-    kicking: 'Kicking',
-    kickReturns: 'Kick Returns',
-    passing: 'Passing',
-    punting: 'Punting',
-    puntReturns: 'Punt Returns',
-    receiving: 'Receiving',
-    rushing: 'Rushing'
-  };
 
 	// Limit input changes to a number between 1 and 14
 	function handleWeekInput(
@@ -86,17 +59,15 @@
 			`conference=${encodeURIComponent(conference)}`,
 			`startWeek=${isValidWeek(startWeek) ? startWeek : ''}`,
 			`endWeek=${isValidWeek(endWeek) ? endWeek : ''}`,
-			`seasonType=${encodeURIComponent(seasonType)}`,
-			`category=${encodeURIComponent(selectedCategory)}`,
 			`limit=${pageSize}`,
 			`skip=${currentPage * pageSize}`
 		]
 			.filter((param) => param.split('=')[1] !== '')
 			.join('&');
 
-		const apiUrl = `/player-stats?${queryParams}`;
+		const apiUrl = `/team-stats?${queryParams}`;
 
-		// Use Svelte goto function to navigate to the player-stats route
+		// Use Svelte goto function to navigate to the team-stats route
 		goto(apiUrl);
 	}
 </script>
@@ -104,26 +75,15 @@
 <section class="stats-section" class:light={!$theme} class:dark={$theme}>
 	<div class="stats-wrapper">
 		<figure class="stats-img-wrapper">
-			<img class="playerstats-image" src="/playerstats.png" alt="Player statistics" />
+			<img class="teamstats-image" src="/teamstats.png" alt="Team statistics" />
 		</figure>
 
 		<article class="stat-search-container">
-			<h2 class="stats-title">Search Player Stats</h2>
+			<h2 class="stats-title">Search Team Stats</h2>
 			<form on:submit|preventDefault={handleSubmit} class:light={!$theme} class:dark={$theme}>
-				<label for="stat-category" class="select-label">
-					Stat Category:
-					<div class="input-container">
-						<select id="stat-category" class="category-select" bind:value={selectedCategory} required>
-							{#each categoryOptions as category (category)}
-								<option value={category}>{categoryDisplayNames[category]}</option>
-							{/each}
-						</select>
-					</div>
-				</label>
-
 				<label for="team">
 					Team:
-					<input id="team" type="text" bind:value={team} />
+					<input id="team" type="text" bind:value={team} required />
 				</label>
 
 				<label for="year">
@@ -150,20 +110,10 @@
 						on:input={(e) => handleWeekInput(e, 'endWeek')}
 					/>
 				</label>
-				
+
 				<label for="conference">
 					Conference:
 					<input id="conference" type="text" bind:value={conference} />
-				</label>
-
-				<label for="season-type">
-					Season Type:
-					<input
-						id="season-type"
-						type="text"
-						placeholder="Regular is the default value"
-						bind:value={seasonType}
-					/>
 				</label>
 
 				<div class="button-container">
@@ -172,8 +122,8 @@
 						type="submit"
 						class:light={!$theme}
 						class:dark={$theme}
-						aria-label="Submit player stats search"
-						disabled={selectedCategory.length === 0}
+						aria-label="Submit team stats search"
+						disabled={team.length === 0}
 					>
 						Search
 					</button>
@@ -222,7 +172,6 @@
 		flex-direction: column;
 		align-items: center;
 		width: 100%;
-		margin-bottom: 3rem;
 	}
 
 	.stats-img-wrapper {
@@ -232,9 +181,9 @@
 		width: 100%;
 	}
 
-	.playerstats-image {
+	.teamstats-image {
 		height: auto;
-		width: 8%;
+		width: 8.75%;
 	}
 
 	.stat-search-container {
@@ -260,25 +209,13 @@
 		box-sizing: border-box;
 	}
 
-	.stat-search-container label:nth-child(1) {
-		width: 100%;
-		padding: 0.5rem 0.25rem;
-		text-align: center;
-	}
-
 	.stats-title {
 		text-align: center;
 		margin: 0;
 		padding: 1rem 0 2rem 0;
 	}
 
-	.input-container {
-		width: 47%;
-		margin: 0 auto;
-	}
-
-	input,
-	.category-select {
+	input {
 		width: 100%;
 		padding: 0.5rem 0.25rem;
 		margin: 0.5rem 0;
@@ -327,7 +264,8 @@
 			padding: 0 2rem;
 			margin-bottom: 4rem;
 		}
-		.playerstats-image {
+
+		.teamstats-image {
 			width: 33%;
 			height: auto;
 		}
@@ -348,15 +286,6 @@
 			width: 100%;
 			padding: 0.175rem 2rem;
 			box-sizing: border-box;
-		}
-
-		.stat-search-container label:nth-child(1) {
-			padding: 0.175rem 2rem;
-			text-align: left;
-		}
-
-		.input-container {
-			width: 100%;
 		}
 
 		.button-container {

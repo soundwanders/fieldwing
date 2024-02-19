@@ -69,13 +69,18 @@
 						id="navigation-link-options"
 						on:change={navigateToPage}
 					>
-						<option class="nav-item" id="teams-shortcut" value="/teams" role="button">Teams</option>
-						<option class="nav-item" id="matchups-shortcut" value="/matchups" role="button"
-							>Matchups</option
-						>
-						<option class="nav-item" id="players-shortcut" value="/players" role="button"
-							>Players</option
-						>
+						<option class="nav-item" id="games-shortcut" value="/game-results" role="button">
+							Games
+						</option>
+						<option class="nav-item" id="matchups-shortcut" value="/matchups" role="button">
+							Matchups
+						</option>
+						<option class="nav-item" id="player-stats-shortcut" value="/players" role="button">
+							Player Stats
+						</option>
+						<option class="nav-item" id="team-stats-shortcut" value="/teams" role="button">
+							Team Stats
+						</option>
 					</select>
 				</div>
 			</div>
@@ -186,9 +191,10 @@
 	}
 
 	#home-shortcut,
-	#teams-shortcut,
+	#games-shortcut,
 	#matchups-shortcut,
-	#players-shortcut {
+	#player-stats-shortcut,
+	#team-stats-shortcut {
 		font-size: 0.75rem;
 		line-height: 1rem;
 		padding: 1rem 0.675rem;

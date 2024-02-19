@@ -219,6 +219,7 @@
 	}
 
 	#resubmit-week {
+		border-radius: 0.25rem;
 		padding: 3px;
 		background-color: var(--background-color);
 		color: var(--text-color);

@@ -106,6 +106,10 @@ Fieldwing is a web application powered by SvelteKit, designed to provide users w
 
 2. Open your browser and visit [http://localhost:5000](http://localhost:5000) to view the application.
 
+## Icons
+
+All icons from [FlatIcon](https://www.flaticon.com/)
+
 ## Issues
 
 If you encounter any issues or have suggestions, please open an issue on the [Issues](https://github.com/your-username/project-name/issues) page.

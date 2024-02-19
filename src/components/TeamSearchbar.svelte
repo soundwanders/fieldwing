@@ -9,23 +9,20 @@
 
 	let searchQuery: string = '';
 	let searchResults: string[] = [];
-	const minQueryLength: number = 2;
-
-	// Update searchResults when the component mounts to handle pre-selected teams
-	onMount(() => {
-		searchTeams();
-	});
+	const minQueryLength: number = 3;
 
 	function searchTeams() {
 		const query: string = searchQuery.toLowerCase();
 
-		if (query.length >= minQueryLength) {
-			searchResults = [...fbsData, ...fcsData].filter((team: string) => {
-				return team.toLowerCase().includes(query);
-			});
-		} else {
-			searchResults = [];
-		}
+		// Use the full team data set only if the query meets the minimum length
+		const teamsData = query.length >= minQueryLength ? [...fbsData, ...fcsData] : [];
+
+		searchResults = teamsData.filter((team: string) => {
+			return team.toLowerCase().includes(query);
+		});
+
+		// force Svelte to rebind the input value after updating searchResults
+		searchQuery = searchQuery;
 	}
 
 	function selectTeam(event: Event, team: string) {
@@ -43,6 +40,11 @@
 		// Trigger a re-render to update searchResults and highlight selected team
 		searchTeams();
 	}
+
+	// Update searchResults when the component mounts to handle pre-selected teams
+	onMount(() => {
+		searchTeams();
+	});
 
 	$: {
 		$selectedWeek = $selectedWeek;
@@ -130,7 +132,8 @@
 		--highlight-color: #336699;
 	}
 
-	.search-wrapper, .searchbar-section {
+	.search-wrapper,
+	.searchbar-section {
 		display: flex;
 		justify-content: center;
 		align-items: flex-start;
@@ -249,7 +252,8 @@
 
 	/* Media query for mobile devices */
 	@media screen and (max-width: 768px) {
-		.search-wrapper, .searchbar-section {
+		.search-wrapper,
+		.searchbar-section {
 			flex-direction: column;
 			height: 100%;
 			width: 100%;
@@ -266,7 +270,9 @@
 			padding: 0;
 		}
 
-		.label-wrapper, .input-wrapper, .select-wrapper {
+		.label-wrapper,
+		.input-wrapper,
+		.select-wrapper {
 			margin: 0 1rem;
 		}
 

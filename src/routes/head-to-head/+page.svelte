@@ -120,7 +120,7 @@
 		height: auto;
 		width: 3.5%;
 		margin-right: 0.75rem;
-		margin-bottom: 0.75rem;
+		margin-bottom: 0.25rem;
 	}
 
 	.results-container {

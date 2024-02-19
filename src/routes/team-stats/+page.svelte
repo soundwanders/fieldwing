@@ -9,47 +9,6 @@
 	export let data: { teamData?: any };
 	const { teamData } = data;
 
-	let statTypeOptions = [
-		'completionAttempts',
-		'defensiveTDs',
-		'extraPoints',
-		'fieldGoalPct',
-		'fieldGoals',
-		'firstDowns',
-		'fourthDownEff',
-		'fumblesLost',
-		'fumblesRecovered',
-		'interceptions',
-		'interceptionTDs',
-		'interceptionYards',
-		'kickingPoints',
-		'kickReturns',
-		'kickReturnTDs',
-		'kickReturnYards',
-		'netPassingYards',
-		'passesDeflected',
-		'passesIntercepted',
-		'passingTDs',
-		'possessionTime',
-		'puntReturns',
-		'puntReturnTDs',
-		'puntReturnYards',
-		'qbHurries',
-		'rushingAttempts',
-		'rushingTDs',
-		'rushingYards',
-		'sacks',
-		'tackles',
-		'tacklesForLoss',
-		'thirdDownEff',
-		'totalFumbles',
-		'totalPenaltiesYards',
-		'totalYards',
-		'turnovers',
-		'yardsPerPass',
-		'yardsPerRushAttempt'
-	];
-
 	const statTypeDisplayNames: Record<string, string> = {
 		completionAttempts: 'Completion Attempts',
 		defensiveTDs: 'Defensive TDs',
@@ -57,9 +16,12 @@
 		fieldGoalPct: 'Field Goal Percentage',
 		fieldGoals: 'Field Goals',
 		firstDowns: 'First Downs',
+		fourthDownConversions: 'Fourth Down Conversions',
 		fourthDownEff: 'Fourth Down Efficiency',
+		fourthDowns: 'Fourth Downs',
 		fumblesLost: 'Fumbles Lost',
 		fumblesRecovered: 'Fumbles Recovered',
+		games: 'Games',
 		interceptions: 'Interceptions',
 		interceptionTDs: 'Interception TDs',
 		interceptionYards: 'Interception Yards',
@@ -68,9 +30,13 @@
 		kickReturnTDs: 'Kick Return TDs',
 		kickReturnYards: 'Kick Return Yards',
 		netPassingYards: 'Net Passing Yards',
+		passAttempts: 'Pass Attempts',
+		passCompletions: 'Pass Completions',
 		passesDeflected: 'Passes Deflected',
 		passesIntercepted: 'Passes Intercepted',
 		passingTDs: 'Passing TDs',
+		penalties: 'Penalties',
+		penaltyYards: 'Penalty Yards',
 		possessionTime: 'Possession Time',
 		puntReturns: 'Punt Returns',
 		puntReturnTDs: 'Punt Return TDs',
@@ -83,6 +49,8 @@
 		tackles: 'Tackles',
 		tacklesForLoss: 'Tackles for Loss',
 		thirdDownEff: 'Third Down Efficiency',
+		thirdDowns: 'Third Downs',
+		thirdDownConversions: 'Third Down Conversions',
 		totalFumbles: 'Total Fumbles',
 		totalPenaltiesYards: 'Total Penalty Yards',
 		totalYards: 'Total Yards',
@@ -293,7 +261,7 @@
 		height: auto;
 		width: 4.5%;
 		margin-right: 0.75rem;
-		margin-bottom: 1.25rem;
+		margin-bottom: 1rem;
 	}
 
 	.main-title {

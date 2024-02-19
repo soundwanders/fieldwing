@@ -47,14 +47,14 @@
 			</a>
 
 			<a
-				id="teams-shortcut"
+				id="games-shortcut"
 				class="link"
 				class:light={!$theme}
 				class:dark={$theme}
-				href="/teams"
-				aria-label="Go to Team Selection page"
+				href="/game-results"
+				aria-label="Go to Game Results page"
 			>
-				Teams
+				Games
 			</a>
 
 			<a
@@ -69,14 +69,25 @@
 			</a>
 
 			<a
-				id="players-shortcut"
+				id="player-stats-shortcut"
 				class="link"
 				class:light={!$theme}
 				class:dark={$theme}
 				href="/players"
 				aria-label="Go to Player Statistics page"
 			>
-				Players
+				Player Stats
+			</a>
+
+			<a
+				id="team-stats-shortcut"
+				class="link"
+				class:light={!$theme}
+				class:dark={$theme}
+				href="/teams"
+				aria-label="Go to Team Statistics page"
+			>
+				Team Stats
 			</a>
 
 			<span id="button-wrapper">
@@ -143,9 +154,10 @@
 	}
 
 	#home-shortcut,
-	#teams-shortcut,
+	#games-shortcut,
 	#matchup-shortcut,
-	#players-shortcut {
+	#player-stats-shortcut,
+	#team-stats-shortcut {
 		padding: 1rem 2rem;
 		font-size: 0.875rem;
 		line-height: 1.25rem;
@@ -153,7 +165,7 @@
 		background: transparent;
 	}
 
-	#players-shortcut {
+	#team-stats-shortcut {
 		margin-right: auto;
 	}
 
@@ -210,9 +222,10 @@
 		}
 
 		#home-shortcut,
-		#teams-shortcut,
+		#games-shortcut,
 		#matchup-shortcut,
-		#players-shortcut {
+		#player-stats-shortcut,
+		#team-stats-shortcut {
 			font-size: 0.75rem;
 			line-height: 1rem;
 			padding: 1rem 0.675rem;

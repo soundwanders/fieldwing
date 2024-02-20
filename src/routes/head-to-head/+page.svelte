@@ -19,8 +19,6 @@
 		team1 = matchupData.team1;
 		team2 = matchupData.team2;
 	}
-
-	console.log('matchupData', matchupData);
 </script>
 
 <div class="wrapper">
@@ -180,10 +178,16 @@
 	.matchup-teams {
 		text-wrap: balance;
 		text-align: center;
-		font-size: 1.5rem;
-		line-height: 2rem;
 		color: var(--teams-color);
 		margin-bottom: 0.5rem;
+	}
+
+	.team-row {
+    display: flex;
+		justify-content: center;
+    align-items: center;
+		font-size: 1.5rem;
+		line-height: 2rem;
 	}
 
 	.matchup-info {
@@ -199,12 +203,6 @@
 		font-weight: 600;
 		padding-top: 0.25rem;
 		color: var(--teams-color);
-	}
-
-	.team-row {
-    display: flex;
-		justify-content: center;
-    align-items: center;
 	}
 
 	.at {
@@ -267,9 +265,14 @@
 			width: 90%;
 		}
 
-		.matchup-teams {
-			font-size: 1rem;
+		.team-row {
+			font-size: 1.5rem;
 			line-height: 1.5rem;
+		}
+
+		.score-row {
+			font-size: 2rem;
+			line-height: 1;
 		}
 
 		.matchup-info,

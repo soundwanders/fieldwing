@@ -6,7 +6,6 @@
 	import { goto } from '$app/navigation';
 	import { statsNameTrim } from '$lib/utils/statsNameTrim';
 
-	let selectedCategory: string = '';
 	let year: string = '';
 	let team: string = '';
 	let conference: string = '';

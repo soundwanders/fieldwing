@@ -291,7 +291,7 @@
 	.button-container {
 		display: flex;
 		justify-content: center;
-		padding: 0 0 1.5rem 0;
+		padding: 0.5rem 0 1.5rem 0;
 	}
 
 	.submit-button {

@@ -85,9 +85,9 @@
 					<input id="team" type="text" bind:value={team} required />
 				</label>
 
-				<label for="year">
-					Year:
-					<input id="year" type="number" bind:value={year} required />
+				<label for="conference">
+					Conference:
+					<input id="conference" type="text" bind:value={conference} />
 				</label>
 
 				<label for="start-week">
@@ -110,9 +110,9 @@
 					/>
 				</label>
 
-				<label for="conference">
-					Conference:
-					<input id="conference" type="text" bind:value={conference} />
+				<label for="year">
+					Year:
+					<input id="year" type="number" bind:value={year} required />
 				</label>
 
 				<div class="button-container">

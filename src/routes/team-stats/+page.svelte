@@ -10,14 +10,8 @@
 	const { teamData } = data;
 
 	const statTypeDisplayNames: Record<string, string> = {
-		completionAttempts: 'Completion Attempts',
-		defensiveTDs: 'Defensive TDs',
-		extraPoints: 'Extra Points',
-		fieldGoalPct: 'Field Goal Percentage',
-		fieldGoals: 'Field Goals',
 		firstDowns: 'First Downs',
 		fourthDownConversions: 'Fourth Down Conversions',
-		fourthDownEff: 'Fourth Down Efficiency',
 		fourthDowns: 'Fourth Downs',
 		fumblesLost: 'Fumbles Lost',
 		fumblesRecovered: 'Fumbles Recovered',
@@ -25,14 +19,12 @@
 		interceptions: 'Interceptions',
 		interceptionTDs: 'Interception TDs',
 		interceptionYards: 'Interception Yards',
-		kickingPoints: 'Kicking Points',
 		kickReturns: 'Kick Returns',
 		kickReturnTDs: 'Kick Return TDs',
 		kickReturnYards: 'Kick Return Yards',
 		netPassingYards: 'Net Passing Yards',
 		passAttempts: 'Pass Attempts',
 		passCompletions: 'Pass Completions',
-		passesDeflected: 'Passes Deflected',
 		passesIntercepted: 'Passes Intercepted',
 		passingTDs: 'Passing TDs',
 		penalties: 'Penalties',
@@ -48,7 +40,6 @@
 		sacks: 'Sacks',
 		tackles: 'Tackles',
 		tacklesForLoss: 'Tackles for Loss',
-		thirdDownEff: 'Third Down Efficiency',
 		thirdDowns: 'Third Downs',
 		thirdDownConversions: 'Third Down Conversions',
 		totalFumbles: 'Total Fumbles',
@@ -73,13 +64,13 @@
 	interface TeamData {
 		teamStatsData: TeamStat[];
 	}
-	
-	let pageSize: number = 16;
+
+	let pageSize: number = 18;
 	let pageTitle: string = '';
 
 	$: totalItems = teamData ? teamData.total : 0;
 	$: totalPages = Math.ceil(totalItems / pageSize);
-	$: currentPage = Number($page.url.searchParams.get('skip')) / pageSize || 0;
+	$: currentPage = selectedStat === '' ? Number($page.url.searchParams.get('skip')) / pageSize : 0;
 
 	$: year = $page.url.searchParams.get('year') || '';
 	$: team = $page.url.searchParams.get('team') || '';
@@ -89,22 +80,45 @@
 
 	let sortOrder: 'asc' | 'desc' = 'desc';
 	let sortBy: keyof TeamStat = 'team';
+	let selectedStat: string | number = '';
 
 	// Ascending/Descending sort function for teamStatsData
 	function sortTeamStatsData(teamStatsData: TeamStat[]): TeamStat[] {
 		return teamStatsData.sort((a, b) => {
-			if (a[sortBy] < b[sortBy]) return sortOrder === 'asc' ? -1 : 1;
-			if (a[sortBy] > b[sortBy]) return sortOrder === 'asc' ? 1 : -1;
+			const valueA = a[selectedStat as keyof TeamStat];
+			const valueB = b[selectedStat as keyof TeamStat];
+
+			// Convert the values to strings before comparison
+			const stringA = String(valueA);
+			const stringB = String(valueB);
+
+			if (stringA < stringB) return sortOrder === 'asc' ? -1 : 1;
+			if (stringA > stringB) return sortOrder === 'asc' ? 1 : -1;
 			return 0;
 		});
 	}
 
-	function toggleSortOrder(column: keyof TeamStat) {
+	function toggleSortOrder(event: Event & { currentTarget: HTMLSelectElement }) {
+		const column = event.currentTarget.value;
 		sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
-		sortBy = column;
+		selectedStat = column;
+		sortBy = column as keyof TeamStat;
+
 		// Update the sortedTeamStatsData based on the new sort order
 		sortedTeamStatsData = sortTeamStatsData(teamData?.teamStatsData || []);
+		console.log('Sorted Data:', sortedTeamStatsData);
 	}
+
+	$: sortedTeamStatsData = sortTeamStatsData(teamData?.teamStatsData || []);
+
+	let filteredTeamStatsData: TeamStat[] = [];
+
+	$: filteredTeamStatsData =
+		selectedStat === ''
+			? teamData?.teamStatsData.slice()
+			: teamData?.teamStatsData.filter(
+					(stat: { statName: string | number }) => stat.statName === selectedStat
+			  );
 
 	onMount(() => {
 		let formattedTeamName = team ? capitalizeFirstChar(team) : '';
@@ -122,8 +136,6 @@
 		if (startWeek) pageTitle += ` - Week ${startWeek}`;
 		if (endWeek) pageTitle += ` to ${endWeek}`;
 	});
-
-	$: sortedTeamStatsData = sortTeamStatsData(teamData?.teamStatsData || []);
 </script>
 
 <div class="stats-wrapper" class:light={!$theme} class:dark={$theme}>
@@ -140,35 +152,37 @@
 				<TeamStatsWidget />
 			</div>
 
+			<div class="sorting-controls" class:light={!$theme} class:dark={$theme}>
+				<label for="sortSelect">Sort By:</label>
+				<select id="statSelect" bind:value={selectedStat} on:change={toggleSortOrder}>
+					<option value="">All Stats</option>
+					{#each Object.entries(statTypeDisplayNames) as [stat, displayName]}
+						<option value={stat}>{displayName}</option>
+					{/each}
+				</select>
+			</div>
+
 			<div class="team-stats-container">
-				<table class="team-stats-table">
-					<thead>
-						<tr>
-							<th class="team-table-header" scope="col">
-								<button on:click={() => toggleSortOrder('team')}>TEAM</button>
-							</th>
-							<th class="conference-table-header" scope="col">
-								<button on:click={() => toggleSortOrder('conference')}>CONF.</button>
-							</th>
-							<th class="stat-type-table-header" scope="col">
-								<button on:click={() => toggleSortOrder('statName')}>TYPE</button>
-							</th>
-							<th class="stat-table-header" scope="col">
-								<button on:click={() => toggleSortOrder('statValue')}>STAT</button>
-							</th>
-						</tr>
-					</thead>
-					<tbody>
-						{#each sortedTeamStatsData.slice(currentPage * pageSize, (currentPage + 1) * pageSize) as teamStats}
-							<tr>
-								<td class="td-team">{teamStats.team}</td>
-								<td class="td-conference">{teamStats.conference}</td>
-								<td class="td-statName">{statTypeDisplayNames[teamStats.statName]}</td>
-								<td class="td-statValue">{teamStats.statValue}</td>
-							</tr>
-						{/each}
-					</tbody>
-				</table>
+				{#each filteredTeamStatsData.slice(currentPage * pageSize, (currentPage + 1) * pageSize) as teamStats}
+					<div class="team-stat-card">
+						<div class="card-header">
+							<h3 class="card-team">
+								{teamStats.team}
+							</h3>
+							<p class="card-conference">
+								{teamStats.conference}
+							</p>
+						</div>
+						<div class="card-body">
+							<p class="card-stat-name">
+								{statTypeDisplayNames[teamStats.statName]}
+							</p>
+							<p class="card-stat-value">
+								{teamStats.statValue}
+							</p>
+						</div>
+					</div>
+				{/each}
 			</div>
 
 			<!-- Add pagination controls using $page -->
@@ -218,15 +232,17 @@
 	.light {
 		--background-color: #f9f9f9;
 		--text-color: #1a202c;
-		--team-name-color: #005ebb;
+		--stat-name-color: #005ebb;
 		--table-border: #d6d6d6;
+		--subtle-text-color: #777;
 	}
 
 	.dark {
 		--background-color: #1a202c;
 		--text-color: #f9f9f9;
-		--team-name-color: #abaeff;
+		--stat-name-color: #bfc1ff;
 		--table-border: #444e64;
+		--subtle-text-color: #777;
 	}
 
 	.stats-wrapper {
@@ -248,6 +264,24 @@
 		flex-direction: column;
 		width: 100vw;
 		color: var(--text-color);
+	}
+
+	.sorting-controls {
+		margin-bottom: 1rem;
+	}
+
+	label {
+		margin-right: 0.75rem;
+		font-weight: bold;
+	}
+
+	select {
+		padding: 8px;
+		border: 1px solid #ccc;
+		border-radius: 5px;
+		background-color: var(--background-color);
+		color: var(--text-color);
+		cursor: pointer;
 	}
 
 	.header-image-wrapper {
@@ -275,56 +309,57 @@
 	.team-stats-container {
 		display: flex;
 		flex-wrap: wrap;
-		justify-content: center;
+		justify-content: flex-start;
+		gap: 1rem;
 		width: 90%;
-		gap: 2rem;
 	}
 
-	.team-stats-table {
-		width: 66%;
-		border-collapse: collapse;
-		margin-top: 1rem;
-	}
-
-	.team-stats-table th,
-	.team-stats-table td {
+	.team-stat-card {
+		background-color: var(--background-color);
 		border: 1px solid var(--table-border);
-		padding: 0.5rem;
-		text-align: left;
+		border-radius: 8px;
+		padding: 1.5rem;
+		width: calc(16.666% - 1rem);
+		box-sizing: border-box;
+		transition: transform 0.3s ease, background-color 0.3s ease;
+		overflow: hidden;
 	}
 
-	.team-stats-table th {
-		background-color: var(--form-sub-background-color);
-		cursor: pointer;
+	.team-stat-card:hover {
+		transform: scale(1.03);
 	}
 
-	.team-stats-table th button {
-		background: none;
-		border: none;
-		cursor: pointer;
-		outline: none;
+	.card-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
+	}
+
+	.card-header h3 {
+		margin: 0;
+		font-size: 0.75rem;
 		font-weight: bold;
-		color: var(--text-color) !important;
+		color: var(--subtle-text-color);
+		transition: color 0.3s ease;
 	}
 
-	.team-stats-table th button:hover {
-		text-decoration: underline;
+	.card-header p {
+		margin: 0;
+		font-size: 0.75rem;
+		color: var(--subtle-text-color);
 	}
 
-	.td-team {
-		width: 13%;
+	.card-body {
+		font-size: 1.1rem;
+		font-weight: 500;
+		color: var(--stat-name-color);
 	}
 
-	.td-conference {
-		width: 8%;
-	}
-
-	.td-statName {
-		width: 13%;
-	}
-
-	.td-statValue {
-		width: 13%;
+	.card-stat-value {
+		display: inline;
+		font-size: 3rem;
+		font-weight: bold;
+		color: var(--text-color);
 	}
 
 	.error-wrapper {
@@ -404,24 +439,15 @@
 			display: none;
 		}
 
+		.team-stat-card {
+			padding: 1rem;
+			width: 100%;
+		}
+
 		.main-title {
 			font-size: 1.25rem;
 			line-height: 1.75rem;
 			margin-left: -1rem;
-		}
-
-		.team-stats-table th button {
-			font-size: 0.675rem;
-		}
-
-		.team-stats-table {
-			width: max-content;
-			font-size: 0.675rem;
-		}
-
-		.team-stats-table th,
-		.team-stats-table td {
-			padding: 0.375rem 0.175rem;
 		}
 
 		.pagination {

@@ -69,7 +69,7 @@
 							</article>
 						{/if}
 					{/each}
-			</div>
+				</div>
 			{:else}
 				<p class="no-data-message">
 					Sorry, it seems like there is no head-to-head matchup data available for those two teams.
@@ -91,7 +91,7 @@
 		--background-color: #1a202c;
 		--text-color: #f9f9f9;
 		--teams-color: #ff9195;
-		--team-name-color: #abaeff;
+		--team-name-color: #bfc1ff;
 	}
 
 	.wrapper {
@@ -183,9 +183,9 @@
 	}
 
 	.team-row {
-    display: flex;
+		display: flex;
 		justify-content: center;
-    align-items: center;
+		align-items: center;
 		font-size: 1.5rem;
 		line-height: 2rem;
 	}

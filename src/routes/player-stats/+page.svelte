@@ -105,7 +105,7 @@
 	interface TeamData {
 		teamStatsData: TeamStat[];
 	}
-	
+
 	let pageSize: number = 16;
 	let pageTitle: string = '';
 
@@ -257,7 +257,7 @@
 	.dark {
 		--background-color: #1a202c;
 		--text-color: #f9f9f9;
-		--team-name-color: #abaeff;
+		--team-name-color: #bfc1ff;
 		--table-border: #444e64;
 	}
 

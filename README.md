@@ -35,7 +35,7 @@ Fieldwing is a web application powered by SvelteKit, designed to provide users w
   - Start and End Weeks
   - Stat Category
   - Season Type
- 
+
 ### Search for Team Statistics
 
 - Users can customize their search with various criteria, including team, year, conference, start and end weeks.

@@ -209,7 +209,7 @@
 						role="button"
 						aria-label="Return to Team Search page"
 					>
-						click here to try a different search!
+						click here to try a different search,
 					</a>
 					or
 					<a
@@ -293,7 +293,7 @@
 
 	.teams-image {
 		height: auto;
-		width: 4.5%;
+		width: 4.675%;
 		margin-right: 0.75rem;
 		margin-bottom: 1rem;
 	}

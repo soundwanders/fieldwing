@@ -3,113 +3,35 @@
 	import { theme } from '$lib/stores/theme';
 	import { capitalizeFirstChar } from '$lib/utils/capitalizeFirstChar';
 	import { onMount } from 'svelte';
-	import TeamStatsWidget from '../../components/TeamStatsWidget.svelte';
+	import PlayerStatsWidget from '../../components/PlayerStatsWidget.svelte';
 	import '../../styles/main.css';
 
-	export let data: { teamData?: any };
-	const { teamData } = data;
+	export let data: { playerData?: any };
+	const { playerData } = data;
 
-	let statTypeOptions = [
-		'completionAttempts',
-		'defensiveTDs',
-		'extraPoints',
-		'fieldGoalPct',
-		'fieldGoals',
-		'firstDowns',
-		'fourthDownEff',
-		'fumblesLost',
-		'fumblesRecovered',
-		'interceptions',
-		'interceptionTDs',
-		'interceptionYards',
-		'kickingPoints',
-		'kickReturns',
-		'kickReturnTDs',
-		'kickReturnYards',
-		'netPassingYards',
-		'passesDeflected',
-		'passesIntercepted',
-		'passingTDs',
-		'possessionTime',
-		'puntReturns',
-		'puntReturnTDs',
-		'puntReturnYards',
-		'qbHurries',
-		'rushingAttempts',
-		'rushingTDs',
-		'rushingYards',
-		'sacks',
-		'tackles',
-		'tacklesForLoss',
-		'thirdDownEff',
-		'totalFumbles',
-		'totalPenaltiesYards',
-		'totalYards',
-		'turnovers',
-		'yardsPerPass',
-		'yardsPerRushAttempt'
-	];
-
-	const statTypeDisplayNames: Record<string, string> = {
-		completionAttempts: 'Completion Attempts',
-		defensiveTDs: 'Defensive TDs',
-		extraPoints: 'Extra Points',
-		fieldGoalPct: 'Field Goal Percentage',
-		fieldGoals: 'Field Goals',
-		firstDowns: 'First Downs',
-		fourthDownEff: 'Fourth Down Efficiency',
-		fumblesLost: 'Fumbles Lost',
-		fumblesRecovered: 'Fumbles Recovered',
-		interceptions: 'Interceptions',
-		interceptionTDs: 'Interception TDs',
-		interceptionYards: 'Interception Yards',
-		kickingPoints: 'Kicking Points',
-		kickReturns: 'Kick Returns',
-		kickReturnTDs: 'Kick Return TDs',
-		kickReturnYards: 'Kick Return Yards',
-		netPassingYards: 'Net Passing Yards',
-		passesDeflected: 'Passes Deflected',
-		passesIntercepted: 'Passes Intercepted',
-		passingTDs: 'Passing TDs',
-		possessionTime: 'Possession Time',
-		puntReturns: 'Punt Returns',
-		puntReturnTDs: 'Punt Return TDs',
-		puntReturnYards: 'Punt Return Yards',
-		qbHurries: 'QB Hurries',
-		rushingAttempts: 'Rushing Attempts',
-		rushingTDs: 'Rushing TDs',
-		rushingYards: 'Rushing Yards',
-		sacks: 'Sacks',
-		tackles: 'Tackles',
-		tacklesForLoss: 'Tackles for Loss',
-		thirdDownEff: 'Third Down Efficiency',
-		totalFumbles: 'Total Fumbles',
-		totalPenaltiesYards: 'Total Penalty Yards',
-		totalYards: 'Total Yards',
-		turnovers: 'Turnovers',
-		yardsPerPass: 'Yards Per Pass',
-		yardsPerRushAttempt: 'Yards Per Rush Attempt'
-	};
-
-	// Define types for team stats
-	interface TeamStat {
+	// Define types for player stats
+	interface PlayerStat {
+		playerId: string;
+		player: string;
 		team: string;
 		conference: string;
 		startWeek: number;
 		endWeek: number;
-		statName: string;
-		statValue: string;
+		seasonType: string;
+		category: string;
+		statType: string;
+		stat: string;
 	}
 
-	// Define types for team data
-	interface TeamData {
-		teamStatsData: TeamStat[];
+	// Define types for player data
+	interface PlayerData {
+		playerStatsData: PlayerStat[];
 	}
 
 	let pageSize: number = 16;
 	let pageTitle: string = '';
 
-	$: totalItems = teamData ? teamData.total : 0;
+	$: totalItems = playerData ? playerData.total : 0;
 	$: totalPages = Math.ceil(totalItems / pageSize);
 	$: currentPage = Number($page.url.searchParams.get('skip')) / pageSize || 0;
 
@@ -118,85 +40,98 @@
 	$: conference = $page.url.searchParams.get('conference') || '';
 	$: startWeek = $page.url.searchParams.get('startWeek') || '';
 	$: endWeek = $page.url.searchParams.get('endWeek') || '';
+	$: seasonType = $page.url.searchParams.get('seasonType') || '';
+	$: category = $page.url.searchParams.get('category') || '';
 
 	let sortOrder: 'asc' | 'desc' = 'desc';
-	let sortBy: keyof TeamStat = 'team';
+	let sortBy: keyof PlayerStat = 'player';
 
-	// Ascending/Descending sort function for teamStatsData
-	function sortTeamStatsData(teamStatsData: TeamStat[]): TeamStat[] {
-		return teamStatsData.sort((a, b) => {
+	// Ascending/Descending Sort function for playerStatsData
+	function sortPlayerStatsData(playerStatsData: PlayerStat[]): PlayerStat[] {
+		return playerStatsData.sort((a, b) => {
 			if (a[sortBy] < b[sortBy]) return sortOrder === 'asc' ? -1 : 1;
 			if (a[sortBy] > b[sortBy]) return sortOrder === 'asc' ? 1 : -1;
 			return 0;
 		});
 	}
 
-	function toggleSortOrder(column: keyof TeamStat) {
+	function toggleSortOrder(column: keyof PlayerStat) {
 		sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
 		sortBy = column;
-		// Update the sortedTeamStatsData based on the new sort order
-		sortedTeamStatsData = sortTeamStatsData(teamData?.teamStatsData || []);
+		// Update the sortedPlayerStatsData based on the new sort order and column
+		sortedPlayerStatsData = sortPlayerStatsData(playerData?.playerStatsData || []);
 	}
 
 	onMount(() => {
 		let formattedTeamName = team ? capitalizeFirstChar(team) : '';
 		let formattedConference = conference ? `${conference.toUpperCase()}` : '';
+		let formattedseasonType = capitalizeFirstChar(seasonType);
+		let formattedCategory = capitalizeFirstChar(category);
+
 		// Build the title based on the presence of each parameter
-		if (team && !conference) {
-			pageTitle += `${formattedTeamName}`;
-		} else if (!team && conference) {
-			pageTitle += `${formattedConference}`;
-		} else if (team && conference) {
-			pageTitle += `${formattedTeamName} - ${formattedConference}`;
-		}
+		if (team && !conference) { pageTitle += `${formattedTeamName}`; }
+
+		else if (!team && conference) { pageTitle += `${formattedConference}`; }
+
+		else if (team && conference) { pageTitle += `${formattedTeamName} - ${formattedConference}`; }
 
 		if (year) pageTitle += ` - ${year}`;
 		if (startWeek) pageTitle += ` - Week ${startWeek}`;
 		if (endWeek) pageTitle += ` to ${endWeek}`;
+		if (seasonType) pageTitle += ` - ${formattedseasonType}`;
+		if (category) pageTitle += ` - ${formattedCategory}`;
 	});
 
-	$: sortedTeamStatsData = sortTeamStatsData(teamData?.teamStatsData || []);
+	$: sortedPlayerStatsData = sortPlayerStatsData(playerData?.playerStatsData || []);
 </script>
 
 <div class="stats-wrapper" class:light={!$theme} class:dark={$theme}>
 	<section class="stats-section">
-		{#if sortedTeamStatsData && sortedTeamStatsData.length > 0}
+		{#if sortedPlayerStatsData && sortedPlayerStatsData.length > 0}
 			<div class="header-image-wrapper">
-				<img class="teams-image" src="/teams.png" alt="Team Stats" aria-hidden="true" />
+				<img class="players-image" src="/players.png" alt="Player Stats" aria-hidden="true" />
 				<h1 class="main-title" class:light={!$theme} class:dark={$theme}>
 					{pageTitle}
 				</h1>
 			</div>
 
 			<div class="stat-search-widget">
-				<TeamStatsWidget />
+				<PlayerStatsWidget />
 			</div>
 
-			<div class="team-stats-container">
-				<table class="team-stats-table">
+			<div class="player-stats-container">
+				<table class="player-stats-table">
 					<thead>
 						<tr>
+							<th class="player-table-header" scope="col">
+								<button on:click={() => toggleSortOrder('player')}>PLAYER</button>
+							</th>
 							<th class="team-table-header" scope="col">
 								<button on:click={() => toggleSortOrder('team')}>TEAM</button>
 							</th>
 							<th class="conference-table-header" scope="col">
 								<button on:click={() => toggleSortOrder('conference')}>CONF.</button>
 							</th>
+							<th class="category-table-header" scope="col">
+								<button on:click={() => toggleSortOrder('category')}>CATEGORY</button>
+							</th>
 							<th class="stat-type-table-header" scope="col">
-								<button on:click={() => toggleSortOrder('statName')}>TYPE</button>
+								<button on:click={() => toggleSortOrder('statType')}>TYPE</button>
 							</th>
 							<th class="stat-table-header" scope="col">
-								<button on:click={() => toggleSortOrder('statValue')}>STAT</button>
+								<button on:click={() => toggleSortOrder('stat')}>Stat</button>
 							</th>
 						</tr>
 					</thead>
 					<tbody>
-						{#each sortedTeamStatsData.slice(currentPage * pageSize, (currentPage + 1) * pageSize) as teamStats}
+						{#each sortedPlayerStatsData.slice(currentPage * pageSize, (currentPage + 1) * pageSize) as playerStats}
 							<tr>
-								<td class="td-team">{teamStats.team}</td>
-								<td class="td-conference">{teamStats.conference}</td>
-								<td class="td-statName">{statTypeDisplayNames[teamStats.statName]}</td>
-								<td class="td-statValue">{teamStats.statValue}</td>
+								<td class="td-player">{playerStats.player}</td>
+								<td class="td-team">{playerStats.team}</td>
+								<td class="td-conference">{playerStats.conference}</td>
+								<td class="td-category">{capitalizeFirstChar(playerStats.category)}</td>
+								<td class="td-statType">{playerStats.statType}</td>
+								<td class="td-stat">{playerStats.stat}</td>
 							</tr>
 						{/each}
 					</tbody>
@@ -218,14 +153,14 @@
 		{:else}
 			<div class="error-wrapper">
 				<p class="no-data-message">
-					No team stats data available,
+					No player stats data available,
 					<a
 						class="link"
 						class:light={!$theme}
 						class:dark={$theme}
-						href="/teams"
+						href="/players"
 						role="button"
-						aria-label="Return to Team Search page"
+						aria-label="Return to Player Stat Search page"
 					>
 						click here to try a different search!
 					</a>
@@ -260,7 +195,6 @@
 		--team-name-color: #bfc1ff;
 		--table-border: #444e64;
 	}
-
 	.stats-wrapper {
 		min-height: 100vh;
 		width: 100%;
@@ -289,9 +223,9 @@
 		margin-bottom: 2rem;
 	}
 
-	.teams-image {
+	.players-image {
 		height: auto;
-		width: 4.5%;
+		width: 4%;
 		margin-right: 0.75rem;
 		margin-bottom: 1.25rem;
 	}
@@ -304,7 +238,7 @@
 		line-height: 2.5rem;
 	}
 
-	.team-stats-container {
+	.player-stats-container {
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: center;
@@ -312,25 +246,25 @@
 		gap: 2rem;
 	}
 
-	.team-stats-table {
+	.player-stats-table {
 		width: 66%;
 		border-collapse: collapse;
 		margin-top: 1rem;
 	}
 
-	.team-stats-table th,
-	.team-stats-table td {
+	.player-stats-table th,
+	.player-stats-table td {
 		border: 1px solid var(--table-border);
 		padding: 0.5rem;
 		text-align: left;
 	}
 
-	.team-stats-table th {
+	.player-stats-table th {
 		background-color: var(--form-sub-background-color);
 		cursor: pointer;
 	}
 
-	.team-stats-table th button {
+	.player-stats-table th button {
 		background: none;
 		border: none;
 		cursor: pointer;
@@ -339,8 +273,12 @@
 		color: var(--text-color) !important;
 	}
 
-	.team-stats-table th button:hover {
+	.player-stats-table th button:hover {
 		text-decoration: underline;
+	}
+
+	.td-player {
+		width: 15%;
 	}
 
 	.td-team {
@@ -351,11 +289,15 @@
 		width: 8%;
 	}
 
-	.td-statName {
+	.td-category {
 		width: 13%;
 	}
 
-	.td-statValue {
+	.td-statType {
+		width: 13%;
+	}
+
+	.td-stat {
 		width: 13%;
 	}
 
@@ -432,7 +374,7 @@
 			margin-bottom: 1rem;
 		}
 
-		.teams-image {
+		.players-image {
 			display: none;
 		}
 
@@ -442,20 +384,20 @@
 			margin-left: -1rem;
 		}
 
-		.team-stats-table th button {
+		.player-stats-table th button {
 			font-size: 0.675rem;
 		}
 
-		.team-stats-table {
+		.player-stats-table {
 			width: max-content;
 			font-size: 0.675rem;
 		}
 
-		.team-stats-table th,
-		.team-stats-table td {
+		.player-stats-table th,
+		.player-stats-table td {
 			padding: 0.375rem 0.175rem;
 		}
-
+		
 		.pagination {
 			margin: 1rem 0 4rem 0;
 		}

@@ -267,7 +267,7 @@
 	}
 
 	.sorting-controls {
-		margin-bottom: 1rem;
+		margin-bottom: 1.5rem;
 	}
 
 	label {
@@ -448,6 +448,10 @@
 			font-size: 1.25rem;
 			line-height: 1.75rem;
 			margin-left: -1rem;
+		}
+
+		.sorting-controls {
+			margin: 0.5rem 0 1rem 1rem;
 		}
 
 		.pagination {

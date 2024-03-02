@@ -82,7 +82,7 @@
 			<form on:submit|preventDefault={handleSubmit} class:light={!$theme} class:dark={$theme}>
 				<label for="team">
 					Team:
-					<input id="team" type="text" bind:value={team} required />
+					<input id="team" type="text" bind:value={team} />
 				</label>
 
 				<label for="conference">

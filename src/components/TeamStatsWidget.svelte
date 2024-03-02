@@ -76,10 +76,15 @@
 </script>
 
 <section class="stats-widget" class:light={!$theme} class:dark={$theme}>
-	<form on:input={handleInput} class:light={!$theme} class:dark={$theme}>
+	<form class="stats-sort-form" on:input={handleInput} class:light={!$theme} class:dark={$theme}>
 		<label for="team">
 			Team:
 			<input id="team" type="text" bind:value={team} />
+		</label>
+
+		<label for="conference">
+			Conf:
+			<input id="conference" type="text" bind:value={conference} />
 		</label>
 
 		<label for="year">
@@ -107,11 +112,6 @@
 				bind:value={endWeek}
 				on:input={(e) => handleWeekInput(e, 'endWeek')}
 			/>
-		</label>
-
-		<label for="conference">
-			Conference:
-			<input id="conference" type="text" bind:value={conference} />
 		</label>
 	</form>
 
@@ -158,7 +158,7 @@
 		padding: 0;
 	}
 
-	form {
+	.stats-sort-form {
 		display: flex;
 		flex-wrap: wrap;
 		gap: 0.5rem;
@@ -213,5 +213,17 @@
 
 	.invalid {
 		border: 1px solid #ff4b4b;
+	}
+
+	@media (max-width: 768px) {
+		.stats-sort-form {
+			align-items: flex-end;
+			gap: 0.675rem;
+		}
+		
+		input {
+			width: 100%;
+			margin-top: 0.25rem;
+		}
 	}
 </style>

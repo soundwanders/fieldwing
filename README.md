@@ -62,25 +62,21 @@ Fieldwing is a web application powered by SvelteKit, designed to provide users w
 - Select two teams and input the date ranges you would like to explore, for example you can view all games from 2010 to 2020.
 - Get insights into the performance of your favorite teams in their previous encounters.
 
-## Accessibility
-
-- Accessibility is important! Conscious effort to make our application screen-reader friendly.
-- Interactive elements such as buttons and links are appropriately handled for keyboard and mouse users.
-- Focus on proper use of semantic HTML, as well as ARIA to improve accessibility.
-
 ### Custom Theming
 
-- Theme is tracked in a Svelte store as well as the use of localStorage if available.
-- The application supports light and dark themes, allowing user to toggle their preferred theme.
+- Theme is tracked in a Svelte store, as well as the use of localStorage if available.
+- The application provides both light and dark themes, allowing user to toggle their preferred theme.
 - Theme changes are applied consistently throughout the UI for a cohesive user experience.
 - Many design choices inspired by Tailwind CSS, such as font size and color palettes.
+- Interactive elements such as buttons and links are appropriately handled for keyboard and mouse users.
+- Accessibility is important! Conscious effort to make our application screen-reader friendly.
 
 ## Roadmap
 
 - ~~Integration of additional features, such as data fetching from APIs~~
-- Investigate user authentication and user profiles to allow users to manage and update their favorite teams.
-- Implement testing with Vitest or a similar library.
-- Create a Github Actions or similar workflow for testing and deployment on codebase updates.
+- ~~Create a Github Actions or similar workflow for testing and deployment on codebase updates.~~
+- Add user authentication and user profiles to allow users to save, manage and track their favorite teams.
+- Implement comprehensive testing with Vitest or a similar library.
 
 ## Getting Started
 

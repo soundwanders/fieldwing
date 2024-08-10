@@ -1,27 +1,26 @@
 <script lang="ts">
 	import { theme } from '$lib/stores/theme';
 	import { formatStartDate } from '$lib/utils/formatStartDate';
+	import MatchupSelection from '../../components/MatchupSelection.svelte';
 	import { goto } from '$app/navigation';
 	import '../../styles/main.css';
 
 	export let data: { matchupData?: any; error?: string };
-	const { matchupData, error } = data;
+	const { matchupData } = data;
 
-	if (error) {
-		// Handle and display error message
-		goto('/error');
-	} else if (!matchupData || matchupData.length === 0) {
-			// Redirect to matchups page or show a no results message
-			goto('/matchups');
+	let divisions = ['All', 'FBS', 'FCS'];
+	let selectedDivision: string = '';
+
+	if (!data || !data.matchupData) {
+		goto('/matchups');
 	}
 
 	let team1: string;
 	let team2: string;
 
-	// Reactive assignment
 	$: {
-			team1 = matchupData?.team1 || 'Unknown Team 1';
-			team2 = matchupData?.team2 || 'Unknown Team 2';
+		team1 = matchupData?.team1;
+		team2 = matchupData?.team2;
 	}
 </script>
 
@@ -79,6 +78,7 @@
 				<p class="no-data-message">
 					Sorry, it seems like there is no head-to-head matchup data available for those two teams.
 				</p>
+				<MatchupSelection {divisions} {selectedDivision} />
 			{/if}
 		</section>
 	</div>

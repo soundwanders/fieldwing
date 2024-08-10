@@ -13,17 +13,18 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
       - name: Install Dependencies
         run: npm install
 
       - name: Build Application
+        env:
+          CFBD_API_KEY: ${{ secrets.CFBD_API_KEY }}
         run: npm run build
 
       - name: Run Tests
         run: npm run test
-
-      - name: Deploy to Production
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.FIELDWING_TOKEN }}
-          publish_dir: ./build

@@ -51,19 +51,14 @@
 		return true;
 	}
 
-	async function handleSubmit() {
-		if (validateData()) {
-			// if valid data, go to head to head matchup results
-			goto(getHeadToHeadURL());
-		}
-	}
-
 	function getHeadToHeadURL() {
-		return `/head-to-head?team1=${encodeURIComponent(
-			selectedTeamsArray[0]
-		)}&team2=${encodeURIComponent(selectedTeamsArray[1])}&division=${encodeURIComponent(
-			selectedDivision
-		)}${minYear ? `&minYear=${minYear}` : ''}${maxYear ? `&maxYear=${maxYear}` : ''}`;
+		if (validateData()) {
+			return `/head-to-head?team1=${encodeURIComponent(
+				selectedTeamsArray[0]
+			)}&team2=${encodeURIComponent(selectedTeamsArray[1])}&division=${encodeURIComponent(
+				selectedDivision
+			)}${minYear ? `&minYear=${minYear}` : ''}${maxYear ? `&maxYear=${maxYear}` : ''}`;
+		}
 	}
 
 	onMount(() => {
@@ -156,12 +151,18 @@
 				</article>
 
 				<div class="button-container">
-					<button
+					<a
+						href={selectedTeamsArray.length > 0
+							? getHeadToHeadURL()
+							: '#'}
+						data-sveltekit-reload
+						role="button"
+					>
+						<button
 						type="button"
 						class="submit-button"
 						disabled={!selectedTeamsArray[0] || !selectedTeamsArray[1]}
 						aria-label="Submit Matchups Form"
-						on:click={handleSubmit}
 					>
 						Submit
 					</button>
@@ -315,6 +316,10 @@
 
 	.submit-button:hover:disabled {
 		background-color: var(--button-disabled-hover-color);
+	}
+
+	.error-message {
+		text-align: center;
 	}
 
 	/* Add media query for smaller screens */

@@ -24,7 +24,7 @@
 		background-image: var(--background-image);
 		color: var(--text-color);
 		opacity: 0;
-		animation: fadeIn 0.8s forwards;
+		animation: fadeIn 0.6s forwards;
 		transition: background-color 0.2s ease;
 	}
 
@@ -65,6 +65,7 @@
 		.content-container {
 			padding: 0 2rem;
 			margin: 0 auto;
+			overflow-x: hidden;
 		}
 	}
 </style>

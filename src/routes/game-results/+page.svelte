@@ -25,7 +25,7 @@
 <style module>
 	section {
 		min-height: 100vh;
-		animation: fadeIn 0.8s forwards;
+		animation: fadeIn 0.6s forwards;
 		transition: background-color 0.2s ease;
 	}
 

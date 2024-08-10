@@ -40,10 +40,10 @@ export const load: PageServerLoad = async ({ params, url }) => {
 		return {
 			matchupData
 		};
-	} catch (error) {
-		console.error(error);
+	} catch (error: any) {
+		console.error('Error fetching matchup data:', error.message);
 		return {
-			error: 'Internal Server Error'
+			error: 'Failed to load match-up data. Please try again later.'
 		};
 	}
 };

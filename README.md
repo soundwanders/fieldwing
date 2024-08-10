@@ -120,7 +120,7 @@ Fieldwing is a web application powered by SvelteKit, designed to provide users w
 
 ## Credits
 
-All icons/images are from **[FlatIcon](https://www.flaticon.com/)**
+All icons and images are from **[FlatIcon](https://www.flaticon.com/)**
 
 ## Issues
 

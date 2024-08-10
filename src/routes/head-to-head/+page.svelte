@@ -4,34 +4,41 @@
 	import { goto } from '$app/navigation';
 	import '../../styles/main.css';
 
-	export let data: { matchupData?: any };
-	const { matchupData } = data;
+	export let data: { matchupData?: any; error?: string };
+	const { matchupData, error } = data;
 
-	if (!data || !data.matchupData) {
-		// Handle empty or invalid data
-		goto('/matchups');
+	if (error) {
+		// Handle and display error message
+		goto('/error');
+	} else if (!matchupData || matchupData.length === 0) {
+			// Redirect to matchups page or show a no results message
+			goto('/matchups');
 	}
 
 	let team1: string;
 	let team2: string;
 
+	// Reactive assignment
 	$: {
-		team1 = matchupData.team1;
-		team2 = matchupData.team2;
+			team1 = matchupData?.team1 || 'Unknown Team 1';
+			team2 = matchupData?.team2 || 'Unknown Team 2';
 	}
 </script>
 
 <div class="wrapper">
 	<div class="results-section" class:light={!$theme} class:dark={$theme}>
 		<section class="results-container">
-			{#if matchupData}
+			{#if matchupData && matchupData.games && matchupData.games.length > 0}
 				<div class="header-image-wrapper">
 					<img class="h2h-image" src="/h2h.png" alt="Head to Head Matchups" aria-hidden="true" />
 					<h1 class="main-title" class:light={!$theme} class:dark={$theme}>
-						{team1}
+						{team1 ? team1 : ''}
 						vs
-						{team2}
-						from {matchupData.startYear} to {matchupData.endYear}
+						{team2 ? team2 : ''}
+						from 
+						{matchupData.startYear || 'Unknown Start Year'} 
+						to 
+						{matchupData.endYear || 'Unknown End Year'}
 					</h1>
 				</div>
 				<div class="head-to-head-container">
@@ -62,10 +69,8 @@
 								<p class="matchup-info">
 									Date: {formatStartDate(gameResult.date)}
 								</p>
-
-								<p class="matchup-info">
-									Venue: {gameResult.venue}
-								</p>
+								
+								<p class="matchup-info">Venue: {gameResult.venue || 'Unknown Venue'}</p>
 							</article>
 						{/if}
 					{/each}

@@ -153,7 +153,7 @@
 		{:else}
 			<div class="error-wrapper">
 				<p class="no-data-message">
-					No player stats data available,
+					No player stats data available, would you like to
 					<a
 						class="link"
 						class:light={!$theme}
@@ -162,7 +162,7 @@
 						role="button"
 						aria-label="Return to Player Stat Search page"
 					>
-						click here to try a different search!
+						try a different search
 					</a>
 					or
 					<a

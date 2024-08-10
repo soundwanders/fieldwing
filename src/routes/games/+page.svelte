@@ -46,7 +46,7 @@
 									Week {gameResult.week} - {capitalizeFirstChar(gameResult.season_type)} Season
 								</p>
 
-								<!-- Scoreboard-like design for home and away points -->
+								<!-- Scoreboard design used for home and away points -->
 								<article class="scoreboard">
 									<div class="team-score">
 										<p class="team-name">{gameResult.home_team}</p>

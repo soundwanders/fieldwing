@@ -13,7 +13,7 @@
 					<strong>Acceptance of Terms</strong><br />
 					By using the Fieldwing website, you agree to comply with these Terms of Service. If you do
 					not agree, please refrain from using the app. If you would like to discuss the Terms of Service,
-					or anything else related to Fieldwing, please contact me.
+					or anything else related to Fieldwing, please contact me!
 				</li>
 
 				<li>
@@ -26,13 +26,13 @@
 					<strong>Data Accuracy</strong><br />
 					While I strive to provide accurate information, I am not responsible for inaccuracies or
 					errors in the app's content. Users are encouraged to verify information independently, as
-					our data comes from a third-party API.
+					our data comes from a third-party API (the College Football Database).
 				</li>
 
 				<li>
 					<strong>User Data Privacy Policy</strong><br />
 					It's important to note that Fieldwing does not collect or store any personal information from users
-					who visit the site. I will never request your data, or retain any user data, both in the browser and 
+					who visit the site. Fieldwing will never request your data or retain user data, both in the browser and 
 					on the server.
 				</li>
 

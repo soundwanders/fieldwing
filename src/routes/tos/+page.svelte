@@ -12,12 +12,7 @@
 				<li>
 					<strong>Acceptance of Terms</strong><br />
 					By using the Fieldwing website, you agree to comply with these Terms of Service. If you do
-					not agree, please refrain from using the app. If you would like to discuss the Terms of Service,
-					or anything else related to Fieldwing, please contact me!
-				</li>
-
-				<li>
-					<strong>App Usage</strong><br />
+					not agree, please refrain from using the app. 
 					This web app is designed for personal, non-commercial use. Any unauthorized use or reproduction
 					of the app's content is strictly prohibited.
 				</li>

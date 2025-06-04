@@ -1,67 +1,111 @@
 // src/routes/team-stats/+page.server.ts
 
 import type { PageServerLoad } from './$types';
-import { CFBD_API_KEY } from '$env/static/private';
+import { cfbdApi } from '$lib/api/cfbdClient';
+import { error } from '@sveltejs/kit';
 
-export const load: PageServerLoad = async ({ params, url }) => {
-	const year = url.searchParams.get('year') || '';
+interface TeamStatsResult {
+  teamStatsData: any[];
+  total: number;
+}
 
-	try {
-		// Define the list of optional parameters
-		const optionalParamsList = ['team', 'conference', 'startWeek', 'endWeek', 'category'];
+interface LoadResult {
+  teamData: TeamStatsResult;
+  searchParams: {
+    year: string;
+    team?: string;
+    conference?: string;
+    startWeek?: string;
+    endWeek?: string;
+  };
+  requestCount?: number;
+}
 
-		// Construct the URL based on user input
-		let apiUrl = `https://api.collegefootballdata.com/stats/season?year=${encodeURIComponent(
-			year
-		)}`;
+export const load: PageServerLoad = async ({ url }): Promise<LoadResult> => {
+  try {
+    // Extract and validate parameters
+    const year = url.searchParams.get('year');
+    const team = url.searchParams.get('team') || '';
+    const conference = url.searchParams.get('conference') || '';
+    const startWeek = url.searchParams.get('startWeek') || '';
+    const endWeek = url.searchParams.get('endWeek') || '';
 
-		// Filter out optional parameters that are not provided
-		// Explicitly check for null, undefined, and empty string values before including them in query params
-		const queryParams = optionalParamsList
-			.filter((param) => {
-				const value = url.searchParams.get(param);
-				return value !== null && value !== undefined && value !== '';
-			})
-			.map((param) => {
-				const value = url.searchParams.get(param);
-				return `${param}=${encodeURIComponent(value || '')}`;
-			})
-			.join('&');
+    console.log('🏈 Loading team stats with params:', {
+      year, team, conference, startWeek, endWeek
+    });
 
-		// Append the constructed query parameters to the URL
-		if (queryParams) {
-			apiUrl += `&${queryParams}`;
-		}
+    // Validate required parameters
+    if (!year) {
+      throw error(400, 'Year parameter is required for team statistics.');
+    }
 
-		console.log('apiurl', apiUrl);
+    const yearNum = parseInt(year);
+    if (isNaN(yearNum) || yearNum < 1900 || yearNum > new Date().getFullYear() + 1) {
+      throw error(400, `Invalid year: ${year}. Year must be between 1900 and ${new Date().getFullYear() + 1}.`);
+    }
 
-		async function getTeams(limit: number = 15, skip: number = 0) {
-			const response = await fetch(`${apiUrl}`, {
-				headers: {
-					Authorization: `Bearer ${CFBD_API_KEY}`
-				}
-			});
+    // Validate week parameters if provided
+    if (startWeek) {
+      const startWeekNum = parseInt(startWeek);
+      if (isNaN(startWeekNum) || startWeekNum < 1 || startWeekNum > 14) {
+        throw error(400, 'Start week must be between 1 and 14.');
+      }
+    }
 
-			if (!response.ok) {
-				throw new Error(`Failed to fetch player data. Status: ${response.status}`);
-			}
+    if (endWeek) {
+      const endWeekNum = parseInt(endWeek);
+      if (isNaN(endWeekNum) || endWeekNum < 1 || endWeekNum > 14) {
+        throw error(400, 'End week must be between 1 and 14.');
+      }
+    }
 
-			const teamStatsData = await response.json();
-			const totalItems = teamStatsData.length;
+    // Validate week range
+    if (startWeek && endWeek) {
+      const startWeekNum = parseInt(startWeek);
+      const endWeekNum = parseInt(endWeek);
+      if (startWeekNum > endWeekNum) {
+        throw error(400, 'Start week cannot be greater than end week.');
+      }
+    }
 
-			return {
-				total: totalItems,
-				teamStatsData
-			};
-		}
+    console.log('📡 Fetching team statistics...');
 
-		return {
-			teamData: await getTeams()
-		};
-	} catch (error) {
-		console.error(error);
-		return {
-			error: 'Internal Server Error'
-		};
-	}
+    const teamStatsData = await cfbdApi.getTeamStats({
+      year,
+      team: team || undefined,
+      conference: conference || undefined,
+      startWeek: startWeek || undefined,
+      endWeek: endWeek || undefined
+    }) as any[];
+
+    console.log(`✅ Successfully fetched ${teamStatsData.length} team stat records`);
+    console.log(`🔢 Total API requests made: ${cfbdApi.getRequestCount()}`);
+
+    const result: LoadResult = {
+      teamData: {
+        teamStatsData: teamStatsData || [],
+        total: teamStatsData?.length || 0
+      },
+      searchParams: {
+        year,
+        team: team || undefined,
+        conference: conference || undefined,
+        startWeek: startWeek || undefined,
+        endWeek: endWeek || undefined
+      },
+      requestCount: cfbdApi.getRequestCount()
+    };
+
+    console.log('✅ Team stats page load completed successfully');
+    return result;
+
+  } catch (err) {
+    if (err instanceof Error && 'status' in err) {
+      throw err;
+    }
+    
+    console.error('💥 Unexpected error in team stats page load:', err);
+    const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
+    throw error(500, `Failed to load team statistics: ${errorMessage}`);
+  }
 };

@@ -68,18 +68,19 @@ export const load: PageServerLoad = async ({ url }): Promise<LoadResult> => {
         const schoolName = getSchoolName(fullTeamName.trim());
         console.log(`📡 Fetching games for team ${index + 1}/${teamArray.length}: ${schoolName}`);
         
-        // Use our new secure API client!
         const data = await cfbdApi.getGames({
           year,
           week,
           team: schoolName
         });
 
-        console.log(`✅ Successfully fetched ${data.length} games for ${schoolName}`);
+        // Safely assert or check the type of data before accessing length
+        const gamesArray = Array.isArray(data) ? data : [];
+        console.log(`✅ Successfully fetched ${gamesArray.length} games for ${schoolName}`);
 
         return { 
           team: schoolName, 
-          data: data || [], 
+          data: gamesArray, 
           error: null 
         };
       } catch (err) {

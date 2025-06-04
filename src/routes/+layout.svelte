@@ -1,11 +1,11 @@
-<script>
+<script lang="ts">
   import { onMount } from 'svelte';
   import Navbar from '$lib/Navbar.svelte';
-  import ErrorBoundary from '$lib/components/ErrorBoundary.svelte';
+  import ErrorBoundary from '../components/ErrorBoundary.svelte';
   import { theme } from '$lib/stores/theme';
   import '../../src/styles/main.css';
 
-  let globalError = null;
+  let globalError: Error | null = null;
 
   function handleGlobalError() {
     globalError = null;
@@ -13,14 +13,14 @@
     window.location.reload();
   }
 
-  function handleErrorReport(event) {
+  function handleErrorReport(event: CustomEvent<any>) {
     console.error('Error reported by user:', event.detail);
     // In a real app, you'd send this to an error reporting service
   }
 
   onMount(() => {
     // Global error handler for unhandled promise rejections
-    const handleUnhandledRejection = (event) => {
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
       console.error('Unhandled promise rejection in layout:', event.reason);
       globalError = new Error(`Application error: ${event.reason}`);
       event.preventDefault();

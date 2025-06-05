@@ -3,7 +3,7 @@
 	import { theme } from '$lib/stores/theme';
 	import { capitalizeFirstChar } from '$lib/utils/capitalizeFirstChar';
 	import { onMount } from 'svelte';
-	import TeamStatsWidget from '../../components/TeamStatsWidget.svelte';
+	import TeamStatsWidget from '$lib/components/TeamStatsWidget.svelte';
 	import '../../styles/main.css';
 
 	export let data: { teamData?: any };
@@ -456,15 +456,6 @@
 
 		.pagination {
 			margin: 1rem 0 4rem 0;
-		}
-	}
-
-	@keyframes fadeIn {
-		from {
-			opacity: 0;
-		}
-		to {
-			opacity: 1;
 		}
 	}
 </style>

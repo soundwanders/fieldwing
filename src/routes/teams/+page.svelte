@@ -1,5 +1,5 @@
 <script lang="ts">
-	import TeamStatSearch from '../../components/TeamStatSearch.svelte';
+	import TeamStatSearch from '$lib/components/TeamStatSearch.svelte';
 	import Footer from '$lib/Footer.svelte';
 	import '../../styles/main.css';
 </script>
@@ -17,17 +17,7 @@
 <style module>
 	section {
 		min-height: 100vh;
-		animation: fadeIn 0.6s forwards;
 		transition: background-color 0.2s ease;
-	}
-
-	@keyframes fadeIn {
-		from {
-			opacity: 0;
-		}
-		to {
-			opacity: 1;
-		}
 	}
 
 	/* Media query for mobile devices */

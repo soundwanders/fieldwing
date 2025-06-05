@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import Navbar from '$lib/Navbar.svelte';
-  import ErrorBoundary from '../components/ErrorBoundary.svelte';
+  import ErrorBoundary from '$lib/components/ErrorBoundary.svelte';
   import { theme } from '$lib/stores/theme';
   import '../../src/styles/main.css';
 

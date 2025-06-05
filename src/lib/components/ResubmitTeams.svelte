@@ -2,8 +2,8 @@
 
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import fbsData from '../data/fbs.json';
-	import fcsData from '../data/fcs.json';
+	import fbsData from '$lib/data/fbs.json';
+	import fcsData from '$lib/data/fcs.json';
 	import { selectedTeams } from '$lib/stores/store';
 	import { theme } from '$lib/stores/theme';
 	import { getCurrentWeek } from '$lib/utils/getCurrentWeek';

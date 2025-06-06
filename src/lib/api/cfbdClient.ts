@@ -1,50 +1,62 @@
-// src/lib/api/cfbdClient.ts
+// src/lib/api/cfbdClient.ts (Fixed Imports and Errors)
 
 import { CFBD_API_KEY } from '$env/static/private';
 import { error } from '@sveltejs/kit';
 
-// Define types for our API client options
+// Fixed imports: Separate type imports from value imports
+import type {
+  Game,
+  PlayerStat,
+  TeamStat,
+  TeamMatchup,
+  GameSearchParams,
+  PlayerStatsSearchParams,
+  TeamStatsSearchParams,
+  MatchupSearchParams,
+  APIError
+} from '$lib/types/api';
+
+// Import type guards as VALUES (not types)
+import {
+  isGame,
+  isPlayerStat,
+  isTeamStat,
+  isMatchupGame
+} from '$lib/types/api';
+
 interface RequestOptions {
-  timeout?: number;      // How long to wait before giving up (milliseconds)
-  retries?: number;      // How many times to retry failed requests
-  cache?: boolean;       // Whether to cache this request
+  timeout?: number;
+  retries?: number;
+  cache?: boolean;
+  validateResponse?: boolean;
 }
 
-// Define the structure of cached data
-interface CachedData {
-  data: any;
-  timestamp: number;     // When this was cached
-  ttl: number;          // Time to live (how long cache is valid)
+interface CachedData<T = any> {
+  data: T;
+  timestamp: number;
+  ttl: number;
 }
 
-// Main API client class
 class CFBDApiClient {
   private baseURL = 'https://api.collegefootballdata.com';
-  private requestCount = 0;           // Track how many requests we've made
-  private lastRequestTime = 0;        // When was our last request
-  private readonly RATE_LIMIT_DELAY = 100; // Wait 100ms between requests
-  private cache = new Map<string, CachedData>(); // Our simple cache storage
+  private requestCount = 0;
+  private lastRequestTime = 0;
+  private readonly RATE_LIMIT_DELAY = 100;
+  private cache = new Map<string, CachedData>();
 
-  /**
-   * Private method to handle rate limiting
-   * This ensures we don't overwhelm the API with too many requests
-   */
   private async rateLimitedFetch(url: string, options: RequestInit = {}): Promise<Response> {
     const now = Date.now();
     const timeSinceLastRequest = now - this.lastRequestTime;
     
-    // If we made a request too recently, wait a bit
     if (timeSinceLastRequest < this.RATE_LIMIT_DELAY) {
       await new Promise(resolve => 
         setTimeout(resolve, this.RATE_LIMIT_DELAY - timeSinceLastRequest)
       );
     }
     
-    // Update our tracking
     this.lastRequestTime = Date.now();
     this.requestCount++;
     
-    // Make the actual request with our API key
     return fetch(url, {
       ...options,
       headers: {
@@ -55,10 +67,6 @@ class CFBDApiClient {
     });
   }
 
-  /**
-   * Generate a unique cache key for each request
-   * This helps us identify cached data later
-   */
   private getCacheKey(endpoint: string, params: Record<string, any> = {}): string {
     const sortedParams = Object.keys(params)
       .sort()
@@ -67,27 +75,19 @@ class CFBDApiClient {
     return `${endpoint}?${sortedParams}`;
   }
 
-  /**
-   * Check if we have valid cached data for this request
-   */
-  private getCachedData(cacheKey: string) {
+  private getCachedData<T>(cacheKey: string): T | null {
     const cached = this.cache.get(cacheKey);
     if (!cached) return null;
     
-    // Check if the cache has expired
     if (Date.now() > cached.timestamp + cached.ttl) {
       this.cache.delete(cacheKey);
       return null;
     }
     
-    return cached.data;
+    return cached.data as T;
   }
 
-  /**
-   * Store data in our cache
-   */
-  private setCachedData(cacheKey: string, data: any, ttl: number = 300000): void {
-    // Default TTL is 5 minutes (300000 milliseconds)
+  private setCachedData<T>(cacheKey: string, data: T, ttl: number = 300000): void {
     this.cache.set(cacheKey, {
       data,
       timestamp: Date.now(),
@@ -95,42 +95,54 @@ class CFBDApiClient {
     });
   }
 
-  /**
-   * Main request method - this is the heart of our API client
-   * It handles caching, retries, timeouts, and error handling
-   */
+  private validateResponse<T>(
+    data: any,
+    validator?: (item: any) => item is T
+  ): T[] {
+    if (!Array.isArray(data)) {
+      throw new Error('API response is not an array');
+    }
+
+    if (validator) {
+      const invalidItems = data.filter(item => !validator(item));
+      if (invalidItems.length > 0) {
+        console.warn('Some API response items failed validation:', invalidItems.length);
+      }
+      return data.filter(validator);
+    }
+
+    return data;
+  }
+
   async request<T>(
     endpoint: string, 
     params: Record<string, any> = {}, 
-    options: RequestOptions = {}
-  ): Promise<T> {
-    const { timeout = 10000, retries = 2, cache = true } = options;
+    options: RequestOptions = {},
+    validator?: (item: any) => item is T
+  ): Promise<T[]> {
+    const { timeout = 10000, retries = 2, cache = true, validateResponse = true } = options;
     
-    // Clean up parameters - remove empty values that would mess up the API
     const cleanParams = Object.entries(params)
       .filter(([_, value]) => value !== null && value !== undefined && value !== '')
       .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
 
-    // Build the full URL
     const queryString = new URLSearchParams(cleanParams).toString();
     const url = `${this.baseURL}${endpoint}${queryString ? `?${queryString}` : ''}`;
     const cacheKey = this.getCacheKey(endpoint, cleanParams);
 
-    // Check cache first (if caching is enabled)
     if (cache) {
-      const cachedData = this.getCachedData(cacheKey);
+      const cachedData = this.getCachedData<T[]>(cacheKey);
       if (cachedData) {
         console.log(`Cache hit for ${endpoint}`);
         return cachedData;
       }
     }
 
-    let lastError: Error | undefined = undefined;
+    // Fixed: Initialize lastError properly
+    let lastError: Error = new Error('Unknown error occurred');
     
-    // Retry logic - try the request multiple times if it fails
     for (let attempt = 0; attempt <= retries; attempt++) {
       try {
-        // Set up timeout handling
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), timeout);
 
@@ -143,25 +155,33 @@ class CFBDApiClient {
         clearTimeout(timeoutId);
 
         if (!response.ok) {
-          throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+          const apiError: APIError = {
+            message: `API request failed: ${response.status} ${response.statusText}`,
+            status: response.status
+          };
+          throw new Error(apiError.message);
         }
 
-        const data = await response.json();
+        const rawData = await response.json();
         
-        // Cache successful responses
+        let validatedData: T[];
+        if (validateResponse && validator) {
+          validatedData = this.validateResponse(rawData, validator);
+        } else {
+          validatedData = rawData;
+        }
+        
         if (cache) {
-          this.setCachedData(cacheKey, data);
+          this.setCachedData(cacheKey, validatedData);
           console.log(`Cached response for ${endpoint}`);
         }
         
-        return data;
+        return validatedData;
       } catch (err) {
         lastError = err as Error;
-        console.error(`Request attempt ${attempt + 1} failed:`, lastError?.message);
+        console.error(`Request attempt ${attempt + 1} failed:`, lastError.message);
         
-        // If we have more retries left, wait before trying again
         if (attempt < retries) {
-          // Exponential backoff: wait longer each time (1s, 2s, 4s, etc.)
           const delay = Math.pow(2, attempt) * 1000;
           console.log(`Waiting ${delay}ms before retry...`);
           await new Promise(resolve => setTimeout(resolve, delay));
@@ -169,59 +189,53 @@ class CFBDApiClient {
       }
     }
 
-    // If we get here, all retries failed
     console.error(`API request failed after ${retries + 1} attempts:`, lastError);
-    throw error(500, `Failed to fetch data: ${lastError?.message ?? 'Unknown error'}`);
+    throw error(500, `Failed to fetch data: ${lastError.message}`);
   }
 
-  /**
-   * Specific API methods for each endpoint
-   * These make it easy to call the API without remembering exact parameter names
-   */
-  
-  async getGames(params: { 
-    year?: string; 
-    week?: string; 
-    team?: string; 
-    seasonType?: string;
-  } = {}) {
-    return this.request('/games', params);
+  // Typed API methods with validation
+  async getGames(params: GameSearchParams = {}): Promise<Game[]> {
+    return this.request('/games', params, { validateResponse: true }, isGame);
   }
 
-  async getPlayerStats(params: { 
-    year: string;                    // Required
-    team?: string; 
-    conference?: string; 
-    startWeek?: string; 
-    endWeek?: string; 
-    category?: string;
-    seasonType?: string;
-  }) {
-    return this.request('/stats/player/season', params);
+  async getPlayerStats(params: PlayerStatsSearchParams): Promise<PlayerStat[]> {
+    if (!params.year) {
+      throw new Error('Year parameter is required for player statistics');
+    }
+    return this.request('/stats/player/season', params, { validateResponse: true }, isPlayerStat);
   }
 
-  async getTeamStats(params: {
-    year: string;                    // Required
-    team?: string;
-    conference?: string;
-    startWeek?: string;
-    endWeek?: string;
-  }) {
-    return this.request('/stats/season', params);
+  async getTeamStats(params: TeamStatsSearchParams): Promise<TeamStat[]> {
+    if (!params.year) {
+      throw new Error('Year parameter is required for team statistics');
+    }
+    return this.request('/stats/season', params, { validateResponse: true }, isTeamStat);
   }
 
-  async getTeamMatchup(params: { 
-    team1: string;                   // Required
-    team2: string;                   // Required
-    minYear?: string; 
-    maxYear?: string;
-  }) {
-    return this.request('/teams/matchup', params);
+  async getTeamMatchup(params: MatchupSearchParams): Promise<TeamMatchup> {
+    if (!params.team1 || !params.team2) {
+      throw new Error('Both team1 and team2 parameters are required for matchups');
+    }
+    
+    const [matchupData] = await this.request<TeamMatchup>(
+      '/teams/matchup', 
+      params, 
+      { validateResponse: false }
+    );
+    
+    if (!matchupData) {
+      throw new Error('No matchup data found');
+    }
+
+    // Validate matchup games if present
+    if (matchupData.games) {
+      matchupData.games = matchupData.games.filter(isMatchupGame);
+    }
+
+    return matchupData;
   }
 
-  /**
-   * Utility methods for monitoring and debugging
-   */
+  // Utility methods
   getRequestCount(): number {
     return this.requestCount;
   }
@@ -234,6 +248,23 @@ class CFBDApiClient {
   getCacheSize(): number {
     return this.cache.size;
   }
+
+  // Health check method
+  async healthCheck(): Promise<boolean> {
+    try {
+      await this.request('/games', { year: new Date().getFullYear(), week: 1 }, { 
+        timeout: 5000, 
+        retries: 1, 
+        cache: false 
+      });
+      return true;
+    } catch {
+      return false;
+    }
+  }
 }
 
 export const cfbdApi = new CFBDApiClient();
+
+// Export types for use in components
+export type { Game, PlayerStat, TeamStat, TeamMatchup, APIError };

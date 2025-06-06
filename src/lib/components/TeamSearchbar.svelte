@@ -6,6 +6,8 @@
   import { teamDataStore, ensureTeamsLoaded, isTeamDataLoaded } from '$lib/stores/teamData';
   import { theme } from '$lib/stores/theme';
 
+  import type { TeamSearchResult } from '$lib/stores/teamData';
+	
   let searchQuery: string = '';
   let searchResults: string[] = [];
   const minQueryLength: number = 3;
@@ -51,8 +53,9 @@
       // Ensure team data is loaded
       await ensureTeamsLoaded();
       
-      // Search teams using the store
-      searchResults = teamDataStore.searchTeams(query);
+      // Get search result and extract teams array
+      const searchResult: TeamSearchResult = teamDataStore.searchTeams(query);
+      searchResults = searchResult.teams; // Extract the teams array
       
       // Force reactive update
       searchResults = searchResults;

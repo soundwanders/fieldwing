@@ -5,16 +5,17 @@
   import { theme } from '$lib/stores/theme';
   import { getCurrentWeek } from '$lib/utils/getCurrentWeek';
   import { getCurrentYear } from '$lib/utils/getCurrentYear';
+  import type { TeamSearchResult } from '$lib/stores/teamData'; // Add this import
 
   let searchQuery: string = '';
-  let searchResults: string[] = [];
+  let searchResults: string[] = []; // Keep as string[] for component compatibility
   let selectedWeek: number = 1;
   let selectedYear: number = new Date().getFullYear();
   let selectedTeamsArray = $selectedTeams;
 
   const minQueryLength: number = 2;
 
-  // Subscription cleanup tracking
+  // Cleanup tracking
   let unsubscribers: (() => void)[] = [];
 	let searchTimeout: number | null = null;
 
@@ -40,7 +41,7 @@
 				searchTimeout = null;
 			}
 		});
-	}
+  }
 
   async function searchTeams() {
     const query: string = searchQuery.toLowerCase().trim();
@@ -48,7 +49,11 @@
     if (query.length >= minQueryLength) {
       try {
         await ensureTeamsLoaded();
-        searchResults = teamDataStore.searchTeams(query);
+        
+        // Get the search result object and extract just the teams array
+        const searchResult: TeamSearchResult = teamDataStore.searchTeams(query);
+        searchResults = searchResult.teams; // Extract teams array
+        
       } catch (error) {
         console.error('Search failed:', error);
         searchResults = [];

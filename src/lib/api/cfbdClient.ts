@@ -217,24 +217,74 @@ class CFBDApiClient {
       throw new Error('Both team1 and team2 parameters are required for matchups');
     }
     
-    const [matchupData] = await this.request<TeamMatchup>(
-      '/teams/matchup', 
-      params, 
-      { validateResponse: false }
-    );
+    // Create a special request method for single-object responses
+    const cleanParams = Object.entries(params)
+      .filter(([_, value]) => value !== null && value !== undefined && value !== '')
+      .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
+
+    const queryString = new URLSearchParams(cleanParams).toString();
+    const url = `${this.baseURL}/teams/matchup${queryString ? `?${queryString}` : ''}`;
+    const cacheKey = this.getCacheKey('/teams/matchup', cleanParams);
+
+    // Check cache first
+    const cachedData = this.getCachedData<TeamMatchup>(cacheKey);
+    if (cachedData) {
+      console.log(`Cache hit for /teams/matchup`);
+      return cachedData;
+    }
+
+    let lastError: Error = new Error('Unknown error occurred');
     
-    if (!matchupData) {
-      throw new Error('No matchup data found');
+    for (let attempt = 0; attempt <= 2; attempt++) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+        console.log(`API Request (attempt ${attempt + 1}): ${url}`);
+        
+        const response = await this.rateLimitedFetch(url, {
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+          throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+        }
+
+        // The matchup endpoint returns a single object, not an array
+        const matchupData = await response.json() as TeamMatchup;
+        
+        if (!matchupData) {
+          throw new Error('No matchup data found');
+        }
+
+        // Validate matchup games if present
+        if (matchupData.games && Array.isArray(matchupData.games)) {
+          matchupData.games = matchupData.games.filter(isMatchupGame);
+        }
+
+        // Cache the result
+        this.setCachedData(cacheKey, matchupData);
+        console.log(`Cached response for /teams/matchup`);
+        
+        return matchupData;
+      } catch (err) {
+        lastError = err as Error;
+        console.error(`Request attempt ${attempt + 1} failed:`, lastError.message);
+        
+        if (attempt < 2) {
+          const delay = Math.pow(2, attempt) * 1000;
+          console.log(`Waiting ${delay}ms before retry...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+        }
+      }
     }
 
-    // Validate matchup games if present
-    if (matchupData.games) {
-      matchupData.games = matchupData.games.filter(isMatchupGame);
-    }
-
-    return matchupData;
+    console.error(`API request failed after 3 attempts:`, lastError);
+    throw error(500, `Failed to fetch matchup data: ${lastError.message}`);
   }
-
+  
   // Utility methods
   getRequestCount(): number {
     return this.requestCount;

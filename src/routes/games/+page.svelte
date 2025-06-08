@@ -10,7 +10,7 @@
   export let data: { gameResults?: any[]; teams?: string[]; error?: string };
 
   let isLoading = true;
-  let pageError = null;
+  let pageError: Error | null = null;
 
   const { gameResults } = data;
 

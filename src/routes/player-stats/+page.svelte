@@ -1,441 +1,713 @@
+<!-- src/routes/player-stats/+page.svelte - COMPLETELY FIXED -->
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
   import { page } from '$app/stores';
+  import { goto } from '$app/navigation';
   import { theme } from '$lib/stores/theme';
-  import { capitalizeFirstChar } from '$lib/utils/capitalizeFirstChar';
+  import PlayerStatsTable from '$lib/components/PlayerStatsTable.svelte';
+  import Pagination from '$lib/components/Pagination.svelte';
   import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
-  import LoadingSkeleton from '$lib/components/LoadingSkeleton.svelte';
-  import ErrorBoundary from '$lib/components/ErrorBoundary.svelte';
-  import PlayerStatsWidget from '$lib/components/PlayerStatsWidget.svelte';
-  import '../../styles/main.css';
+  import ErrorMessage from '$lib/components/ErrorMessage.svelte';
+  import type { PlayerStat } from '$lib/types/api';
+  
+  export let data: { searchParams?: Record<string, string> } = {};
 
-  export let data: { playerData?: any; error?: string };
+  // Form state
+  let searchForm = {
+    year: data.searchParams?.year || new Date().getFullYear().toString(),
+    team: data.searchParams?.team || '',
+    conference: data.searchParams?.conference || '',
+    startWeek: data.searchParams?.startWeek || '',
+    endWeek: data.searchParams?.endWeek || '',
+    category: data.searchParams?.category || '',
+    seasonType: data.searchParams?.seasonType || 'regular'
+  };
 
-  let isLoading = true;
-  let pageError = null;
+  // Component state
+  let playerStats: PlayerStat[] = [];
+  let isLoading = false;
+  let error: string | null = null;
+  let totalItems = 0;
+  
+  // Form validation
+  let formErrors: Record<string, string> = {};
+  
+  // Category options
+  const categories = [
+    { value: '', label: 'All Categories' },
+    { value: 'passing', label: 'Passing' },
+    { value: 'rushing', label: 'Rushing' },
+    { value: 'receiving', label: 'Receiving' },
+    { value: 'fumbles', label: 'Fumbles' },
+    { value: 'defense', label: 'Defense' },
+    { value: 'kicking', label: 'Kicking' },
+    { value: 'punting', label: 'Punting' },
+    { value: 'kickReturns', label: 'Kick Returns' },
+    { value: 'puntReturns', label: 'Punt Returns' },
+    { value: 'interceptions', label: 'Interceptions' }
+  ];
 
-  const { playerData } = data;
-
-  // Define types for player stats
-  interface PlayerStat {
-    playerId: string;
-    player: string;
-    team: string;
-    conference: string;
-    startWeek: number;
-    endWeek: number;
-    seasonType: string;
-    category: string;
-    statType: string;
-    stat: string;
-  }
-
-  let pageSize: number = 16;
-  let pageTitle: string = '';
-
-  $: totalItems = playerData ? playerData.total : 0;
+  // Pagination
+  const pageSize = 16;
+  $: currentPage = Math.floor((Number($page.url.searchParams.get('skip')) || 0) / pageSize);
   $: totalPages = Math.ceil(totalItems / pageSize);
-  $: currentPage = Number($page.url.searchParams.get('skip')) / pageSize || 0;
 
-  $: year = $page.url.searchParams.get('year') || '';
-  $: team = $page.url.searchParams.get('team') || '';
-  $: conference = $page.url.searchParams.get('conference') || '';
-  $: startWeek = $page.url.searchParams.get('startWeek') || '';
-  $: endWeek = $page.url.searchParams.get('endWeek') || '';
-  $: seasonType = $page.url.searchParams.get('seasonType') || '';
-  $: category = $page.url.searchParams.get('category') || '';
+  // Form validation function
+  function validateForm(): boolean {
+    formErrors = {};
+    
+    if (!searchForm.year) {
+      formErrors.year = 'Year is required';
+      return false;
+    }
+    
+    const year = parseInt(searchForm.year);
+    const currentYear = new Date().getFullYear();
+    if (isNaN(year) || year < 1900 || year > currentYear + 1) {
+      formErrors.year = `Year must be between 1900 and ${currentYear + 1}`;
+      return false;
+    }
 
-  let sortOrder: 'asc' | 'desc' = 'desc';
-  let sortBy: keyof PlayerStat = 'player';
+    if (searchForm.startWeek) {
+      const week = parseInt(searchForm.startWeek);
+      if (isNaN(week) || week < 1 || week > 20) {
+        formErrors.startWeek = 'Start week must be between 1 and 20';
+        return false;
+      }
+    }
 
-  function sortPlayerStatsData(playerStatsData: PlayerStat[]): PlayerStat[] {
-    return playerStatsData.sort((a, b) => {
-      if (a[sortBy] < b[sortBy]) return sortOrder === 'asc' ? -1 : 1;
-      if (a[sortBy] > b[sortBy]) return sortOrder === 'asc' ? 1 : -1;
-      return 0;
-    });
+    if (searchForm.endWeek) {
+      const week = parseInt(searchForm.endWeek);
+      if (isNaN(week) || week < 1 || week > 20) {
+        formErrors.endWeek = 'End week must be between 1 and 20';
+        return false;
+      }
+    }
+
+    if (searchForm.startWeek && searchForm.endWeek) {
+      const start = parseInt(searchForm.startWeek);
+      const end = parseInt(searchForm.endWeek);
+      if (start > end) {
+        formErrors.endWeek = 'End week must be greater than or equal to start week';
+        return false;
+      }
+    }
+
+    return true;
   }
 
-  function toggleSortOrder(column: keyof PlayerStat) {
-    sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
-    sortBy = column;
-    sortedPlayerStatsData = sortPlayerStatsData(playerData?.playerStatsData || []);
-  }
-
-  function handleRetry() {
-    pageError = null;
-    window.location.reload();
-  }
-
-  onMount(() => {
-    let formattedTeamName = team ? capitalizeFirstChar(team) : '';
-    let formattedConference = conference ? `${conference.toUpperCase()}` : '';
-    let formattedseasonType = capitalizeFirstChar(seasonType);
-    let formattedCategory = capitalizeFirstChar(category);
-
-    if (team && !conference) { pageTitle += `${formattedTeamName}`; }
-    else if (!team && conference) { pageTitle += `${formattedConference}`; }
-    else if (team && conference) { pageTitle += `${formattedTeamName} - ${formattedConference}`; }
-
-    if (year) pageTitle += ` - ${year}`;
-    if (startWeek) pageTitle += ` - Week ${startWeek}`;
-    if (endWeek) pageTitle += ` to ${endWeek}`;
-    if (seasonType) pageTitle += ` - ${formattedseasonType}`;
-    if (category) pageTitle += ` - ${formattedCategory}`;
-
-    // Check for data errors
-    if (data?.error) {
-      pageError = new Error(data.error);
-      isLoading = false;
+  // API call function - NO REACTIVE STATEMENTS!
+  async function fetchPlayerStats(): Promise<void> {
+    if (!validateForm()) {
+      playerStats = [];
+      totalItems = 0;
       return;
     }
 
-    // Simulate loading completion
-    const timer = setTimeout(() => {
-      isLoading = false;
-    }, 500);
+    isLoading = true;
+    error = null;
 
-    return () => clearTimeout(timer);
+    try {
+      const params = new URLSearchParams();
+      params.set('year', searchForm.year);
+      
+      if (searchForm.team) params.set('team', searchForm.team);
+      if (searchForm.conference) params.set('conference', searchForm.conference);
+      if (searchForm.startWeek) params.set('startWeek', searchForm.startWeek);
+      if (searchForm.endWeek) params.set('endWeek', searchForm.endWeek);
+      if (searchForm.category) params.set('category', searchForm.category);
+      if (searchForm.seasonType) params.set('seasonType', searchForm.seasonType);
+      
+      // Add pagination
+      params.set('limit', pageSize.toString());
+      params.set('skip', (currentPage * pageSize).toString());
+
+      console.log('🔍 Fetching player stats with params:', params.toString());
+      
+      const response = await fetch(`/api/player-stats?${params.toString()}`);
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(errorData.error || `HTTP ${response.status}`);
+      }
+      
+      const result = await response.json();
+      
+      if (result.data && Array.isArray(result.data)) {
+        playerStats = result.data;
+        totalItems = result.data.length; // For now, use actual length
+        console.log(`✅ Loaded ${playerStats.length} player stats`);
+      } else {
+        throw new Error('Invalid response format');
+      }
+      
+    } catch (err) {
+      console.error('❌ Failed to fetch player stats:', err);
+      error = err instanceof Error ? err.message : 'Failed to fetch player stats';
+      playerStats = [];
+      totalItems = 0;
+    } finally {
+      isLoading = false;
+    }
+  }
+
+  // Handle form submission
+  function handleSearch(): void {
+    console.log('🚀 Search triggered');
+    
+    // Update URL without causing reactive loops
+    const url = new URL(window.location.href);
+    Object.entries(searchForm).forEach(([key, value]) => {
+      if (value && value !== '') {
+        url.searchParams.set(key, value);
+      } else {
+        url.searchParams.delete(key);
+      }
+    });
+    
+    // Reset pagination on new search
+    url.searchParams.delete('skip');
+    
+    // Update URL and trigger search
+    goto(url.pathname + url.search, { replaceState: true });
+    fetchPlayerStats();
+  }
+
+  // Handle input changes with debouncing
+  let searchTimeout: ReturnType<typeof setTimeout>;
+  function handleInput(): void {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+      if (validateForm()) {
+        handleSearch();
+      }
+    }, 500); // 500ms debounce
+  }
+
+  // Handle page changes
+  function handlePageChange(newPage: number): void {
+    const url = new URL(window.location.href);
+    const skip = newPage * pageSize;
+    
+    if (skip > 0) {
+      url.searchParams.set('skip', skip.toString());
+    } else {
+      url.searchParams.delete('skip');
+    }
+    
+    goto(url.pathname + url.search, { replaceState: true });
+    fetchPlayerStats();
+  }
+
+  // CSV Export
+  function exportToCSV(): void {
+    if (playerStats.length === 0) {
+      alert('No data to export');
+      return;
+    }
+
+    const headers = ['Player', 'Team', 'Conference', 'Category', 'Stat Type', 'Value'];
+    const csvContent = [
+      headers.join(','),
+      ...playerStats.map(stat => [
+        `"${stat.player}"`,
+        `"${stat.team}"`, 
+        `"${stat.conference}"`,
+        `"${stat.category}"`,
+        `"${stat.statType}"`,
+        stat.stat
+      ].join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `player-stats-${searchForm.year}-${Date.now()}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  }
+
+  // Initialize on mount
+  onMount(() => {
+    console.log('🎯 Player stats page mounted');
+    if (searchForm.year) {
+      fetchPlayerStats();
+    }
   });
 
-  $: sortedPlayerStatsData = sortPlayerStatsData(playerData?.playerStatsData || []);
+  // Cleanup
+  onDestroy(() => {
+    clearTimeout(searchTimeout);
+  });
 </script>
 
 <svelte:head>
   <title>Player Statistics - Fieldwing</title>
+  <meta name="description" content="Search and analyze college football player statistics by year, team, conference, and category." />
 </svelte:head>
 
-<ErrorBoundary bind:error={pageError} on:retry={handleRetry}>
-  <div class="stats-wrapper" class:light={!$theme} class:dark={$theme}>
-    <section class="stats-section">
-      {#if isLoading}
-        <div class="loading-container">
-          <LoadingSpinner size="large" text="Loading player statistics..." />
-          <LoadingSkeleton rows={5} columns={6} height="2rem" />
-        </div>
-      {:else if sortedPlayerStatsData && sortedPlayerStatsData.length > 0}
-        <div class="header-image-wrapper">
-          <img class="players-image" src="/players.png" alt="Player Stats" aria-hidden="true" />
-          <h1 class="main-title" class:light={!$theme} class:dark={$theme}>
-            {pageTitle}
-          </h1>
-        </div>
-
-        <div class="stat-search-widget">
-          <PlayerStatsWidget />
-        </div>
-
-        <div class="player-stats-container">
-          <table class="player-stats-table">
-            <thead>
-              <tr>
-                <th class="player-table-header" scope="col">
-                  <button on:click={() => toggleSortOrder('player')}>PLAYER</button>
-                </th>
-                <th class="team-table-header" scope="col">
-                  <button on:click={() => toggleSortOrder('team')}>TEAM</button>
-                </th>
-                <th class="conference-table-header" scope="col">
-                  <button on:click={() => toggleSortOrder('conference')}>CONF.</button>
-                </th>
-                <th class="category-table-header" scope="col">
-                  <button on:click={() => toggleSortOrder('category')}>CATEGORY</button>
-                </th>
-                <th class="stat-type-table-header" scope="col">
-                  <button on:click={() => toggleSortOrder('statType')}>TYPE</button>
-                </th>
-                <th class="stat-table-header" scope="col">
-                  <button on:click={() => toggleSortOrder('stat')}>Stat</button>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {#each sortedPlayerStatsData.slice(currentPage * pageSize, (currentPage + 1) * pageSize) as playerStats}
-                <tr>
-                  <td class="td-player">{playerStats.player}</td>
-                  <td class="td-team">{playerStats.team}</td>
-                  <td class="td-conference">{playerStats.conference}</td>
-                  <td class="td-category">{capitalizeFirstChar(playerStats.category)}</td>
-                  <td class="td-statType">{playerStats.statType}</td>
-                  <td class="td-stat">{playerStats.stat}</td>
-                </tr>
-              {/each}
-            </tbody>
-          </table>
+<div class="container" class:light={!$theme} class:dark={$theme}>
+  <div class="max-w-6xl mx-auto">
+    <!-- Header -->
+    <div class="header-section">
+      <img class="icon" src="/playerstats.png" alt="Player Stats" />
+      <h1 class="text-3xl font-bold mb-8">Player Statistics</h1>
+    </div>
+    
+    <!-- Search Form -->
+    <div class="search-form">
+      <form on:submit|preventDefault={handleSearch} class="form-grid">
+        <!-- Year (Required) -->
+        <div class="form-field">
+          <label for="year" class="field-label">
+            Year *
+            {#if formErrors.year}
+              <span class="error-text">({formErrors.year})</span>
+            {/if}
+          </label>
+          <input
+            id="year"
+            type="number"
+            bind:value={searchForm.year}
+            on:input={handleInput}
+            placeholder="2023"
+            min="1900"
+            max={new Date().getFullYear() + 1}
+            required
+            class="field-input"
+            class:error={formErrors.year}
+          />
         </div>
 
-        <div class="pagination" class:light={!$theme} class:dark={$theme} role="navigation">
-          {#each Array(totalPages) as _, idx}
-            <a
-              href="?limit={pageSize}&skip={pageSize * idx}"
-              class="pagination-item {currentPage === idx ? 'active' : ''}"
-              aria-label="Page number {idx + 1}"
-            >
-              {idx + 1}
-            </a>
-          {/each}
+        <!-- Category -->
+        <div class="form-field">
+          <label for="category" class="field-label">Category</label>
+          <select 
+            id="category"
+            bind:value={searchForm.category}
+            on:change={handleInput}
+            class="field-input"
+          >
+            {#each categories as option}
+              <option value={option.value}>{option.label}</option>
+            {/each}
+          </select>
         </div>
-      {:else}
-        <div class="error-wrapper">
-          <p class="no-data-message">
-            No player stats data available, would you like to
-            <a
-              class="link"
-              class:light={!$theme}
-              class:dark={$theme}
-              href="/players"
-              role="button"
-              aria-label="Return to Player Stat Search page"
-            >
-              try a different search
-            </a>
-            or
-            <a
-              class="link"
-              class:light={!$theme}
-              class:dark={$theme}
-              href="/"
-              role="button"
-              aria-label="Return to Home page"
-            >
-              return to the home page.
-            </a>
-          </p>
+
+        <!-- Team -->
+        <div class="form-field">
+          <label for="team" class="field-label">Team</label>
+          <input
+            id="team"
+            type="text"
+            bind:value={searchForm.team}
+            on:input={handleInput}
+            placeholder="e.g., Alabama"
+            class="field-input"
+          />
+        </div>
+
+        <!-- Conference -->
+        <div class="form-field">
+          <label for="conference" class="field-label">Conference</label>
+          <input
+            id="conference"
+            type="text"
+            bind:value={searchForm.conference}
+            on:input={handleInput}
+            placeholder="e.g., SEC"
+            class="field-input"
+          />
+        </div>
+
+        <!-- Start Week -->
+        <div class="form-field">
+          <label for="startWeek" class="field-label">
+            Start Week
+            {#if formErrors.startWeek}
+              <span class="error-text">({formErrors.startWeek})</span>
+            {/if}
+          </label>
+          <input
+            id="startWeek"
+            type="number"
+            bind:value={searchForm.startWeek}
+            on:input={handleInput}
+            placeholder="1"
+            min="1"
+            max="20"
+            class="field-input"
+            class:error={formErrors.startWeek}
+          />
+        </div>
+
+        <!-- End Week -->
+        <div class="form-field">
+          <label for="endWeek" class="field-label">
+            End Week
+            {#if formErrors.endWeek}
+              <span class="error-text">({formErrors.endWeek})</span>
+            {/if}
+          </label>
+          <input
+            id="endWeek"
+            type="number"
+            bind:value={searchForm.endWeek}
+            on:input={handleInput}
+            placeholder="15"
+            min="1"
+            max="20"
+            class="field-input"
+            class:error={formErrors.endWeek}
+          />
+        </div>
+
+        <!-- Season Type -->
+        <div class="form-field">
+          <label for="seasonType" class="field-label">Season Type</label>
+          <select 
+            id="seasonType"
+            bind:value={searchForm.seasonType}
+            on:change={handleInput}
+            class="field-input"
+          >
+            <option value="regular">Regular Season</option>
+            <option value="postseason">Postseason</option>
+            <option value="both">Both</option>
+          </select>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="form-field flex items-end gap-2">
+          <button
+            type="submit"
+            class="btn btn-primary"
+            disabled={isLoading || Object.keys(formErrors).length > 0}
+          >
+            {isLoading ? 'Searching...' : 'Search'}
+          </button>
+          
+          <button
+            type="button"
+            on:click={exportToCSV}
+            disabled={playerStats.length === 0}
+            class="btn btn-secondary"
+          >
+            Export CSV
+          </button>
+        </div>
+      </form>
+
+      <!-- Form Validation Summary -->
+      {#if Object.keys(formErrors).length > 0}
+        <div class="validation-summary">
+          <p>Please fix the following errors:</p>
+          <ul>
+            {#each Object.entries(formErrors) as [field, error]}
+              <li>{field}: {error}</li>
+            {/each}
+          </ul>
         </div>
       {/if}
-    </section>
+    </div>
+
+    <!-- Results Section -->
+    <div class="results-section">
+      <!-- Results Header -->
+      <div class="results-header">
+        <h2 class="results-title">
+          Search Results
+          {#if playerStats.length > 0}
+            <span class="results-count">({playerStats.length} records)</span>
+          {/if}
+        </h2>
+      </div>
+
+      <!-- Results Content -->
+      <div class="results-content">
+        {#if error}
+          <ErrorMessage 
+            {error}
+            onRetry={fetchPlayerStats}
+          />
+        {:else if isLoading}
+          <div class="loading-container">
+            <LoadingSpinner size="large" text="Loading player statistics..." />
+          </div>
+        {:else if !searchForm.year}
+          <div class="empty-state">
+            <p>Please enter a year to search for player statistics.</p>
+          </div>
+        {:else if playerStats.length === 0}
+          <div class="empty-state">
+            <p>No player statistics found matching your criteria.</p>
+            <p class="text-sm mt-2">Try adjusting your search parameters.</p>
+          </div>
+        {:else}
+          <!-- Results Table -->
+          <PlayerStatsTable 
+            stats={playerStats}
+            sortable={true}
+          />
+          
+          <!-- Pagination -->
+          {#if totalPages > 1}
+            <div class="pagination-container">
+              <Pagination
+                totalItems={totalItems}
+                pageSize={pageSize}
+                on:pageChange={(e) => handlePageChange(e.detail)}
+              />
+            </div>
+          {/if}
+        {/if}
+      </div>
+    </div>
   </div>
-</ErrorBoundary>
+</div>
 
-<style module>
-	.light {
-		--background-color: #f9f9f9;
-		--text-color: #1a202c;
-		--team-name-color: #005ebb;
-		--table-border: #d6d6d6;
-	}
+<style>
+  .light {
+    --bg-color: #f9f9f9;
+    --text-color: #1a202c;
+    --form-bg: #ffffff;
+    --border-color: #d1d5db;
+    --error-color: #ef4444;
+    --primary-color: #3b82f6;
+    --secondary-color: #6b7280;
+  }
 
-	.dark {
-		--background-color: #1a202c;
-		--text-color: #f9f9f9;
-		--team-name-color: #bfc1ff;
-		--table-border: #444e64;
-	}
-	.stats-wrapper {
-		min-height: 100vh;
-		width: 100%;
-		display: flex;
-		align-items: baseline;
-		justify-content: center;
-		background-color: var(--background-color);
-		background-image: var(--background-image);
-		margin: 0;
-		padding: 0;
-	}
+  .dark {
+    --bg-color: #1a202c;
+    --text-color: #f9f9f9;
+    --form-bg: #374151;
+    --border-color: #4b5563;
+    --error-color: #f87171;
+    --primary-color: #60a5fa;
+    --secondary-color: #9ca3af;
+  }
 
-	.stats-section {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		flex-direction: column;
-		width: 100vw;
-		color: var(--text-color);
-	}
+  .container {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    min-height: 100vh;
+    padding: 2rem 1rem;
+  }
 
-	.header-image-wrapper {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		margin-bottom: 2rem;
-	}
+  .max-w-6xl {
+    max-width: 72rem;
+    margin: 0 auto;
+  }
 
-	.players-image {
-		height: auto;
-		width: 4%;
-		margin-right: 0.75rem;
-		margin-bottom: 1.25rem;
-	}
+  .header-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
 
-	.main-title {
-		max-inline-size: 50ch;
-		text-wrap: balance;
-		text-align: center;
-		font-size: 2.25rem;
-		line-height: 2.5rem;
-	}
+  .icon {
+    width: 48px;
+    height: 48px;
+  }
 
-	.player-stats-container {
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: center;
-		width: 90%;
-		gap: 2rem;
-	}
+  .search-form {
+    background-color: var(--form-bg);
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border: 1px solid var(--border-color);
+  }
 
-	.player-stats-table {
-		width: 66%;
-		border-collapse: collapse;
-		margin-top: 1rem;
-	}
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    align-items: end;
+  }
 
-	.player-stats-table th,
-	.player-stats-table td {
-		border: 1px solid var(--table-border);
-		padding: 0.5rem;
-		text-align: left;
-	}
+  .form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
 
-	.player-stats-table th {
-		background-color: var(--form-sub-background-color);
-		cursor: pointer;
-	}
+  .field-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
 
-	.player-stats-table th button {
-		background: none;
-		border: none;
-		cursor: pointer;
-		outline: none;
-		font-weight: bold;
-		color: var(--text-color) !important;
-	}
+  .field-input {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.375rem;
+    background-color: var(--form-bg);
+    color: var(--text-color);
+    font-size: 0.875rem;
+    transition: border-color 0.2s;
+  }
 
-	.player-stats-table th button:hover {
-		text-decoration: underline;
-	}
+  .field-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
 
-	.td-player {
-		width: 15%;
-	}
+  .field-input.error {
+    border-color: var(--error-color);
+  }
 
-	.td-team {
-		width: 13%;
-	}
+  .error-text {
+    color: var(--error-color);
+    font-size: 0.75rem;
+    font-weight: normal;
+  }
 
-	.td-conference {
-		width: 8%;
-	}
+  .btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
 
-	.td-category {
-		width: 13%;
-	}
+  .btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 
-	.td-statType {
-		width: 13%;
-	}
+  .btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+  }
 
-	.td-stat {
-		width: 13%;
-	}
+  .btn-primary:hover:not(:disabled) {
+    opacity: 0.9;
+  }
 
-	.error-wrapper {
-		min-height: 100vh;
-		width: 100%;
-		display: flex;
-		align-items: baseline;
-		justify-content: center;
-		background-color: var(--background-color);
-		background-image: none;
-		margin: 0;
-		padding: 0;
-	}
+  .btn-secondary {
+    background-color: var(--secondary-color);
+    color: white;
+  }
 
-	.no-data-message {
-		font-size: 1.125rem;
-		line-height: 1.75rem;
-		color: var(--text-color);
-		background-color: var(--background-color);
-		background-image: none;
-	}
+  .btn-secondary:hover:not(:disabled) {
+    opacity: 0.9;
+  }
 
-	.pagination {
-		display: flex;
-		max-width: 80%;
-		list-style: none;
-		padding: 0;
-		margin: 2rem 0;
-		overflow-x: auto;
-	}
+  .validation-summary {
+    margin-top: 1rem;
+    padding: 1rem;
+    background-color: rgba(239, 68, 68, 0.1);
+    border: 1px solid var(--error-color);
+    border-radius: 0.375rem;
+    color: var(--error-color);
+    font-size: 0.875rem;
+  }
 
-	.pagination a {
-		color: var(--text-color);
-		text-decoration: none;
-	}
+  .validation-summary ul {
+    margin: 0.5rem 0 0 1rem;
+    padding: 0;
+  }
 
-	.pagination-item {
-		margin: 0 0.3rem;
-		padding: 0.5rem 0.75rem;
-		border-radius: 0.25rem;
-		cursor: pointer;
-		background-color: var(--background-color);
-		transition: background-color 0.3s ease;
-	}
+  .results-section {
+    background-color: var(--form-bg);
+    border-radius: 0.5rem;
+    border: 1px solid var(--border-color);
+  }
 
-	.pagination-item.active {
-		background-color: #0051a8;
-		color: #fff;
-	}
+  .results-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+  }
 
-	.pagination-item:hover {
-		background-color: #555;
-	}
+  .results-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin: 0;
+  }
 
-	.loading-container {
+  .results-count {
+    font-size: 0.875rem;
+    font-weight: normal;
+    color: var(--secondary-color);
+  }
+
+  .results-content {
+    padding: 1.5rem;
+  }
+
+  .loading-container,
+  .empty-state {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 400px;
-    gap: 2rem;
+    padding: 3rem;
+    text-align: center;
+    color: var(--secondary-color);
   }
 
-	@media (max-width: 768px) {
-		.stats-wrapper {
-			min-height: 100%;
-			width: 100%;
-			margin: 0;
-			padding: 0;
-		}
+  .pagination-container {
+    margin-top: 1.5rem;
+  }
 
-		.stats-section {
-			flex-direction: column;
-			gap: 0;
-			min-height: 100%;
-			width: 90%;
-			margin-top: 0.25rem;
-		}
+  .flex {
+    display: flex;
+  }
 
-		.header-image-wrapper {
-			width: 90%;
-			margin-bottom: 1rem;
-		}
+  .items-end {
+    align-items: flex-end;
+  }
 
-		.players-image {
-			display: none;
-		}
+  .gap-2 {
+    gap: 0.5rem;
+  }
 
-		.main-title {
-			font-size: 1.25rem;
-			line-height: 1.75rem;
-			margin-left: -1rem;
-		}
+  .text-sm {
+    font-size: 0.875rem;
+  }
 
-		.player-stats-table th button {
-			font-size: 0.675rem;
-		}
+  .mt-2 {
+    margin-top: 0.5rem;
+  }
 
-		.player-stats-table {
-			width: max-content;
-			font-size: 0.675rem;
-		}
+  .mx-auto {
+    margin-left: auto;
+    margin-right: auto;
+  }
 
-		.player-stats-table th,
-		.player-stats-table td {
-			padding: 0.375rem 0.175rem;
-		}
-		
-		.pagination {
-			margin: 1rem 0 4rem 0;
-		}
-	}
+  .mb-8 {
+    margin-bottom: 2rem;
+  }
 
+  @media (max-width: 768px) {
+    .container {
+      padding: 1rem 0.5rem;
+    }
+    
+    .header-section {
+      flex-direction: column;
+      text-align: center;
+    }
+    
+    .icon {
+      width: 40px;
+      height: 40px;
+    }
+
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+  }
 </style>

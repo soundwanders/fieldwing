@@ -6,7 +6,6 @@ import { getCurrentWeek } from '$lib/utils/getCurrentWeek';
 import { getSchoolName } from '$lib/utils/getSchoolName';
 import { error } from '@sveltejs/kit';
 
-// Define types for better type safety
 interface GameResult {
   team: string;
   data: any[];

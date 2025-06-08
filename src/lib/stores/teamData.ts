@@ -1,8 +1,8 @@
-// src/lib/stores/teamData.ts (Enhanced with Full Type Safety)
+// src/lib/stores/teamData.ts
 import { writable, derived } from 'svelte/store';
 import type { Writable, Readable } from 'svelte/store';
 
-// Enhanced interfaces with full type safety
+// Interfaces with full type safety
 export interface TeamData {
   fbs: string[];
   fcs: string[];
@@ -35,8 +35,7 @@ export interface TeamSearchResult {
   division: Division | 'all';
 }
 
-// Enhanced team data store with comprehensive type safety
-function createEnhancedTeamDataStore() {
+function createTeamDataStore() {
   const initialState: TeamData = {
     fbs: [],
     fcs: [],
@@ -141,7 +140,6 @@ function createEnhancedTeamDataStore() {
       return teams;
     },
 
-    // Enhanced search with options
     searchTeams(
       query: string, 
       options: SearchOptions = {}
@@ -235,8 +233,7 @@ function createEnhancedTeamDataStore() {
   };
 }
 
-// Export enhanced store instance
-export const teamDataStore = createEnhancedTeamDataStore();
+export const teamDataStore = createTeamDataStore();
 
 // Enhanced derived stores with type safety
 export const isTeamDataLoaded: Readable<boolean> = derived(
@@ -273,7 +270,7 @@ export const teamDataStatus: Readable<'idle' | 'loading' | 'loaded' | 'error'> =
   }
 );
 
-// Enhanced helper functions with type safety
+// Helper functions with type safety
 export async function ensureTeamsLoaded(): Promise<void> {
   let isLoaded = false;
   let isLoading = false;

@@ -24,7 +24,7 @@ export interface WeekState {
   isValid: boolean;
 }
 
-// Enhanced stores with full type safety
+// Stores have full type safety
 export const selectedTeams: Writable<string[]> = writable<string[]>([]);
 export const selectedMatchupTeams: Writable<string[]> = writable<string[]>([]);
 export const searchedTeams: Writable<string[]> = writable<string[]>([]);
@@ -32,7 +32,7 @@ export const gameResults: Writable<GameResult[]> = writable<GameResult[]>([]);
 export const selectedWeek: Writable<number> = writable<number>(1);
 export const selectedYear: Writable<number> = writable<number>(new Date().getFullYear());
 
-// Enhanced store with type safety and validation
+// Create store with type safety and validation
 function createValidatedStore<T>(
   initialValue: T,
   validator?: (value: T) => boolean

@@ -1,5 +1,4 @@
-// src/routes/games/+page.server.ts
-
+// src/routes/games/+page.server.ts 
 import type { PageServerLoad } from './$types';
 import { cfbdApi } from '$lib/api/cfbdClient';
 import { getCurrentWeek } from '$lib/utils/getCurrentWeek';
@@ -17,7 +16,7 @@ interface LoadResult {
   teams: string[];
   year: string;
   week: string;
-  requestCount?: number; // For debugging
+  requestCount?: number;
 }
 
 export const load: PageServerLoad = async ({ url }): Promise<LoadResult> => {
@@ -59,13 +58,21 @@ export const load: PageServerLoad = async ({ url }): Promise<LoadResult> => {
       throw error(400, `Invalid week: ${week}. Week must be between 1 and 14.`);
     }
 
-    // Process teams concurrently but with rate limiting handled by our API client
-    console.log('🚀 Starting API requests...');
+    // Process teams with proper error handling - NO CONCURRENT REQUESTS
+    console.log('🚀 Starting sequential API requests...');
     
-    const gameResultsPromises = teamArray.map(async (fullTeamName: string, index: number): Promise<GameResult> => {
+    const gameResults: GameResult[] = [];
+    
+    for (let i = 0; i < teamArray.length; i++) {
+      const fullTeamName = teamArray[i];
       try {
         const schoolName = getSchoolName(fullTeamName.trim());
-        console.log(`📡 Fetching games for team ${index + 1}/${teamArray.length}: ${schoolName}`);
+        console.log(`📡 Fetching games for team ${i + 1}/${teamArray.length}: ${schoolName}`);
+        
+        // Add delay between requests to avoid rate limiting
+        if (i > 0) {
+          await new Promise(resolve => setTimeout(resolve, 200)); // 200ms delay
+        }
         
         const data = await cfbdApi.getGames({
           year,
@@ -73,35 +80,32 @@ export const load: PageServerLoad = async ({ url }): Promise<LoadResult> => {
           team: schoolName
         });
 
-        // Safely assert or check the type of data before accessing length
+        // Safely handle the response
         const gamesArray = Array.isArray(data) ? data : [];
         console.log(`✅ Successfully fetched ${gamesArray.length} games for ${schoolName}`);
 
-        return { 
+        gameResults.push({ 
           team: schoolName, 
           data: gamesArray, 
           error: null 
-        };
+        });
+        
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
         console.error(`❌ Failed to fetch games for ${fullTeamName}:`, errorMessage);
         
-        // Return error but don't fail the entire request
-        return { 
+        // Add failed result but continue processing other teams
+        gameResults.push({ 
           team: getSchoolName(fullTeamName.trim()), 
           data: [], 
-          error: `Failed to fetch games for ${fullTeamName}: ${errorMessage}` 
-        };
+          error: `Failed to fetch games: ${errorMessage}` 
+        });
       }
-    });
-
-    // Wait for all API calls to complete
-    console.log('⏳ Waiting for all API requests to complete...');
-    const results = await Promise.all(gameResultsPromises);
+    }
 
     // Log summary
-    const successfulResults = results.filter(result => result.error === null);
-    const failedResults = results.filter(result => result.error !== null);
+    const successfulResults = gameResults.filter(result => result.error === null);
+    const failedResults = gameResults.filter(result => result.error !== null);
     
     console.log(`📊 API Summary: ${successfulResults.length} successful, ${failedResults.length} failed`);
     console.log(`🔢 Total API requests made: ${cfbdApi.getRequestCount()}`);
@@ -118,11 +122,11 @@ export const load: PageServerLoad = async ({ url }): Promise<LoadResult> => {
     }
 
     const loadResult: LoadResult = {
-      gameResults: results,
+      gameResults: gameResults,
       teams: teamArray,
       year,
       week,
-      requestCount: cfbdApi.getRequestCount() // For debugging
+      requestCount: cfbdApi.getRequestCount()
     };
 
     console.log('✅ Games page load completed successfully');

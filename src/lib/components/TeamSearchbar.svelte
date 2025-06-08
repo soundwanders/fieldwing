@@ -1,106 +1,125 @@
-<!-- TeamSearchbar.svelte -->
-
+<!-- src/lib/components/TeamSearchbar.svelte - COMPLETELY FIXED -->
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
   import { selectedTeams, selectedWeek } from '$lib/stores/store';
   import { teamDataStore, ensureTeamsLoaded, isTeamDataLoaded } from '$lib/stores/teamData';
   import { theme } from '$lib/stores/theme';
-
   import type { TeamSearchResult } from '$lib/stores/teamData';
 	
+  // Component state
   let searchQuery: string = '';
   let searchResults: string[] = [];
+  let selectedTeamsArray: string[] = [];
+  let isSearching: boolean = false;
+  let searchError: string | null = null;
+  
   const minQueryLength: number = 3;
 
-  // Subscription cleanup tracking
+  // Cleanup tracking - DECLARED AT TOP LEVEL
+  let searchTimeout: ReturnType<typeof setTimeout> | null = null;
   let unsubscribers: (() => void)[] = [];
-	let searchTimeout: number | null = null;
 
-  // Debounced search function
-  function debouncedSearch() {
-    if (searchTimeout) {
-      clearTimeout(searchTimeout);
-    }
-    
-    searchTimeout = setTimeout(async () => {
-      await searchTeams();
-    }, 150); // 150ms debounce
-
-		// In onDestroy, clear the timeout
-		onDestroy(() => {
-			// Clean up all subscriptions
-			unsubscribers.forEach(unsub => unsub());
-			unsubscribers = [];
-			
-			// Clear any pending timeouts
-			if (searchTimeout) {
-				clearTimeout(searchTimeout);
-				searchTimeout = null;
-			}
-		});
-  }
-
-  async function searchTeams() {
-    const query: string = searchQuery.toLowerCase().trim();
+  // Search function without reactive statements
+  async function searchTeams(): Promise<void> {
+    const query = searchQuery.toLowerCase().trim();
 
     // Clear results if query is too short
     if (query.length < minQueryLength) {
       searchResults = [];
+      searchError = null;
       return;
     }
 
     try {
+      isSearching = true;
+      searchError = null;
+      
       // Ensure team data is loaded
       await ensureTeamsLoaded();
       
       // Get search result and extract teams array
       const searchResult: TeamSearchResult = teamDataStore.searchTeams(query);
-      searchResults = searchResult.teams; // Extract the teams array
+      searchResults = searchResult.teams;
       
-      // Force reactive update
-      searchResults = searchResults;
+      console.log(`🔍 TeamSearchbar: Found ${searchResults.length} teams for "${query}"`);
+      
     } catch (error) {
-      console.error('Search failed:', error);
+      console.error('TeamSearchbar search failed:', error);
       searchResults = [];
+      searchError = 'Search failed. Please try again.';
+    } finally {
+      isSearching = false;
     }
   }
 
-  function selectTeam(event: Event, team: string) {
+  // Debounced search function - NO onDestroy calls inside!
+  function debouncedSearch(): void {
+    // Clear existing timeout
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+      searchTimeout = null;
+    }
+    
+    // Set new timeout
+    searchTimeout = setTimeout(async () => {
+      await searchTeams();
+    }, 150);
+  }
+
+  // Team selection handler
+  function selectTeam(event: Event, team: string): void {
     event.preventDefault();
 
     // Toggle selected team in the selectedTeams store
-    selectedTeams.update((selectedTeams: string[]) => {
-      if (selectedTeams.includes(team)) {
-        return selectedTeams.filter((selectedTeam) => selectedTeam !== team);
+    selectedTeams.update((currentTeams: string[]) => {
+      if (currentTeams.includes(team)) {
+        return currentTeams.filter((selectedTeam) => selectedTeam !== team);
       } else {
-        return [...selectedTeams, team];
+        return [...currentTeams, team];
       }
     });
 
-    // Trigger a re-render to update searchResults and highlight selected team
-    searchResults = [...searchResults]; // Force reactivity
+    // Force reactivity update
+    searchResults = [...searchResults];
   }
 
   // Handle input with debouncing
-  function handleInput() {
+  function handleInput(): void {
     debouncedSearch();
   }
 
+  // Component initialization - ALL LIFECYCLE HOOKS HERE
   onMount(() => {
-    // Subscribe to selectedWeek with cleanup tracking
+    console.log('🎯 TeamSearchbar mounted');
+    
+    // Subscribe to selectedTeams store
+    const teamsUnsub = selectedTeams.subscribe(value => {
+      selectedTeamsArray = value;
+    });
+    unsubscribers.push(teamsUnsub);
+
+    // Subscribe to selectedWeek if needed
     const weekUnsub = selectedWeek.subscribe(value => {
       // Handle week changes if needed
     });
-    
     unsubscribers.push(weekUnsub);
 
     // Initial search setup
     searchTeams();
   });
 
+  // Cleanup - ONLY CALLED AT TOP LEVEL DURING INITIALIZATION
   onDestroy(() => {
+    console.log('🧹 TeamSearchbar cleanup');
+    
     // Clean up all subscriptions
-    unsubscribers.forEach(unsub => unsub());
+    unsubscribers.forEach(unsub => {
+      try {
+        unsub();
+      } catch (error) {
+        console.warn('Error during subscription cleanup:', error);
+      }
+    });
     unsubscribers = [];
     
     // Clear any pending timeouts
@@ -109,6 +128,9 @@
       searchTimeout = null;
     }
   });
+
+  // Simple reactive statement for selectedTeams (safe because it's read-only)
+  $: selectedTeamsArray = $selectedTeams;
 </script>
 
 <div class="search-wrapper">
@@ -150,7 +172,7 @@
       <div class="label-wrapper">
         <p id="search-query">
           You searched for:
-          <span class="query-result">{searchQuery}</span>
+          <span class="query-result">{searchQuery || 'Nothing yet'}</span>
         </p>
         {#if searchQuery.length > 0 && searchQuery.length < minQueryLength}
           <p class="search-hint">Type at least {minQueryLength} characters to search</p>
@@ -161,6 +183,10 @@
         <div class="search-results" class:light={!$theme} class:dark={$theme}>
           {#if !$isTeamDataLoaded}
             <p class="loading-message">Loading teams...</p>
+          {:else if isSearching}
+            <p class="loading-message">Searching...</p>
+          {:else if searchError}
+            <p class="error-message">{searchError}</p>
           {:else if searchResults.length > 0}
             <ul class="team-list">
               {#each searchResults as team (team)}
@@ -168,7 +194,7 @@
                   <button
                     class="teams-button"
                     on:mousedown={(event) => selectTeam(event, team)}
-                    class:selected={$selectedTeams.includes(team)}
+                    class:selected={selectedTeamsArray.includes(team)}
                     class:light={!$theme}
                     class:dark={$theme}
                     tabindex="0"
@@ -190,15 +216,19 @@
   </section>
 </div>
 
-<style module>
+<style>
   .light {
     --highlight-text-color: #18181b;
     --highlight-color: #b2e7cb;
+    --form-sub-background-color: #f4f4f5;
+    --form-text-color: #1a202c;
   }
 
   .dark {
     --highlight-text-color: #f9f9f9;
     --highlight-color: #336699;
+    --form-sub-background-color: #374151;
+    --form-text-color: #f9f9f9;
   }
 
   .search-wrapper,
@@ -286,6 +316,8 @@
     font-size: 0.875rem;
     line-height: 1rem;
     margin: 0.5rem auto;
+    list-style: none;
+    padding: 0;
   }
 
   .team-list:first-child {
@@ -308,6 +340,7 @@
 
   .search-hint,
   .loading-message,
+  .error-message,
   .no-results,
   .search-prompt {
     font-size: 0.75rem;
@@ -321,16 +354,29 @@
     color: var(--primary-color, #424ae1);
   }
 
-  button {
+  .error-message {
+    color: #ef4444;
+  }
+
+  .teams-button {
     cursor: pointer;
     background: none;
     color: inherit;
     border: none;
     font: inherit;
     outline: inherit;
+    width: 100%;
+    text-align: left;
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    transition: background-color 0.2s;
   }
 
-  button.selected {
+  .teams-button:hover {
+    background-color: var(--highlight-color);
+  }
+
+  .teams-button.selected {
     background-color: var(--highlight-color);
   }
 

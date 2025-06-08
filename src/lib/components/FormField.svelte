@@ -151,6 +151,7 @@
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
+    margin-bottom: 1rem;
   }
 
   .field-label {
@@ -167,6 +168,12 @@
     font-weight: 600;
   }
 
+  .error-text {
+    color: var(--error-color);
+    font-size: 0.75rem;
+    font-weight: normal;
+  }
+
   .field-input {
     padding: 0.5rem 0.75rem;
     border: 1px solid var(--input-border);
@@ -176,6 +183,8 @@
     font-size: 0.875rem;
     transition: all 0.2s ease;
     outline: none;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .field-input::placeholder {

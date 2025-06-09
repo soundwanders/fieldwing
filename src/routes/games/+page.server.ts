@@ -1,4 +1,4 @@
-// src/routes/games/+page.server.ts 
+// src/routes/games/+page.server.ts
 import type { PageServerLoad } from './$types';
 import { cfbdApi } from '$lib/api/cfbdClient';
 import { getCurrentWeek } from '$lib/utils/getCurrentWeek';
@@ -58,6 +58,11 @@ export const load: PageServerLoad = async ({ url }): Promise<LoadResult> => {
       throw error(400, `Invalid week: ${week}. Week must be between 1 and 14.`);
     }
 
+    // Warn about future dates
+    if (yearNum > new Date().getFullYear()) {
+      console.warn(`⚠️ Requesting data for future year: ${yearNum}`);
+    }
+
     // Process teams with proper error handling - NO CONCURRENT REQUESTS
     console.log('🚀 Starting sequential API requests...');
     
@@ -80,10 +85,11 @@ export const load: PageServerLoad = async ({ url }): Promise<LoadResult> => {
           team: schoolName
         });
 
-        // Safely handle the response
+        // Safely handle the response - don't treat empty results as errors
         const gamesArray = Array.isArray(data) ? data : [];
         console.log(`✅ Successfully fetched ${gamesArray.length} games for ${schoolName}`);
 
+        // IMPORTANT: Empty results are NOT errors - they just mean no games scheduled
         gameResults.push({ 
           team: schoolName, 
           data: gamesArray, 
@@ -106,11 +112,13 @@ export const load: PageServerLoad = async ({ url }): Promise<LoadResult> => {
     // Log summary
     const successfulResults = gameResults.filter(result => result.error === null);
     const failedResults = gameResults.filter(result => result.error !== null);
+    const totalGames = successfulResults.reduce((sum, result) => sum + result.data.length, 0);
     
     console.log(`📊 API Summary: ${successfulResults.length} successful, ${failedResults.length} failed`);
+    console.log(`🎮 Total games found: ${totalGames}`);
     console.log(`🔢 Total API requests made: ${cfbdApi.getRequestCount()}`);
 
-    // Check if we got any successful results
+    // Check if we got any successful API calls (even if they returned 0 games)
     if (successfulResults.length === 0) {
       console.error('❌ No successful API results');
       throw error(500, 'Failed to fetch game data for any of the selected teams. Please try again later.');
@@ -119,6 +127,11 @@ export const load: PageServerLoad = async ({ url }): Promise<LoadResult> => {
     // Log any failures but don't fail the entire request
     if (failedResults.length > 0) {
       console.warn('⚠️ Some teams failed to load:', failedResults.map(r => r.team));
+    }
+
+    // Log info about empty results
+    if (totalGames === 0) {
+      console.info(`ℹ️ No games found for week ${week} of ${year}. This may be normal for future dates or bye weeks.`);
     }
 
     const loadResult: LoadResult = {

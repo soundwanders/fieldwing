@@ -51,7 +51,6 @@ function createTeamDataStore() {
   return {
     subscribe,
 
-    // Load team data with enhanced error handling
     async loadTeams(): Promise<void> {
       update(state => ({ 
         ...state, 
@@ -235,7 +234,7 @@ function createTeamDataStore() {
 
 export const teamDataStore = createTeamDataStore();
 
-// Enhanced derived stores with type safety
+// Derived stores with type safety
 export const isTeamDataLoaded: Readable<boolean> = derived(
   teamDataStore, 
   $teamData => $teamData.isLoaded

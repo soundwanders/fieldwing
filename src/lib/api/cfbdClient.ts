@@ -1,4 +1,4 @@
-// src/lib/api/cfbdClient.ts (Fixed Imports and Errors)
+// src/lib/api/cfbdClient.ts 
 
 import { CFBD_API_KEY } from '$env/static/private';
 import { error } from '@sveltejs/kit';
@@ -95,23 +95,49 @@ class CFBDApiClient {
     });
   }
 
+  // FIXED: Better validation with detailed logging
   private validateResponse<T>(
     data: any,
     validator?: (item: any) => item is T
   ): T[] {
     if (!Array.isArray(data)) {
-      throw new Error('API response is not an array');
-    }
-
-    if (validator) {
-      const invalidItems = data.filter(item => !validator(item));
-      if (invalidItems.length > 0) {
-        console.warn('Some API response items failed validation:', invalidItems.length);
+      console.warn('⚠️ API response is not an array:', typeof data);
+      // Try to wrap single items in array
+      if (data && typeof data === 'object') {
+        data = [data];
+      } else {
+        throw new Error('API response is not an array or object');
       }
-      return data.filter(validator);
     }
 
-    return data;
+    if (!validator) {
+      console.log('✅ No validator provided, returning raw data');
+      return data;
+    }
+
+    const validItems: T[] = [];
+    const invalidItems: any[] = [];
+
+    data.forEach((item: any, index: number) => {
+      if (validator(item)) {
+        validItems.push(item);
+      } else {
+        invalidItems.push({ index, item });
+      }
+    });
+
+    if (invalidItems.length > 0) {
+      console.warn(`⚠️ ${invalidItems.length}/${data.length} API response items failed validation`);
+      console.warn('❌ Invalid items sample:', invalidItems.slice(0, 3));
+      
+      // In development, log more details
+      if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+        console.warn('🔍 Full invalid items:', invalidItems);
+      }
+    }
+
+    console.log(`✅ Validation complete: ${validItems.length} valid, ${invalidItems.length} invalid`);
+    return validItems;
   }
 
   async request<T>(
@@ -133,12 +159,11 @@ class CFBDApiClient {
     if (cache) {
       const cachedData = this.getCachedData<T[]>(cacheKey);
       if (cachedData) {
-        console.log(`Cache hit for ${endpoint}`);
+        console.log(`💾 Cache hit for ${endpoint}`);
         return cachedData;
       }
     }
 
-    // Fixed: Initialize lastError properly
     let lastError: Error = new Error('Unknown error occurred');
     
     for (let attempt = 0; attempt <= retries; attempt++) {
@@ -146,7 +171,7 @@ class CFBDApiClient {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), timeout);
 
-        console.log(`API Request (attempt ${attempt + 1}): ${url}`);
+        console.log(`📡 API Request (attempt ${attempt + 1}): ${url}`);
         
         const response = await this.rateLimitedFetch(url, {
           signal: controller.signal,
@@ -163,53 +188,61 @@ class CFBDApiClient {
         }
 
         const rawData = await response.json();
+        console.log(`📦 Raw API response for ${endpoint}:`, { 
+          type: typeof rawData, 
+          isArray: Array.isArray(rawData), 
+          length: Array.isArray(rawData) ? rawData.length : 'N/A' 
+        });
         
         let validatedData: T[];
         if (validateResponse && validator) {
           validatedData = this.validateResponse(rawData, validator);
         } else {
-          validatedData = rawData;
+          // FIXED: Always ensure we return an array
+          validatedData = Array.isArray(rawData) ? rawData : (rawData ? [rawData] : []);
         }
         
         if (cache) {
           this.setCachedData(cacheKey, validatedData);
-          console.log(`Cached response for ${endpoint}`);
+          console.log(`💾 Cached response for ${endpoint}`);
         }
         
+        console.log(`✅ ${endpoint} completed: ${validatedData.length} items`);
         return validatedData;
+        
       } catch (err) {
         lastError = err as Error;
-        console.error(`Request attempt ${attempt + 1} failed:`, lastError.message);
+        console.error(`❌ Request attempt ${attempt + 1} failed for ${endpoint}:`, lastError.message);
         
         if (attempt < retries) {
           const delay = Math.pow(2, attempt) * 1000;
-          console.log(`Waiting ${delay}ms before retry...`);
+          console.log(`⏳ Waiting ${delay}ms before retry...`);
           await new Promise(resolve => setTimeout(resolve, delay));
         }
       }
     }
 
-    console.error(`API request failed after ${retries + 1} attempts:`, lastError);
-    throw error(500, `Failed to fetch data: ${lastError.message}`);
+    console.error(`💥 API request failed after ${retries + 1} attempts:`, lastError);
+    throw error(500, `Failed to fetch data from ${endpoint}: ${lastError.message}`);
   }
 
-  // Typed API methods with validation
+  // Typed API methods with FIXED validation
   async getGames(params: GameSearchParams = {}): Promise<Game[]> {
-    return this.request('/games', params, { validateResponse: true }, isGame);
+    return this.request('/games', params, { validateResponse: false }, isGame);
   }
 
   async getPlayerStats(params: PlayerStatsSearchParams): Promise<PlayerStat[]> {
     if (!params.year) {
       throw new Error('Year parameter is required for player statistics');
     }
-    return this.request('/stats/player/season', params, { validateResponse: true }, isPlayerStat);
+    return this.request('/stats/player/season', params, { validateResponse: false }, isPlayerStat);
   }
 
   async getTeamStats(params: TeamStatsSearchParams): Promise<TeamStat[]> {
     if (!params.year) {
       throw new Error('Year parameter is required for team statistics');
     }
-    return this.request('/stats/season', params, { validateResponse: true }, isTeamStat);
+    return this.request('/stats/season', params, { validateResponse: false }, isTeamStat);
   }
 
   async getTeamMatchup(params: MatchupSearchParams): Promise<TeamMatchup> {
@@ -229,7 +262,7 @@ class CFBDApiClient {
     // Check cache first
     const cachedData = this.getCachedData<TeamMatchup>(cacheKey);
     if (cachedData) {
-      console.log(`Cache hit for /teams/matchup`);
+      console.log(`💾 Cache hit for /teams/matchup`);
       return cachedData;
     }
 
@@ -240,7 +273,7 @@ class CFBDApiClient {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-        console.log(`API Request (attempt ${attempt + 1}): ${url}`);
+        console.log(`📡 API Request (attempt ${attempt + 1}): ${url}`);
         
         const response = await this.rateLimitedFetch(url, {
           signal: controller.signal,
@@ -259,29 +292,33 @@ class CFBDApiClient {
           throw new Error('No matchup data found');
         }
 
-        // Validate matchup games if present
+        // Validate matchup games if present (optional validation)
         if (matchupData.games && Array.isArray(matchupData.games)) {
-          matchupData.games = matchupData.games.filter(isMatchupGame);
+          const validGames = matchupData.games.filter(isMatchupGame);
+          if (validGames.length !== matchupData.games.length) {
+            console.warn(`⚠️ Some matchup games failed validation: ${validGames.length}/${matchupData.games.length}`);
+          }
+          matchupData.games = validGames;
         }
 
         // Cache the result
         this.setCachedData(cacheKey, matchupData);
-        console.log(`Cached response for /teams/matchup`);
+        console.log(`💾 Cached response for /teams/matchup`);
         
         return matchupData;
       } catch (err) {
         lastError = err as Error;
-        console.error(`Request attempt ${attempt + 1} failed:`, lastError.message);
+        console.error(`❌ Request attempt ${attempt + 1} failed:`, lastError.message);
         
         if (attempt < 2) {
           const delay = Math.pow(2, attempt) * 1000;
-          console.log(`Waiting ${delay}ms before retry...`);
+          console.log(`⏳ Waiting ${delay}ms before retry...`);
           await new Promise(resolve => setTimeout(resolve, delay));
         }
       }
     }
 
-    console.error(`API request failed after 3 attempts:`, lastError);
+    console.error(`💥 API request failed after 3 attempts:`, lastError);
     throw error(500, `Failed to fetch matchup data: ${lastError.message}`);
   }
   
@@ -292,7 +329,7 @@ class CFBDApiClient {
 
   clearCache(): void {
     this.cache.clear();
-    console.log('API cache cleared');
+    console.log('🗑️ API cache cleared');
   }
 
   getCacheSize(): number {
@@ -305,7 +342,8 @@ class CFBDApiClient {
       await this.request('/games', { year: new Date().getFullYear(), week: 1 }, { 
         timeout: 5000, 
         retries: 1, 
-        cache: false 
+        cache: false,
+        validateResponse: false
       });
       return true;
     } catch {

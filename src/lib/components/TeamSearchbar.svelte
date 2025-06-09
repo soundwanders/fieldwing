@@ -1,4 +1,4 @@
-<!-- src/lib/components/TeamSearchbar.svelte - COMPLETELY FIXED -->
+<!-- src/lib/components/TeamSearchbar.svelte -->
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
   import { selectedTeams, selectedWeek } from '$lib/stores/store';

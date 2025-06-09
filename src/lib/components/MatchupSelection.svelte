@@ -17,17 +17,17 @@
 
 	function loadTeams() {
 		if (selectedDivision === 'All') {
-			import('../data/fbs.json').then((fbsData) => {
-				import('../data/fcs.json').then((fcsData) => {
+			import('$lib/data/fbs.json').then((fbsData) => {
+				import('$lib/data/fcs.json').then((fcsData) => {
 					teams = [...fbsData.default, ...fcsData.default];
 				});
 			});
 		} else if (selectedDivision === 'FBS') {
-			import('../data/fbs.json').then((data) => {
+			import('$lib/data/fbs.json').then((data) => {
 				teams = data.default;
 			});
 		} else if (selectedDivision === 'FCS') {
-			import('../data/fcs.json').then((data) => {
+			import('$lib/data/fcs.json').then((data) => {
 				teams = data.default;
 				selectedTeamsArray = $selectedMatchupTeams;
 			});

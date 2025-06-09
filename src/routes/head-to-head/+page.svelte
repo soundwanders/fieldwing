@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { theme } from '$lib/stores/theme';
 	import { formatStartDate } from '$lib/utils/formatStartDate';
-	import MatchupSelection from '../../components/MatchupSelection.svelte';
+	import MatchupSelection from '$lib/components/MatchupSelection.svelte';
 	import { goto } from '$app/navigation';
 	import '../../styles/main.css';
 
@@ -284,15 +284,6 @@
 		.matchup-result {
 			font-size: 0.875rem;
 			line-height: 1.25rem;
-		}
-	}
-
-	@keyframes fadeIn {
-		from {
-			opacity: 0;
-		}
-		to {
-			opacity: 1;
 		}
 	}
 </style>

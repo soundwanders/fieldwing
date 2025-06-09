@@ -1,49 +1,118 @@
-// routes/matchups/+page.server.ts
+// src/routes/head-to-head/+page.server.ts
 
 import type { PageServerLoad } from './$types';
-import { CFBD_API_KEY } from '$env/static/private';
+import { cfbdApi } from '$lib/api/cfbdClient';
 import { getSchoolName } from '$lib/utils/getSchoolName';
+import { error } from '@sveltejs/kit';
 
-export const load: PageServerLoad = async ({ params, url }) => {
-	try {
-		const team1 = getSchoolName(url.searchParams.get('team1') || '');
-		const team2 = getSchoolName(url.searchParams.get('team2') || '');
-		const minYear = url.searchParams.get('minYear') || '';
-		const maxYear = url.searchParams.get('maxYear') || '';
+interface LoadResult {
+  matchupData: any;
+  searchParams: {
+    team1: string;
+    team2: string;
+    minYear?: string;
+    maxYear?: string;
+    division?: string;
+  };
+  requestCount?: number;
+}
 
-		// Construct the URL based on user input
-		let apiUrl = `https://api.collegefootballdata.com/teams/matchup?team1=${encodeURIComponent(
-			team1
-		)}&team2=${encodeURIComponent(team2)}`;
+export const load: PageServerLoad = async ({ url }): Promise<LoadResult> => {
+  try {
+    // Extract and validate parameters
+    const team1Raw = url.searchParams.get('team1');
+    const team2Raw = url.searchParams.get('team2');
+    const minYear = url.searchParams.get('minYear') || '';
+    const maxYear = url.searchParams.get('maxYear') || '';
+    const division = url.searchParams.get('division') || '';
 
-		// Append min and max years if they are provided
-		if (minYear) {
-			apiUrl += `&minYear=${minYear}`;
-		}
+    console.log('🏈 Loading head-to-head matchup with params:', {
+      team1: team1Raw, team2: team2Raw, minYear, maxYear, division
+    });
 
-		if (maxYear) {
-			apiUrl += `&maxYear=${maxYear}`;
-		}
+    // Validate required parameters
+    if (!team1Raw || !team2Raw) {
+      throw error(400, 'Both team1 and team2 parameters are required for head-to-head matchups.');
+    }
 
-		const response = await fetch(apiUrl, {
-			headers: {
-				Authorization: `Bearer ${CFBD_API_KEY}`
-			}
-		});
+    // Extract school names (remove mascots)
+    const team1 = getSchoolName(team1Raw.trim());
+    const team2 = getSchoolName(team2Raw.trim());
 
-		if (!response.ok) {
-			throw new Error(`Failed to fetch matchup data. Status: ${response.status}`);
-		}
+    if (!team1 || !team2) {
+      throw error(400, 'Invalid team names provided.');
+    }
 
-		const matchupData = await response.json();
+    if (team1.toLowerCase() === team2.toLowerCase()) {
+      throw error(400, 'Cannot compare a team against itself. Please select two different teams.');
+    }
 
-		return {
-			matchupData
-		};
-	} catch (error: any) {
-		console.error('Error fetching matchup data:', error.message);
-		return {
-			error: 'Failed to load match-up data. Please try again later.'
-		};
-	}
+    // Validate year parameters if provided
+    const currentYear = new Date().getFullYear();
+    
+    if (minYear) {
+      const minYearNum = parseInt(minYear);
+      if (isNaN(minYearNum) || minYearNum < 1900 || minYearNum > currentYear + 1) {
+        throw error(400, `Invalid minimum year: ${minYear}. Year must be between 1900 and ${currentYear + 1}.`);
+      }
+    }
+
+    if (maxYear) {
+      const maxYearNum = parseInt(maxYear);
+      if (isNaN(maxYearNum) || maxYearNum < 1900 || maxYearNum > currentYear + 1) {
+        throw error(400, `Invalid maximum year: ${maxYear}. Year must be between 1900 and ${currentYear + 1}.`);
+      }
+    }
+
+    // Validate year range
+    if (minYear && maxYear) {
+      const minYearNum = parseInt(minYear);
+      const maxYearNum = parseInt(maxYear);
+      if (minYearNum > maxYearNum) {
+        throw error(400, 'Minimum year cannot be greater than maximum year.');
+      }
+    }
+
+    console.log(`📡 Fetching head-to-head matchup: ${team1} vs ${team2}`);
+
+    // Use our secure API client
+    const matchupData = await cfbdApi.getTeamMatchup({
+      team1,
+      team2,
+      minYear: minYear || undefined,
+      maxYear: maxYear || undefined
+    });
+
+    if (!matchupData) {
+      console.warn('⚠️ No matchup data returned from API');
+      throw error(404, `No head-to-head data found for ${team1} vs ${team2}. These teams may not have played each other in the specified time period.`);
+    }
+
+    console.log(`✅ Successfully fetched matchup data with ${matchupData || 0} games`);
+    console.log(`🔢 Total API requests made: ${cfbdApi.getRequestCount()}`);
+
+    const result: LoadResult = {
+      matchupData,
+      searchParams: {
+        team1: team1Raw,
+        team2: team2Raw,
+        minYear: minYear || undefined,
+        maxYear: maxYear || undefined,
+        division: division || undefined
+      },
+      requestCount: cfbdApi.getRequestCount()
+    };
+
+    console.log('✅ Head-to-head page load completed successfully');
+    return result;
+
+  } catch (err) {
+    if (err instanceof Error && 'status' in err) {
+      throw err;
+    }
+    
+    console.error('💥 Unexpected error in head-to-head page load:', err);
+    const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
+    throw error(500, `Failed to load matchup data: ${errorMessage}`);
+  }
 };

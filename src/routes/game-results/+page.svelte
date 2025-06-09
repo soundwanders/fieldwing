@@ -1,6 +1,6 @@
 <script>
-	import TeamSelection from '../../components/TeamSelection.svelte';
-	import TeamSearchbar from '../../components/TeamSearchbar.svelte';
+	import TeamSelection from '$lib/components/TeamSelection.svelte';
+	import TeamSearchbar from '$lib/components/TeamSearchbar.svelte';
 	import Footer from '$lib/Footer.svelte';
 	import '../../styles/main.css';
 
@@ -25,7 +25,6 @@
 <style module>
 	section {
 		min-height: 100vh;
-		animation: fadeIn 0.6s forwards;
 		transition: background-color 0.2s ease;
 	}
 
@@ -40,15 +39,6 @@
 	.selection-image {
 		width: 7%;
 		height: auto;
-	}
-
-	@keyframes fadeIn {
-		from {
-			opacity: 0;
-		}
-		to {
-			opacity: 1;
-		}
 	}
 
 	/* Media query for mobile devices */

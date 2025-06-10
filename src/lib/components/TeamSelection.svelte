@@ -1,219 +1,226 @@
 <!-- TeamSelection.svelte -->
 
 <script lang="ts">
-  import { onMount, onDestroy } from 'svelte';
-  import { selectedTeams, selectedWeek } from '$lib/stores/store';
-  import { teamDataStore, ensureTeamsLoaded, isTeamDataLoaded, isTeamDataLoading } from '$lib/stores/teamData';
-  import { theme } from '$lib/stores/theme';
-  import { getCurrentYear } from '$lib/utils/getCurrentYear';
-  import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
-  import ErrorBoundary from '$lib/components/ErrorBoundary.svelte';
+	import { onMount, onDestroy } from 'svelte';
+	import { selectedTeams, selectedWeek } from '$lib/stores/store';
+	import {
+		teamDataStore,
+		ensureTeamsLoaded,
+		isTeamDataLoaded,
+		isTeamDataLoading
+	} from '$lib/stores/teamData';
+	import { theme } from '$lib/stores/theme';
+	import { getCurrentYear } from '$lib/utils/getCurrentYear';
+	import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
+	import ErrorBoundary from '$lib/components/ErrorBoundary.svelte';
 
-  export let divisions: string[];
-  export let selectedDivision: string;
+	export let divisions: string[];
+	export let selectedDivision: string;
 
-  let selectedTeamsArray = $selectedTeams;
-  let teams: string[] = [];
-  let selectedYear: number = new Date().getFullYear();
-  let componentError: Error | null = null;
+	let selectedTeamsArray = $selectedTeams;
+	let teams: string[] = [];
+	let selectedYear: number = new Date().getFullYear();
+	let componentError: Error | null = null;
 
-  // Current year placeholder for select-year input element
-  const currentYear = getCurrentYear();
-  const yearString = getCurrentYear().toString();
+	// Current year placeholder for select-year input element
+	const currentYear = getCurrentYear();
+	const yearString = getCurrentYear().toString();
 
-  // Store unsubscribers for cleanup
-  let unsubscribers: (() => void)[] = [];
+	// Store unsubscribers for cleanup
+	let unsubscribers: (() => void)[] = [];
 
-  async function loadTeams() {
-    try {
-      // Ensure team data is loaded
-      await ensureTeamsLoaded();
-      
-      // Get teams for selected division
-      teams = teamDataStore.getTeamsByDivision(selectedDivision);
-      $selectedWeek = 1;
-      
-      console.log(`📋 Loaded ${teams.length} teams for division: ${selectedDivision}`);
-    } catch (err) {
-      console.error('Failed to load teams:', err);
-      componentError = err instanceof Error ? err : new Error('Failed to load teams');
-    }
-  }
+	async function loadTeams() {
+		try {
+			// Ensure team data is loaded
+			await ensureTeamsLoaded();
 
-  // Toggle selection / deselection of teams
-  const toggleSelection = (event: Event, team: string) => {
-    event.preventDefault();
+			// Get teams for selected division
+			teams = teamDataStore.getTeamsByDivision(selectedDivision);
+			$selectedWeek = 1;
 
-    if (selectedTeamsArray.includes(team)) {
-      selectedTeams.update((teams) => teams.filter((t) => t !== team));
-    } else {
-      selectedTeams.update((teams) => [...teams, team]);
-    }
-  };
+			console.log(`📋 Loaded ${teams.length} teams for division: ${selectedDivision}`);
+		} catch (err) {
+			console.error('Failed to load teams:', err);
+			componentError = err instanceof Error ? err : new Error('Failed to load teams');
+		}
+	}
 
-  function handleRetry() {
-    componentError = null;
-    teamDataStore.reset();
-    loadTeams();
-  }
+	// Toggle selection / deselection of teams
+	const toggleSelection = (event: Event, team: string) => {
+		event.preventDefault();
 
-  onMount(() => {
-    // Subscribe to stores with cleanup tracking
-    const selectedTeamsUnsub = selectedTeams.subscribe(value => {
-      selectedTeamsArray = value;
-    });
-    
-    unsubscribers.push(selectedTeamsUnsub);
-    
-    // Load teams on mount
-    loadTeams();
-  });
+		if (selectedTeamsArray.includes(team)) {
+			selectedTeams.update((teams) => teams.filter((t) => t !== team));
+		} else {
+			selectedTeams.update((teams) => [...teams, team]);
+		}
+	};
 
-  onDestroy(() => {
-    // Clean up all subscriptions
-    unsubscribers.forEach(unsub => unsub());
-    unsubscribers = [];
-  });
+	function handleRetry() {
+		componentError = null;
+		teamDataStore.reset();
+		loadTeams();
+	}
 
-  // Reactive statement optimization - only update when selectedTeams changes
-  $: selectedTeamsArray = $selectedTeams;
+	onMount(() => {
+		// Subscribe to stores with cleanup tracking
+		const selectedTeamsUnsub = selectedTeams.subscribe((value) => {
+			selectedTeamsArray = value;
+		});
+
+		unsubscribers.push(selectedTeamsUnsub);
+
+		// Load teams on mount
+		loadTeams();
+	});
+
+	onDestroy(() => {
+		// Clean up all subscriptions
+		unsubscribers.forEach((unsub) => unsub());
+		unsubscribers = [];
+	});
+
+	// Reactive statement optimization - only update when selectedTeams changes
+	$: selectedTeamsArray = $selectedTeams;
 </script>
 
 <ErrorBoundary bind:error={componentError} on:retry={handleRetry}>
-  <div class="team-select-wrapper" class:light={!$theme} class:dark={$theme}>
-    <section class="selection-section">
-      <article class="team-selection-form">
-        <form class="selector-form" class:light={!$theme} class:dark={$theme}>
-          <h2>Select Your Teams</h2>
+	<div class="team-select-wrapper" class:light={!$theme} class:dark={$theme}>
+		<section class="selection-section">
+			<article class="team-selection-form">
+				<form class="selector-form" class:light={!$theme} class:dark={$theme}>
+					<h2>Select Your Teams</h2>
 
-          <div class="selector-container">
-            <div class="team-selector-wrapper">
-              <label for="division-select">Select a Division:</label>
-              <select
-                class="divisions-dropdown"
-                id="division-select"
-                class:light={!$theme}
-                class:dark={$theme}
-                bind:value={selectedDivision}
-                on:change={loadTeams}
-                disabled={$isTeamDataLoading}
-              >
-                <option value="" disabled>...</option>
-                {#each divisions as division}
-                  <option value={division}>{division}</option>
-                {/each}
-              </select>
-            </div>
+					<div class="selector-container">
+						<div class="team-selector-wrapper">
+							<label for="division-select">Select a Division:</label>
+							<select
+								class="divisions-dropdown"
+								id="division-select"
+								class:light={!$theme}
+								class:dark={$theme}
+								bind:value={selectedDivision}
+								on:change={loadTeams}
+								disabled={$isTeamDataLoading}
+							>
+								<option value="" disabled>...</option>
+								{#each divisions as division}
+									<option value={division}>{division}</option>
+								{/each}
+							</select>
+						</div>
 
-            <div class="team-selector-wrapper">
-              <label for="select-week">Select Week:</label>
-              <select
-                class="weeks-dropdown"
-                id="select-week"
-                class:light={!$theme}
-                class:dark={$theme}
-                bind:value={$selectedWeek}
-              >
-                {#each [...Array(14).keys()] as week}
-                  <option value={week + 1}>{week + 1}</option>
-                {/each}
-              </select>
-            </div>
+						<div class="team-selector-wrapper">
+							<label for="select-week">Select Week:</label>
+							<select
+								class="weeks-dropdown"
+								id="select-week"
+								class:light={!$theme}
+								class:dark={$theme}
+								bind:value={$selectedWeek}
+							>
+								{#each [...Array(14).keys()] as week}
+									<option value={week + 1}>{week + 1}</option>
+								{/each}
+							</select>
+						</div>
 
-            <div class="team-selector-wrapper">
-              <label for="select-year">Select Year:</label>
-              <input
-                type="number"
-                class="year-input"
-                id="select-year"
-                class:light={!$theme}
-                class:dark={$theme}
-                bind:value={selectedYear}
-                min={1900}
-                max={currentYear}
-                placeholder={yearString}
-              />
-            </div>
-          </div>
+						<div class="team-selector-wrapper">
+							<label for="select-year">Select Year:</label>
+							<input
+								type="number"
+								class="year-input"
+								id="select-year"
+								class:light={!$theme}
+								class:dark={$theme}
+								bind:value={selectedYear}
+								min={1900}
+								max={currentYear}
+								placeholder={yearString}
+							/>
+						</div>
+					</div>
 
-          <div class="selector-container">
-            <div class="teams-container" class:light={!$theme} class:dark={$theme}>
-              {#if $isTeamDataLoading}
-                <div class="loading-teams">
-                  <LoadingSpinner size="small" text="Loading teams..." />
-                </div>
-              {:else if teams.length > 0}
-                <ul>
-                  {#each teams as team (team)}
-                    <li class="teams-container-list-item">
-                      <button
-                        on:mousedown={(event) => {
-                          event.preventDefault();
-                          toggleSelection(event, team);
-                        }}
-                        class="teams-button"
-                        class:light={!$theme}
-                        class:dark={$theme}
-                        class:selected={selectedTeamsArray.includes(team)}
-                        tabindex="0"
-                        type="button"
-                      >
-                        {team}
-                      </button>
-                    </li>
-                  {/each}
-                </ul>
-              {:else}
-                <p class="select-division-placeholder">🏈 Select a division to view teams</p>
-              {/if}
-            </div>
-          </div>
-        </form>
-      </article>
+					<div class="selector-container">
+						<div class="teams-container" class:light={!$theme} class:dark={$theme}>
+							{#if $isTeamDataLoading}
+								<div class="loading-teams">
+									<LoadingSpinner size="small" text="Loading teams..." />
+								</div>
+							{:else if teams.length > 0}
+								<ul>
+									{#each teams as team (team)}
+										<li class="teams-container-list-item">
+											<button
+												on:mousedown={(event) => {
+													event.preventDefault();
+													toggleSelection(event, team);
+												}}
+												class="teams-button"
+												class:light={!$theme}
+												class:dark={$theme}
+												class:selected={selectedTeamsArray.includes(team)}
+												tabindex="0"
+												type="button"
+											>
+												{team}
+											</button>
+										</li>
+									{/each}
+								</ul>
+							{:else}
+								<p class="select-division-placeholder">🏈 Select a division to view teams</p>
+							{/if}
+						</div>
+					</div>
+				</form>
+			</article>
 
-      <article class="selected-teams" class:light={!$theme} class:dark={$theme}>
-        <h2>Selected Teams</h2>
-        <ul>
-          {#each selectedTeamsArray.filter(Boolean) as selectedTeam (selectedTeam)}
-            <li class="selected-teams-list-items">
-              <button
-                on:mousedown={(event) => {
-                  event.preventDefault();
-                  toggleSelection(event, selectedTeam);
-                }}
-                type="button"
-              >
-                {selectedTeam}
-              </button>
-            </li>
-          {/each}
-        </ul>
-      </article>
-    </section>
-  </div>
+			<article class="selected-teams" class:light={!$theme} class:dark={$theme}>
+				<h2>Selected Teams</h2>
+				<ul>
+					{#each selectedTeamsArray.filter(Boolean) as selectedTeam (selectedTeam)}
+						<li class="selected-teams-list-items">
+							<button
+								on:mousedown={(event) => {
+									event.preventDefault();
+									toggleSelection(event, selectedTeam);
+								}}
+								type="button"
+							>
+								{selectedTeam}
+							</button>
+						</li>
+					{/each}
+				</ul>
+			</article>
+		</section>
+	</div>
 
-  <section class="submit-section" class:light={!$theme} class:dark={$theme}>
-    <div class="button-container">
-      <a
-        href={selectedTeamsArray.length > 0
-          ? `/games?teams=${selectedTeamsArray.join(',')}&year=${selectedYear}&week=${$selectedWeek}`
-          : '#'}
-        data-sveltekit-prefetch
-      >
-        <button 
-          type="button" 
-          class="submit-button" 
-          disabled={selectedTeamsArray.length === 0 || $isTeamDataLoading}
-        >
-          {#if $isTeamDataLoading}
-            Loading...
-          {:else}
-            Submit
-          {/if}
-        </button>
-      </a>
-    </div>
-  </section>
+	<section class="submit-section" class:light={!$theme} class:dark={$theme}>
+		<div class="button-container">
+			<a
+				href={selectedTeamsArray.length > 0
+					? `/games?teams=${selectedTeamsArray.join(
+							','
+					  )}&year=${selectedYear}&week=${$selectedWeek}`
+					: '#'}
+				data-sveltekit-prefetch
+			>
+				<button
+					type="button"
+					class="submit-button"
+					disabled={selectedTeamsArray.length === 0 || $isTeamDataLoading}
+				>
+					{#if $isTeamDataLoading}
+						Loading...
+					{:else}
+						Submit
+					{/if}
+				</button>
+			</a>
+		</div>
+	</section>
 </ErrorBoundary>
 
 <style module>
@@ -477,38 +484,38 @@
 		background-color: var(--button-disabled-hover-color);
 	}
 
-  .teams-button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
+	.teams-button:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
 
-  .submit-button:disabled {
-    background-color: var(--button-disabled-background-color);
-    cursor: not-allowed;
-  }
+	.submit-button:disabled {
+		background-color: var(--button-disabled-background-color);
+		cursor: not-allowed;
+	}
 
 	.loading-teams {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100px;
-  }
-	
-  .light {
-    --text-color: #1a202c;
-    --highlight-text-color: #18181b;
-    --highlight-color: #b2e7cb;
-    --button-disabled-background-color: #7c7c7c;
-    --button-disabled-hover-color: #5f5f5f;
-  }
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		min-height: 100px;
+	}
 
-  .dark {
-    --text-color: #f9f9f9;
-    --highlight-text-color: #f9f9f9;
-    --highlight-color: #336699;
-    --button-disabled-background-color: #707070;
-    --button-disabled-hover-color: #5c5c5c;
-  }
+	.light {
+		--text-color: #1a202c;
+		--highlight-text-color: #18181b;
+		--highlight-color: #b2e7cb;
+		--button-disabled-background-color: #7c7c7c;
+		--button-disabled-hover-color: #5f5f5f;
+	}
+
+	.dark {
+		--text-color: #f9f9f9;
+		--highlight-text-color: #f9f9f9;
+		--highlight-color: #336699;
+		--button-disabled-background-color: #707070;
+		--button-disabled-hover-color: #5c5c5c;
+	}
 
 	/* Media query for mobile devices */
 	@media screen and (max-width: 768px) {

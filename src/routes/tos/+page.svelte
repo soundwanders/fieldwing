@@ -12,29 +12,28 @@
 				<li>
 					<strong>Acceptance of Terms</strong><br />
 					By using the Fieldwing website, you agree to comply with these Terms of Service. If you do
-					not agree, please refrain from using the app. 
-					This web app is designed for personal, non-commercial use. Any unauthorized use or reproduction
-					of the app's content is strictly prohibited.
+					not agree, please refrain from using the app. This web app is designed for personal, non-commercial
+					use. Any unauthorized use or reproduction of the app's content is strictly prohibited.
 				</li>
 
 				<li>
 					<strong>Data Accuracy</strong><br />
-					While I strive to provide accurate information, I am not responsible for inaccuracies or
-					errors in the app's content. Users are encouraged to verify information independently, as
-					our data comes from a third-party API (the College Football Database).
+					While I strive to provide accurate information, I am not responsible for inaccuracies or errors
+					in the app's content. Users are encouraged to verify information independently, as our data
+					comes from a third-party API (the College Football Database).
 				</li>
 
 				<li>
 					<strong>User Data Privacy Policy</strong><br />
-					It's important to note that Fieldwing does not collect or store any personal information from users
-					who visit the site. Fieldwing will never request your data or retain user data, both in the browser and 
-					on the server.
+					It's important to note that Fieldwing does not collect or store any personal information from
+					users who visit the site. Fieldwing will never request your data or retain user data, both
+					in the browser and on the server.
 				</li>
 
 				<li>
 					<strong>NCAA Rights Disclaimer</strong><br />
-					I do not own any rights to NCAA teams, schools, logos, or other NCAA proprietary content.
-					All rights are reserved by the NCAA.
+					I do not own any rights to NCAA teams, schools, logos, or other NCAA proprietary content. All
+					rights are reserved by the NCAA.
 					<br />
 					All content, trademarks, and intellectual property in the app are owned by us. Users are prohibited
 					from using, copying, or distributing any content without explicit written permission.

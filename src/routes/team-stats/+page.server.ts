@@ -32,7 +32,7 @@ export const load: PageServerLoad = async ({ url }): Promise<LoadResult> => {
     console.log('🏈 Loading team stats with params:', {
       year, team, conference, startWeek, endWeek
     });
-
+    
     // If no year is provided, return empty data (this allows the page to load)
     if (!year) {
       console.log('📝 No year parameter provided, returning empty data');

@@ -50,7 +50,6 @@
         href="/"
         aria-label="Go to Home"
         data-sveltekit-preload-data="hover"
-      >
         <img class="fieldwing-logo" src="/fieldwing.png" alt="Fieldwing Logo" />
       </a>
 
@@ -102,7 +101,7 @@
         href="/teams"
         aria-label="Go to Team Statistics page"
         data-sveltekit-preload-data="hover"
-      >
+       >
         Team Stats
       </a>
 

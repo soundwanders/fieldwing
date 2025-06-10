@@ -49,7 +49,7 @@
         class:active={currentPath === '/'}
         href="/"
         aria-label="Go to Home"
-      >
+        data-sveltekit-preload-data="hover"
         <img class="fieldwing-logo" src="/fieldwing.png" alt="Fieldwing Logo" />
       </a>
 
@@ -61,6 +61,7 @@
         class:active={currentPath === '/game-results'}
         href="/game-results"
         aria-label="Go to Game Results page"
+        data-sveltekit-preload-data="hover"
       >
         Games
       </a>
@@ -73,6 +74,7 @@
         class:active={currentPath === '/matchups'}
         href="/matchups"
         aria-label="Go to Head-to-Head Matchups page"
+        data-sveltekit-preload-data="hover"
       >
         Matchups
       </a>
@@ -85,6 +87,7 @@
         class:active={currentPath === '/players'}
         href="/players"
         aria-label="Go to Player Statistics page"
+        data-sveltekit-preload-data="hover"
       >
         Player Stats
       </a>
@@ -97,7 +100,8 @@
         class:active={currentPath === '/teams'}
         href="/teams"
         aria-label="Go to Team Statistics page"
-      >
+        data-sveltekit-preload-data="hover"
+       >
         Team Stats
       </a>
 

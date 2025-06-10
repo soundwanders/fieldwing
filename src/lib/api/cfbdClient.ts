@@ -3,7 +3,7 @@
 import { CFBD_API_KEY } from '$env/static/private';
 import { error } from '@sveltejs/kit';
 
-// Fixed imports: Separate type imports from value imports
+// Separate type imports from value imports
 import type {
   Game,
   PlayerStat,
@@ -95,7 +95,7 @@ class CFBDApiClient {
     });
   }
 
-  // FIXED: Better validation with detailed logging
+  // Validation with detailed logging
   private validateResponse<T>(
     data: any,
     validator?: (item: any) => item is T
@@ -198,7 +198,7 @@ class CFBDApiClient {
         if (validateResponse && validator) {
           validatedData = this.validateResponse(rawData, validator);
         } else {
-          // FIXED: Always ensure we return an array
+          // Always ensure we return an array
           validatedData = Array.isArray(rawData) ? rawData : (rawData ? [rawData] : []);
         }
         

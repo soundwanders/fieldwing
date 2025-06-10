@@ -1,5 +1,4 @@
 // src/routes/team-stats/+page.server.ts
-
 import type { PageServerLoad } from './$types';
 import { cfbdApi } from '$lib/api/cfbdClient';
 import { error } from '@sveltejs/kit';
@@ -33,10 +32,24 @@ export const load: PageServerLoad = async ({ url }): Promise<LoadResult> => {
     console.log('🏈 Loading team stats with params:', {
       year, team, conference, startWeek, endWeek
     });
-
-    // Validate required parameters
+    
+    // If no year is provided, return empty data (this allows the page to load)
     if (!year) {
-      throw error(400, 'Year parameter is required for team statistics.');
+      console.log('📝 No year parameter provided, returning empty data');
+      return {
+        teamData: {
+          teamStatsData: [],
+          total: 0
+        },
+        searchParams: {
+          year: '',
+          team: team || undefined,
+          conference: conference || undefined,
+          startWeek: startWeek || undefined,
+          endWeek: endWeek || undefined
+        },
+        requestCount: cfbdApi.getRequestCount()
+      };
     }
 
     const yearNum = parseInt(year);

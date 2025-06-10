@@ -1,4 +1,4 @@
-<!-- src/routes/team-stats/+page.svelte - POLISHED VERSION -->
+<!-- src/routes/team-stats/+page.svelte -->
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { theme } from '$lib/stores/theme';
@@ -9,8 +9,18 @@
 	import ErrorBoundary from '$lib/components/ErrorBoundary.svelte';
 	import '../../styles/main.css';
 
-	export let data: { teamData?: any };
-	const { teamData } = data;
+	export let data: { 
+		teamData?: { 
+			teamStatsData: TeamStat[]; 
+			total: number; 
+		}; 
+		searchParams?: any;
+		error?: string;
+	};
+	
+	// Safely extract data with proper fallbacks
+	$: teamData = data?.teamData || { teamStatsData: [], total: 0 };
+	$: searchParams = data?.searchParams || {};
 
 	const statTypeDisplayNames: Record<string, string> = {
 		firstDowns: 'First Downs',
@@ -75,21 +85,26 @@
 
 	$: totalItems = teamData ? teamData.total : 0;
 	$: totalPages = Math.ceil(totalItems / pageSize);
-	$: currentPage = selectedStat === '' ? Number($page.url.searchParams.get('skip')) / pageSize : 0;
+	$: currentPage = (() => {
+		if (selectedStat !== '') return 0; // Reset to first page when filtering
+		const skipParam = searchParams?.skip || $page.url.searchParams.get('skip') || '0';
+		return Math.floor(parseInt(skipParam) / pageSize) || 0;
+	})();
 
-	$: year = $page.url.searchParams.get('year') || '';
-	$: team = $page.url.searchParams.get('team') || '';
-	$: conference = $page.url.searchParams.get('conference') || '';
-	$: startWeek = $page.url.searchParams.get('startWeek') || '';
-	$: endWeek = $page.url.searchParams.get('endWeek') || '';
+	$: year = searchParams?.year || $page.url.searchParams.get('year') || '';
+	$: team = searchParams?.team || $page.url.searchParams.get('team') || '';
+	$: conference = searchParams?.conference || $page.url.searchParams.get('conference') || '';
+	$: startWeek = searchParams?.startWeek || $page.url.searchParams.get('startWeek') || '';
+	$: endWeek = searchParams?.endWeek || $page.url.searchParams.get('endWeek') || '';
 
 	let sortOrder: 'asc' | 'desc' = 'desc';
 	let sortBy: keyof TeamStat = 'team';
 	let selectedStat: string | number = '';
 
 	// Data checks
-	$: hasTeamData = teamData?.teamStatsData && teamData.teamStatsData.length > 0;
+	$: hasTeamData = teamData?.teamStatsData && Array.isArray(teamData.teamStatsData) && teamData.teamStatsData.length > 0;
 	$: totalStats = teamData?.teamStatsData?.length || 0;
+	$: hasSearchParams = searchParams?.year || false;
 
 	// Ascending/Descending sort function for teamStatsData
 	function sortTeamStatsData(teamStatsData: TeamStat[]): TeamStat[] {
@@ -137,23 +152,26 @@
 		window.location.reload();
 	}
 
-	function formatStatValue(value: string): string {
-		// Add formatting for specific stat types
-		if (!value) return '0';
+	function formatStatValue(value: any): string {
+		// Handle null, undefined, or falsy values
+		if (value === null || value === undefined || value === '') return '0';
+		
+		// Convert to string if it's not already
+		const stringValue = String(value);
 		
 		// Check if it's a time format (possession time)
-		if (value.includes(':')) return value;
+		if (stringValue.includes(':')) return stringValue;
 		
 		// Check if it's a percentage
-		if (value.includes('%')) return value;
+		if (stringValue.includes('%')) return stringValue;
 		
 		// For large numbers, add commas
-		const num = parseFloat(value);
+		const num = parseFloat(stringValue);
 		if (!isNaN(num) && num >= 1000) {
 			return num.toLocaleString();
 		}
 		
-		return value;
+		return stringValue;
 	}
 
 	function getStatCategory(statName: string): string {
@@ -337,7 +355,7 @@
 								<nav class="pagination" aria-label="Team statistics pagination">
 									{#if currentPage > 0}
 										<a
-											href="?limit={pageSize}&skip={pageSize * (currentPage - 1)}"
+											href="?year={encodeURIComponent(year)}&team={encodeURIComponent(team)}&conference={encodeURIComponent(conference)}&startWeek={encodeURIComponent(startWeek)}&endWeek={encodeURIComponent(endWeek)}&limit={pageSize}&skip={pageSize * (currentPage - 1)}"
 											class="pagination-item prev"
 											aria-label="Previous page"
 										>
@@ -349,7 +367,7 @@
 										{@const pageNum = Math.max(0, Math.min(currentPage - 2, totalPages - 5)) + idx}
 										{#if pageNum < totalPages}
 											<a
-												href="?limit={pageSize}&skip={pageSize * pageNum}"
+												href="?year={encodeURIComponent(year)}&team={encodeURIComponent(team)}&conference={encodeURIComponent(conference)}&startWeek={encodeURIComponent(startWeek)}&endWeek={encodeURIComponent(endWeek)}&limit={pageSize}&skip={pageSize * pageNum}"
 												class="pagination-item {currentPage === pageNum ? 'active' : ''}"
 												aria-label="Page {pageNum + 1}"
 											>
@@ -360,7 +378,7 @@
 									
 									{#if currentPage < totalPages - 1}
 										<a
-											href="?limit={pageSize}&skip={pageSize * (currentPage + 1)}"
+											href="?year={encodeURIComponent(year)}&team={encodeURIComponent(team)}&conference={encodeURIComponent(conference)}&startWeek={encodeURIComponent(startWeek)}&endWeek={encodeURIComponent(endWeek)}&limit={pageSize}&skip={pageSize * (currentPage + 1)}"
 											class="pagination-item next"
 											aria-label="Next page"
 										>
@@ -379,16 +397,21 @@
 						<!-- Empty State -->
 						<div class="empty-state">
 							<div class="empty-content">
-								<h3>📊 No Team Statistics Available</h3>
-								<p>We couldn't find any team statistics for your current search criteria.</p>
-								<div class="empty-actions">
-									<a href="/teams" class="action-button primary">
-										Search Teams
-									</a>
-									<a href="/" class="action-button secondary">
-										Return Home
-									</a>
-								</div>
+								{#if hasSearchParams}
+									<h3>📊 No Results Found</h3>
+									<p>No team statistics found for your search criteria.</p>
+									<div class="search-criteria-display">
+										<strong>Your search:</strong> {year}
+										{#if team}• {team}{/if}
+										{#if conference}• {conference}{/if}
+										{#if startWeek}• Week {startWeek}{#if endWeek && endWeek !== startWeek} to {endWeek}{/if}{/if}
+									</div>
+									<p class="retry-suggestion">Try adjusting your search parameters below.</p>
+								{:else}
+									<h3>📊 Ready to Search</h3>
+									<p>Enter search criteria below to view team statistics.</p>
+									<p class="help-text">Start by entering a year and optionally filter by team, conference, or weeks.</p>
+								{/if}
 							</div>
 						</div>
 					{/if}
@@ -844,8 +867,42 @@
 		transform: translateY(-1px);
 	}
 
-	.search-section {
-		margin-top: 3rem;
+	.search-info {
+		text-align: center;
+		margin: 1.5rem 0;
+		padding: 1rem;
+		background: var(--bg-primary);
+		border-radius: 0.75rem;
+		border: 1px solid var(--border-primary);
+	}
+
+	.search-criteria {
+		color: var(--text-secondary);
+		font-size: 0.875rem;
+		margin: 0;
+	}
+
+	.search-criteria-display {
+		background: var(--bg-secondary);
+		padding: 1rem;
+		border-radius: 0.5rem;
+		margin: 1rem 0;
+		font-size: 0.875rem;
+		color: var(--text-secondary);
+	}
+
+	.retry-suggestion {
+		font-size: 0.875rem;
+		color: var(--text-secondary);
+		margin: 0.5rem 0 0 0;
+		font-style: italic;
+	}
+
+	.help-text {
+		font-size: 0.875rem;
+		color: var(--text-secondary);
+		margin: 0.5rem 0 0 0;
+		opacity: 0.8;
 	}
 
 	/* Responsive Design */

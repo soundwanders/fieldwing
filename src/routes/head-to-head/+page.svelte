@@ -286,4 +286,200 @@
 			line-height: 1.25rem;
 		}
 	}
+
+	/* Mobile Responsive Fixes for Head-to-Head Page */
+	@media (max-width: 480px) {
+		.wrapper {
+			min-height: 100vh;
+			width: 100%;
+			padding: 0.5rem;
+			box-sizing: border-box;
+		}
+
+		.results-section {
+			width: 100%;
+			padding: 0;
+		}
+
+		.results-container {
+			width: 100%;
+			padding: 0;
+		}
+
+		.header-image-wrapper {
+			width: 100%;
+			margin-bottom: 1rem;
+			flex-direction: column;
+			text-align: center;
+		}
+
+		.h2h-image {
+			width: 20%;
+			margin-right: 0;
+			margin-bottom: 0.5rem;
+		}
+
+		.main-title {
+			font-size: 1.125rem;
+			line-height: 1.4;
+			margin: 0;
+			padding: 0 0.5rem;
+			word-wrap: break-word;
+			hyphens: auto;
+			text-align: center;
+		}
+
+		.head-to-head-container {
+			width: 100%;
+			gap: 0.75rem;
+			padding: 0 0.5rem;
+			flex-direction: column;
+		}
+
+		.head-to-head {
+			width: 100%;
+			margin: 0;
+			padding: 1rem;
+			box-sizing: border-box;
+			flex: none;
+		}
+
+		.matchup-teams {
+			margin-bottom: 0.75rem;
+		}
+
+		.team-row {
+			font-size: 1rem;
+			line-height: 1.3;
+			flex-wrap: wrap;
+			gap: 0.25rem;
+			justify-content: center;
+			text-align: center;
+		}
+
+		.team1, .team2 {
+			word-wrap: break-word;
+			hyphens: auto;
+			flex: 1;
+			min-width: 0;
+		}
+
+		.at {
+			flex-shrink: 0;
+			margin: 0 0.25rem;
+		}
+
+		.score-row {
+			font-size: 1.75rem;
+			line-height: 1.2;
+			padding: 0.75rem 0 0.5rem 0;
+			flex-wrap: wrap;
+			gap: 0.5rem;
+		}
+
+		.score {
+			padding: 0.5rem;
+			margin: 0 0.5rem;
+			font-size: 1.5rem;
+			border-radius: 0.375rem;
+		}
+
+		.dash {
+			margin: 0 0.25rem;
+		}
+
+		.matchup-info,
+		.matchup-result {
+			font-size: 0.8rem;
+			line-height: 1.3;
+			margin-bottom: 0.5rem;
+			text-align: center;
+			word-wrap: break-word;
+		}
+
+		.matchup-result {
+			font-weight: 600;
+			padding-top: 0.5rem;
+		}
+
+		.no-data-message {
+			font-size: 1rem;
+			line-height: 1.4;
+			padding: 1rem;
+			text-align: center;
+			margin: 1rem 0;
+		}
+	}
+
+	@media (max-width: 360px) {
+		.wrapper {
+			padding: 0.25rem;
+		}
+
+		.main-title {
+			font-size: 1rem;
+			line-height: 1.3;
+		}
+
+		.head-to-head {
+			padding: 0.75rem;
+		}
+
+		.team-row {
+			font-size: 0.9rem;
+		}
+
+		.score-row {
+			font-size: 1.5rem;
+		}
+
+		.score {
+			font-size: 1.25rem;
+			padding: 0.375rem;
+			margin: 0 0.25rem;
+		}
+
+		.matchup-info,
+		.matchup-result {
+			font-size: 0.75rem;
+		}
+	}
+
+	/* Tablet improvements */
+	@media (min-width: 481px) and (max-width: 768px) {
+		.wrapper {
+			padding: 1rem;
+		}
+
+		.main-title {
+			font-size: 1.5rem;
+			line-height: 1.4;
+		}
+
+		.head-to-head-container {
+			width: 95%;
+			gap: 1rem;
+		}
+
+		.head-to-head {
+			flex: 0 0 calc(50% - 0.5rem);
+			max-width: calc(50% - 0.5rem);
+		}
+
+		.h2h-image {
+			width: 6%;
+		}
+	}
+
+	/* Large screens adjustment */
+	@media (min-width: 1025px) {
+		.head-to-head-container {
+			width: 85%;
+		}
+
+		.head-to-head {
+			flex: 0 0 calc(33.33% - 1.5rem);
+			max-width: calc(33.33% - 1.5rem);
+		}
+	}
 </style>

@@ -73,11 +73,6 @@
 		statValue: string;
 	}
 
-	// Define types for team data
-	interface TeamData {
-		teamStatsData: TeamStat[];
-	}
-
 	let isLoading = true;
 	let pageError: Error | null = null;
 	let pageSize: number = 18;
@@ -86,7 +81,7 @@
 	$: totalItems = teamData ? teamData.total : 0;
 	$: totalPages = Math.ceil(totalItems / pageSize);
 	$: currentPage = (() => {
-		if (selectedStat !== '') return 0; // Reset to first page when filtering
+		if (selectedStat !== '') return 0;
 		const skipParam = searchParams?.skip || $page.url.searchParams.get('skip') || '0';
 		return Math.floor(parseInt(skipParam) / pageSize) || 0;
 	})();
@@ -114,7 +109,6 @@
 			const valueA = a[selectedStat as keyof TeamStat];
 			const valueB = b[selectedStat as keyof TeamStat];
 
-			// Convert the values to strings before comparison
 			const stringA = String(valueA);
 			const stringB = String(valueB);
 
@@ -129,8 +123,6 @@
 		sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
 		selectedStat = column;
 		sortBy = column as keyof TeamStat;
-
-		// Update the sortedTeamStatsData based on the new sort order
 		sortedTeamStatsData = sortTeamStatsData(teamData?.teamStatsData || []);
 	}
 
@@ -153,24 +145,14 @@
 	}
 
 	function formatStatValue(value: any): string {
-		// Handle null, undefined, or falsy values
 		if (value === null || value === undefined || value === '') return '0';
-		
-		// Convert to string if it's not already
 		const stringValue = String(value);
-		
-		// Check if it's a time format (possession time)
 		if (stringValue.includes(':')) return stringValue;
-		
-		// Check if it's a percentage
 		if (stringValue.includes('%')) return stringValue;
-		
-		// For large numbers, add commas
 		const num = parseFloat(stringValue);
 		if (!isNaN(num) && num >= 1000) {
 			return num.toLocaleString();
 		}
-		
 		return stringValue;
 	}
 
@@ -189,7 +171,6 @@
 		let formattedTeamName = team ? capitalizeFirstChar(team) : '';
 		let formattedConference = conference ? `${conference.toUpperCase()}` : '';
 		
-		// Build the title based on the presence of each parameter
 		if (team && !conference) {
 			pageTitle += `${formattedTeamName}`;
 		} else if (!team && conference) {
@@ -468,12 +449,15 @@
 	.wrapper {
 		min-height: 100vh;
 		background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+		width: 100%;
 	}
 
 	.stats-container {
 		max-width: 1400px;
 		margin: 0 auto;
-		padding: 2rem 1rem;
+		padding: 1rem;
+		width: 100%;
+		box-sizing: border-box;
 	}
 
 	.stats-section {
@@ -485,12 +469,13 @@
 	/* Header Styles */
 	.header-section {
 		text-align: center;
-		padding: 2rem 0;
+		padding: 1rem 0;
 	}
 
 	.header-content {
 		max-width: 800px;
 		margin: 0 auto;
+		padding: 0 1rem;
 	}
 
 	.header-icon {
@@ -506,6 +491,8 @@
 		color: var(--text-primary);
 		margin: 0 0 0.5rem 0;
 		line-height: 1.2;
+		word-wrap: break-word;
+		hyphens: auto;
 	}
 
 	.page-subtitle {
@@ -519,7 +506,7 @@
 	.stats-bar {
 		display: flex;
 		justify-content: center;
-		gap: 2rem;
+		gap: 1rem;
 		margin: 1.5rem 0;
 		flex-wrap: wrap;
 	}
@@ -528,11 +515,13 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		padding: 1rem;
+		padding: 0.75rem 1rem;
 		background: var(--bg-primary);
 		border-radius: 0.75rem;
 		box-shadow: var(--shadow-sm);
-		min-width: 120px;
+		min-width: 80px;
+		flex: 1;
+		max-width: 120px;
 	}
 
 	.stat-item.accent {
@@ -541,7 +530,7 @@
 	}
 
 	.stat-number {
-		font-size: 1.5rem;
+		font-size: 1.25rem;
 		font-weight: 700;
 		color: var(--text-accent);
 	}
@@ -551,10 +540,11 @@
 	}
 
 	.stat-label {
-		font-size: 0.875rem;
+		font-size: 0.75rem;
 		color: var(--text-secondary);
 		margin-top: 0.25rem;
 		text-align: center;
+		line-height: 1.2;
 	}
 
 	.stat-item.accent .stat-label {
@@ -583,15 +573,19 @@
 		display: flex;
 		align-items: center;
 		gap: 0.75rem;
+		flex: 1;
+		min-width: 250px;
 	}
 
 	.control-label {
 		font-weight: 600;
 		color: var(--text-primary);
 		font-size: 0.875rem;
+		white-space: nowrap;
 	}
 
 	.control-select {
+		flex: 1;
 		padding: 0.5rem 0.75rem;
 		border: 1px solid var(--border-secondary);
 		border-radius: 0.5rem;
@@ -620,14 +614,16 @@
 		border-radius: 1rem;
 		font-size: 0.75rem;
 		font-weight: 600;
+		white-space: nowrap;
 	}
 
 	/* Stats Grid */
 	.stats-grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-		gap: 1.5rem;
+		grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+		gap: 1rem;
 		margin-top: 1rem;
+		width: 100%;
 	}
 
 	/* Stat Card */
@@ -638,6 +634,7 @@
 		overflow: hidden;
 		transition: all 0.3s ease;
 		border: 1px solid var(--border-primary);
+		width: 100%;
 	}
 
 	.stat-card:hover {
@@ -650,21 +647,26 @@
 		display: flex;
 		justify-content: space-between;
 		align-items: flex-start;
-		padding: 1.5rem 1.5rem 1rem 1.5rem;
+		padding: 1rem;
 		background: var(--bg-secondary);
 		border-bottom: 1px solid var(--border-primary);
+		flex-wrap: wrap;
+		gap: 0.5rem;
 	}
 
 	.team-info {
 		flex: 1;
+		min-width: 0;
 	}
 
 	.team-name {
-		font-size: 1.25rem;
+		font-size: 1rem;
 		font-weight: 700;
 		color: var(--text-primary);
 		margin: 0 0 0.5rem 0;
 		line-height: 1.2;
+		word-wrap: break-word;
+		hyphens: auto;
 	}
 
 	.team-meta {
@@ -678,8 +680,9 @@
 		color: white;
 		padding: 0.125rem 0.5rem;
 		border-radius: 0.25rem;
-		font-size: 0.75rem;
+		font-size: 0.7rem;
 		font-weight: 600;
+		white-space: nowrap;
 	}
 
 	.week-range {
@@ -687,19 +690,21 @@
 		color: var(--text-secondary);
 		padding: 0.125rem 0.5rem;
 		border-radius: 0.25rem;
-		font-size: 0.75rem;
+		font-size: 0.7rem;
 		font-weight: 500;
+		white-space: nowrap;
 	}
 
 	.stat-category {
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		width: 2.5rem;
-		height: 2.5rem;
+		width: 2rem;
+		height: 2rem;
 		border-radius: 50%;
-		font-size: 1.25rem;
+		font-size: 1rem;
 		background: var(--bg-tertiary);
+		flex-shrink: 0;
 	}
 
 	.stat-category.offense {
@@ -716,7 +721,7 @@
 
 	/* Card Body */
 	.card-body {
-		padding: 1.5rem;
+		padding: 1rem;
 	}
 
 	.stat-info {
@@ -724,15 +729,17 @@
 	}
 
 	.stat-name {
-		font-size: 1rem;
+		font-size: 0.875rem;
 		font-weight: 600;
 		color: var(--text-secondary);
 		margin: 0 0 0.75rem 0;
 		line-height: 1.3;
+		word-wrap: break-word;
+		hyphens: auto;
 	}
 
 	.stat-value {
-		font-size: 2.5rem;
+		font-size: 2rem;
 		font-weight: 800;
 		color: var(--text-accent);
 		line-height: 1;
@@ -740,7 +747,7 @@
 
 	/* Card Footer */
 	.card-footer {
-		padding: 1rem 1.5rem;
+		padding: 0.75rem 1rem;
 		background: var(--bg-tertiary);
 		border-top: 1px solid var(--border-primary);
 	}
@@ -749,7 +756,7 @@
 		display: flex;
 		justify-content: center;
 		gap: 0.5rem;
-		font-size: 0.875rem;
+		font-size: 0.75rem;
 	}
 
 	.detail-label {
@@ -776,6 +783,7 @@
 		gap: 0.5rem;
 		align-items: center;
 		flex-wrap: wrap;
+		justify-content: center;
 	}
 
 	.pagination-item {
@@ -815,71 +823,19 @@
 	/* Empty State */
 	.empty-state {
 		text-align: center;
-		padding: 4rem 2rem;
+		padding: 3rem 1rem;
 	}
 
 	.empty-content h3 {
 		color: var(--text-primary);
 		margin: 0 0 1rem 0;
-		font-size: 1.5rem;
+		font-size: 1.25rem;
 	}
 
 	.empty-content p {
 		color: var(--text-secondary);
-		font-size: 1.125rem;
-		margin: 0 0 2rem 0;
-	}
-
-	.empty-actions {
-		display: flex;
-		gap: 1rem;
-		justify-content: center;
-		flex-wrap: wrap;
-	}
-
-	.action-button {
-		padding: 0.75rem 1.5rem;
-		border-radius: 0.5rem;
-		text-decoration: none;
-		font-weight: 600;
-		transition: all 0.2s ease;
-	}
-
-	.action-button.primary {
-		background: var(--accent-blue);
-		color: white;
-	}
-
-	.action-button.primary:hover {
-		background: var(--accent-blue);
-		filter: brightness(110%);
-		transform: translateY(-1px);
-	}
-
-	.action-button.secondary {
-		background: var(--bg-primary);
-		color: var(--text-primary);
-		border: 1px solid var(--border-primary);
-	}
-
-	.action-button.secondary:hover {
-		background: var(--bg-secondary);
-		transform: translateY(-1px);
-	}
-
-	.search-info {
-		text-align: center;
-		margin: 1.5rem 0;
-		padding: 1rem;
-		background: var(--bg-primary);
-		border-radius: 0.75rem;
-		border: 1px solid var(--border-primary);
-	}
-
-	.search-criteria {
-		color: var(--text-secondary);
-		font-size: 0.875rem;
-		margin: 0;
+		font-size: 1rem;
+		margin: 0 0 1rem 0;
 	}
 
 	.search-criteria-display {
@@ -905,18 +861,33 @@
 		opacity: 0.8;
 	}
 
-	/* Responsive Design */
-	@media (max-width: 768px) {
+	.search-section {
+		margin-top: 2rem;
+	}
+
+	/* Mobile-First Responsive Design */
+	@media (max-width: 480px) {
+		.wrapper {
+			padding: 0;
+		}
+
 		.stats-container {
-			padding: 1rem 0.5rem;
+			padding: 0.5rem;
+			max-width: 100%;
+		}
+
+		.header-content {
+			padding: 0 0.5rem;
 		}
 
 		.page-title {
-			font-size: 1.75rem;
+			font-size: 1.5rem;
+			line-height: 1.3;
 		}
 
 		.page-subtitle {
 			font-size: 1rem;
+			line-height: 1.4;
 		}
 
 		.header-icon {
@@ -924,18 +895,9 @@
 			height: 48px;
 		}
 
-		.stats-bar {
-			gap: 1rem;
-		}
-
-		.stat-item {
-			min-width: 100px;
-			padding: 0.75rem;
-		}
-
 		.stats-grid {
 			grid-template-columns: 1fr;
-			gap: 1rem;
+			gap: 0.75rem;
 		}
 
 		.stat-card {
@@ -943,15 +905,74 @@
 		}
 
 		.card-header {
-			padding: 1rem;
+			padding: 0.75rem;
+			flex-direction: column;
+			align-items: stretch;
+			gap: 0.75rem;
+		}
+
+		.team-info {
+			text-align: center;
+		}
+
+		.team-name {
+			font-size: 0.9rem;
+		}
+
+		.team-meta {
+			justify-content: center;
+			font-size: 0.65rem;
+		}
+
+		.stat-category {
+			align-self: center;
+			width: 1.75rem;
+			height: 1.75rem;
+			font-size: 0.875rem;
 		}
 
 		.card-body {
-			padding: 1rem;
+			padding: 0.75rem;
+		}
+
+		.stat-name {
+			font-size: 0.8rem;
 		}
 
 		.stat-value {
-			font-size: 2rem;
+			font-size: 1.5rem;
+		}
+
+		.card-footer {
+			padding: 0.5rem 0.75rem;
+		}
+
+		.stat-details {
+			font-size: 0.7rem;
+		}
+
+		.stats-bar {
+			gap: 0.5rem;
+			margin: 1rem 0;
+		}
+
+		.stat-item {
+			padding: 0.5rem;
+			min-width: 70px;
+			max-width: none;
+			flex: 1;
+		}
+
+		.stat-number {
+			font-size: 1rem;
+		}
+
+		.stat-label {
+			font-size: 0.7rem;
+		}
+
+		.controls-section {
+			padding: 1rem;
 		}
 
 		.sorting-controls {
@@ -964,10 +985,21 @@
 			flex-direction: column;
 			align-items: stretch;
 			gap: 0.5rem;
+			min-width: unset;
+		}
+
+		.control-label {
+			text-align: center;
+			white-space: normal;
 		}
 
 		.control-select {
 			width: 100%;
+			font-size: 16px; /* Prevent iOS zoom */
+		}
+
+		.sort-indicator {
+			justify-content: center;
 		}
 
 		.pagination {
@@ -980,70 +1012,121 @@
 			font-size: 0.75rem;
 		}
 
-		.empty-actions {
-			flex-direction: column;
-			align-items: center;
+		.pagination-info {
+			font-size: 0.75rem;
+			padding: 0 1rem;
+			text-align: center;
 		}
 
-		.action-button {
-			width: 100%;
-			max-width: 200px;
+		.empty-state {
+			padding: 2rem 1rem;
+		}
+
+		.search-section {
+			margin-top: 1.5rem;
 		}
 	}
 
-	@media (max-width: 480px) {
+	@media (max-width: 360px) {
 		.stats-container {
-			padding: 0.5rem;
-		}
-
-		.header-section {
-			padding: 1rem 0;
+			padding: 0.25rem;
 		}
 
 		.page-title {
-			font-size: 1.5rem;
-		}
-
-		.stats-bar {
-			flex-direction: column;
-			gap: 0.5rem;
-		}
-
-		.stat-item {
-			flex-direction: row;
-			justify-content: space-between;
-			align-items: center;
-			text-align: left;
-		}
-
-		.stat-number {
 			font-size: 1.25rem;
 		}
 
-		.stat-label {
-			margin-top: 0;
-			font-size: 0.75rem;
-		}
-
-		.controls-section {
-			padding: 1rem;
+		.page-subtitle {
+			font-size: 0.875rem;
 		}
 
 		.card-header {
-			flex-direction: column;
-			gap: 1rem;
+			padding: 0.5rem;
 		}
 
-		.team-meta {
-			justify-content: center;
+		.card-body {
+			padding: 0.5rem;
 		}
 
-		.stat-category {
-			align-self: center;
+		.team-name {
+			font-size: 0.8rem;
 		}
 
 		.stat-value {
-			font-size: 1.75rem;
+			font-size: 1.25rem;
 		}
+
+		.stat-item {
+			padding: 0.375rem;
+			min-width: 60px;
+		}
+
+		.stat-number {
+			font-size: 0.875rem;
+		}
+
+		.stat-label {
+			font-size: 0.65rem;
+		}
+
+		.controls-section {
+			padding: 0.75rem;
+		}
+	}
+
+	/* Tablet Responsive */
+	@media (min-width: 481px) and (max-width: 768px) {
+		.stats-container {
+			padding: 1rem;
+		}
+
+		.page-title {
+			font-size: 2rem;
+		}
+
+		.page-subtitle {
+			font-size: 1.125rem;
+		}
+
+		.stats-grid {
+			grid-template-columns: repeat(2, 1fr);
+			gap: 1rem;
+		}
+
+		.stats-bar {
+			gap: 1.5rem;
+		}
+
+		.stat-item {
+			max-width: 140px;
+		}
+	}
+
+	/* Large Tablet and Small Desktop */
+	@media (min-width: 769px) and (max-width: 1024px) {
+		.stats-grid {
+			grid-template-columns: repeat(3, 1fr);
+		}
+	}
+
+	/* Ensure proper text wrapping and overflow handling */
+	.team-name,
+	.page-title,
+	.page-subtitle,
+	.stat-name,
+	.detail-value {
+		overflow-wrap: break-word;
+		word-break: break-word;
+		hyphens: auto;
+	}
+
+	/* Prevent horizontal scrolling */
+	.wrapper,
+	.stats-container,
+	.stats-section,
+	.stats-grid,
+	.stat-card {
+		max-width: 100%;
+		overflow-x: hidden;
 	}
 </style>

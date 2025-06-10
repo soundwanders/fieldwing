@@ -109,7 +109,6 @@ git push origin feature/amazing-feature
 - **[College Football Database](https://collegefootballdata.com/)** — Providing comprehensive CFB data
 - **[FlatIcon](https://www.flaticon.com/)** — Beautiful icons and imagery  
 - **[SvelteKit Community](https://kit.svelte.dev/)** — Amazing framework and ecosystem
-- **College Football Fans** — The passionate community that makes this sport special
 
 ---
 

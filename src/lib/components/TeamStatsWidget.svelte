@@ -214,7 +214,6 @@
 	.invalid {
 		border: 1px solid #ff4b4b;
 	}
-
 	@media (max-width: 768px) {
 		.stats-widget {
 			width: 100%;
@@ -229,7 +228,7 @@
 			width: 100%;
 			align-items: stretch;
 		}
-
+		
 		label {
 			display: flex;
 			flex-direction: column;
@@ -308,6 +307,6 @@
 		.submit-button {
 			padding: 0.75rem 1rem;
 			font-size: 0.9rem;
-		}
-	}
+    }
+  }
 </style>

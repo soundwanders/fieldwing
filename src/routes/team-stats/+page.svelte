@@ -1,1191 +1,1103 @@
-<!-- src/routes/team-stats/+page.svelte -->
+<!-- src/routes/games/+page.svelte - POLISHED VERSION -->
 <script lang="ts">
-	import { page } from '$app/stores';
-	import { theme } from '$lib/stores/theme';
-	import { capitalizeFirstChar } from '$lib/utils/capitalizeFirstChar';
-	import { onMount } from 'svelte';
-	import TeamStatsWidget from '$lib/components/TeamStatsWidget.svelte';
-	import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
-	import ErrorBoundary from '$lib/components/ErrorBoundary.svelte';
-	import '../../styles/main.css';
+  import { onMount } from 'svelte';
+  import { theme } from '$lib/stores/theme';
+  import { formatStartDate } from '$lib/utils/formatStartDate';
+  import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
+  import ErrorBoundary from '$lib/components/ErrorBoundary.svelte';
+  import ResubmitTeams from '$lib/components/ResubmitTeams.svelte';
+  import '../../styles/main.css';
 
-	export let data: {
-		teamData?: {
-			teamStatsData: TeamStat[];
-			total: number;
-		};
-		searchParams?: any;
-		error?: string;
-	};
+  // Type the data prop properly
+  export let data: {
+    gameResults?: Array<{
+      team: string;
+      data: any[];
+      error: string | null;
+    }>;
+    teams?: string[];
+    year?: string;
+    week?: string;
+    error?: string;
+  };
 
-	// Safely extract data with proper fallbacks
-	$: teamData = data?.teamData || { teamStatsData: [], total: 0 };
-	$: searchParams = data?.searchParams || {};
+  let isLoading = true;
+  let pageError: Error | null = null;
 
-	const statTypeDisplayNames: Record<string, string> = {
-		firstDowns: 'First Downs',
-		fourthDownConversions: 'Fourth Down Conversions',
-		fourthDowns: 'Fourth Downs',
-		fumblesLost: 'Fumbles Lost',
-		fumblesRecovered: 'Fumbles Recovered',
-		games: 'Games',
-		interceptions: 'Interceptions',
-		interceptionTDs: 'Interception TDs',
-		interceptionYards: 'Interception Yards',
-		kickReturns: 'Kick Returns',
-		kickReturnTDs: 'Kick Return TDs',
-		kickReturnYards: 'Kick Return Yards',
-		netPassingYards: 'Net Passing Yards',
-		passAttempts: 'Pass Attempts',
-		passCompletions: 'Pass Completions',
-		passesIntercepted: 'Passes Intercepted',
-		passingTDs: 'Passing TDs',
-		penalties: 'Penalties',
-		penaltyYards: 'Penalty Yards',
-		possessionTime: 'Possession Time',
-		puntReturns: 'Punt Returns',
-		puntReturnTDs: 'Punt Return TDs',
-		puntReturnYards: 'Punt Return Yards',
-		qbHurries: 'QB Hurries',
-		rushingAttempts: 'Rushing Attempts',
-		rushingTDs: 'Rushing TDs',
-		rushingYards: 'Rushing Yards',
-		sacks: 'Sacks',
-		tackles: 'Tackles',
-		tacklesForLoss: 'Tackles for Loss',
-		thirdDowns: 'Third Downs',
-		thirdDownConversions: 'Third Down Conversions',
-		totalFumbles: 'Total Fumbles',
-		totalPenaltiesYards: 'Total Penalty Yards',
-		totalYards: 'Total Yards',
-		turnovers: 'Turnovers',
-		yardsPerPass: 'Yards Per Pass',
-		yardsPerRushAttempt: 'Yards Per Rush Attempt'
-	};
+  // Extract data with proper error handling
+  $: gameResults = data?.gameResults || [];
+  $: teams = data?.teams || [];
+  $: year = data?.year || new Date().getFullYear().toString();
+  $: week = data?.week || '1';
 
-	// Define types for team stats
-	interface TeamStat {
-		team: string;
-		conference: string;
-		startWeek: number;
-		endWeek: number;
-		statName: string;
-		statValue: string;
-	}
+  // Create formatted teams display
+  $: formattedTeams = Array.isArray(teams) ? teams.join(', ') : 'No Teams Selected';
+  $: teamTitleList = formattedTeams;
 
-	let isLoading = true;
-	let pageError: Error | null = null;
-	let pageSize: number = 18;
-	let pageTitle: string = '';
+  // Data availability checks
+  $: hasSuccessfulApiCalls = gameResults.some(result => result.error === null);
+  $: hasGamesData = gameResults.some(result => result.error === null && result.data.length > 0);
+  $: hasAnyResults = gameResults.length > 0;
+  $: hasApiErrors = gameResults.some(result => result.error !== null);
 
-	$: totalItems = teamData ? teamData.total : 0;
-	$: totalPages = Math.ceil(totalItems / pageSize);
-	$: currentPage = (() => {
-		if (selectedStat !== '') return 0;
-		const skipParam = searchParams?.skip || $page.url.searchParams.get('skip') || '0';
-		return Math.floor(parseInt(skipParam) / pageSize) || 0;
-	})();
+  // Get the first successful game for header info
+  $: firstGame = (() => {
+    const result = gameResults.find(result => result.error === null && result.data.length > 0);
+    if (!result) return null;
+    
+    const game = result.data[0];
+    if (!game) return null;
+    
+    // Normalize the property names for consistent access
+    return {
+      ...game,
+      home_team: game.homeTeam || game.home_team,
+      away_team: game.awayTeam || game.away_team,
+      season_type: game.seasonType || game.season_type,
+      start_date: game.startDate || game.start_date,
+      home_points: game.homePoints ?? game.home_points,
+      away_points: game.awayPoints ?? game.away_points,
+      conference_game: game.conferenceGame ?? game.conference_game
+    };
+  })();
 
-	$: year = searchParams?.year || $page.url.searchParams.get('year') || '';
-	$: team = searchParams?.team || $page.url.searchParams.get('team') || '';
-	$: conference = searchParams?.conference || $page.url.searchParams.get('conference') || '';
-	$: startWeek = searchParams?.startWeek || $page.url.searchParams.get('startWeek') || '';
-	$: endWeek = searchParams?.endWeek || $page.url.searchParams.get('endWeek') || '';
+  // Statistics
+  $: totalGames = gameResults.reduce((sum, result) => 
+    result.error === null ? sum + result.data.length : sum, 0);
+  $: successfulTeams = gameResults.filter(r => r.error === null).length;
+  $: failedTeams = gameResults.filter(r => r.error !== null).length;
 
-	let sortOrder: 'asc' | 'desc' = 'desc';
-	let sortBy: keyof TeamStat = 'team';
-	let selectedStat: string | number = '';
+  // Helper functions
+  function capitalizeFirstChar(str: string | undefined | null): string {
+    if (!str || typeof str !== 'string') {
+      return 'Regular';
+    }
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
 
-	// Data checks
-	$: hasTeamData =
-		teamData?.teamStatsData &&
-		Array.isArray(teamData.teamStatsData) &&
-		teamData.teamStatsData.length > 0;
-	$: totalStats = teamData?.teamStatsData?.length || 0;
-	$: hasSearchParams = searchParams?.year || false;
+  function handleRetry() {
+    pageError = null;
+    window.location.reload();
+  }
 
-	// Ascending/Descending sort function for teamStatsData
-	function sortTeamStatsData(teamStatsData: TeamStat[]): TeamStat[] {
-		if (!teamStatsData) return [];
+  function checkForDataErrors() {
+    if (data?.error) {
+      pageError = new Error(data.error);
+      return;
+    }
 
-		return teamStatsData.sort((a, b) => {
-			const valueA = a[selectedStat as keyof TeamStat];
-			const valueB = b[selectedStat as keyof TeamStat];
+    if (teams.length > 0 && gameResults.length === 0) {
+      pageError = new Error('No game data was returned for the selected teams');
+      return;
+    }
 
-			const stringA = String(valueA);
-			const stringB = String(valueB);
+    if (gameResults.length > 0 && !hasSuccessfulApiCalls) {
+      const errors = gameResults
+        .filter(r => r.error)
+        .map(r => r.error)
+        .filter(e => e)
+        .join('; ');
+      pageError = new Error(`Failed to load games for all teams: ${errors || 'Unknown API error'}`);
+      return;
+    }
 
-			if (stringA < stringB) return sortOrder === 'asc' ? -1 : 1;
-			if (stringA > stringB) return sortOrder === 'asc' ? 1 : -1;
-			return 0;
-		});
-	}
+    pageError = null;
+  }
 
-	function toggleSortOrder(event: Event & { currentTarget: HTMLSelectElement }) {
-		const column = event.currentTarget.value;
-		sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
-		selectedStat = column;
-		sortBy = column as keyof TeamStat;
-		sortedTeamStatsData = sortTeamStatsData(teamData?.teamStatsData || []);
-	}
+  function getGameWinner(game: any): string | null {
+    const homePoints = game.homePoints ?? game.home_points ?? 0;
+    const awayPoints = game.awayPoints ?? game.away_points ?? 0;
+    const homeTeam = game.homeTeam || game.home_team;
+    const awayTeam = game.awayTeam || game.away_team;
+    
+    if (!game.completed) return null;
+    if (homePoints > awayPoints) return homeTeam;
+    if (awayPoints > homePoints) return awayTeam;
+    return 'Tie';
+  }
 
-	$: sortedTeamStatsData = sortTeamStatsData(teamData?.teamStatsData || []);
+  function getGameMargin(game: any): number {
+    const homePoints = game.homePoints ?? game.home_points ?? 0;
+    const awayPoints = game.awayPoints ?? game.away_points ?? 0;
+    return Math.abs(homePoints - awayPoints);
+  }
 
-	let filteredTeamStatsData: TeamStat[] = [];
+  onMount(() => {
+    checkForDataErrors();
 
-	$: filteredTeamStatsData =
-		selectedStat === ''
-			? teamData?.teamStatsData?.slice() || []
-			: teamData?.teamStatsData?.filter(
-					(stat: { statName: string | number }) => stat.statName === selectedStat
-			  ) || [];
+    const timer = setTimeout(() => {
+      isLoading = false;
+    }, 300);
 
-	$: displayedStats = filteredTeamStatsData.slice(
-		currentPage * pageSize,
-		(currentPage + 1) * pageSize
-	);
-
-	function handleRetry() {
-		pageError = null;
-		window.location.reload();
-	}
-
-	function formatStatValue(value: any): string {
-		if (value === null || value === undefined || value === '') return '0';
-		const stringValue = String(value);
-		if (stringValue.includes(':')) return stringValue;
-		if (stringValue.includes('%')) return stringValue;
-		const num = parseFloat(stringValue);
-		if (!isNaN(num) && num >= 1000) {
-			return num.toLocaleString();
-		}
-		return stringValue;
-	}
-
-	function getStatCategory(statName: string): string {
-		const offensiveStats = [
-			'passingTDs',
-			'rushingTDs',
-			'totalYards',
-			'netPassingYards',
-			'rushingYards',
-			'firstDowns'
-		];
-		const defensiveStats = ['sacks', 'tackles', 'tacklesForLoss', 'interceptions', 'qbHurries'];
-		const specialTeamsStats = ['kickReturns', 'kickReturnTDs', 'puntReturns', 'puntReturnTDs'];
-
-		if (offensiveStats.includes(statName)) return 'offense';
-		if (defensiveStats.includes(statName)) return 'defense';
-		if (specialTeamsStats.includes(statName)) return 'special-teams';
-		return 'general';
-	}
-
-	onMount(() => {
-		let formattedTeamName = team ? capitalizeFirstChar(team) : '';
-		let formattedConference = conference ? `${conference.toUpperCase()}` : '';
-
-		if (team && !conference) {
-			pageTitle += `${formattedTeamName}`;
-		} else if (!team && conference) {
-			pageTitle += `${formattedConference}`;
-		} else if (team && conference) {
-			pageTitle += `${formattedTeamName} - ${formattedConference}`;
-		}
-
-		if (year) pageTitle += ` - ${year}`;
-		if (startWeek) pageTitle += ` - Week ${startWeek}`;
-		if (endWeek) pageTitle += ` to ${endWeek}`;
-
-		const timer = setTimeout(() => {
-			isLoading = false;
-		}, 300);
-
-		return () => clearTimeout(timer);
-	});
+    return () => clearTimeout(timer);
+  });
 </script>
 
 <svelte:head>
-	<title>Team Statistics - Fieldwing</title>
-	<meta
-		name="description"
-		content="View comprehensive college football team statistics and analytics."
-	/>
+  <title>Game Results - Fieldwing</title>
+  <meta name="description" content="View college football game results and scores for your favorite teams." />
 </svelte:head>
 
 <ErrorBoundary bind:error={pageError} on:retry={handleRetry}>
-	<div class="wrapper">
-		{#if isLoading}
-			<LoadingSpinner size="large" text="Loading team statistics..." fullScreen={true} />
-		{:else}
-			<div class="stats-container" class:light={!$theme} class:dark={$theme}>
-				<section class="stats-section">
-					<!-- Header Section -->
-					<div class="header-section">
-						<div class="header-content">
-							<img class="header-icon" src="/teams.png" alt="Team Statistics" aria-hidden="true" />
+  <div class="wrapper">
+    {#if isLoading}
+      <LoadingSpinner 
+        size="large" 
+        text="Loading game results..." 
+        fullScreen={true}
+      />
+    {:else}
+      <div class="results-container" class:light={!$theme} class:dark={$theme}>
+        <section class="results-section">
+          <!-- Header Section -->
+          <div class="header-section">
+            <div class="header-content">
+              <img class="header-icon" src="/gameresults.png" alt="Game Results" aria-hidden="true" />
+              
+              {#if hasGamesData && firstGame}
+                <h1 class="page-title">
+                  Week {firstGame.week}, {firstGame.season} Results
+                </h1>
+                <h2 class="team-subtitle">
+                  {teamTitleList}
+                </h2>
+              {:else if hasSuccessfulApiCalls}
+                <h1 class="page-title">
+                  Week {week}, {year} Results
+                </h1>
+                <h2 class="team-subtitle">
+                  {teamTitleList}
+                </h2>
+                {#if totalGames === 0}
+                  <div class="info-banner">
+                    <div class="info-content">
+                      <p class="info-primary">✅ Successfully connected to data source</p>
+                      <p class="info-secondary">📅 No games scheduled for these teams in Week {week} of {year}</p>
+                      {#if parseInt(year) > new Date().getFullYear()}
+                        <p class="info-secondary">⏭️ Future seasons may not have scheduled games yet</p>
+                      {/if}
+                    </div>
+                  </div>
+                {/if}
+              {:else if teams.length > 0}
+                <h1 class="page-title">
+                  Week {week}, {year} Results
+                </h1>
+                <h2 class="team-subtitle">
+                  {teamTitleList}
+                </h2>
+                <div class="error-banner">
+                  <p>❌ Failed to load game data</p>
+                </div>
+              {:else}
+                <h1 class="page-title">Game Results</h1>
+                <p class="no-selection">Please select teams to view their game results</p>
+              {/if}
+              
+              <!-- Statistics Summary -->
+              {#if hasAnyResults && totalGames > 0}
+                <div class="stats-bar">
+                  <div class="stat-item">
+                    <span class="stat-number">{totalGames}</span>
+                    <span class="stat-label">Game{totalGames !== 1 ? 's' : ''} Found</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-number">{successfulTeams}</span>
+                    <span class="stat-label">Team{successfulTeams !== 1 ? 's' : ''} Loaded</span>
+                  </div>
+                  {#if failedTeams > 0}
+                    <div class="stat-item warning">
+                      <span class="stat-number">{failedTeams}</span>
+                      <span class="stat-label">Failed</span>
+                    </div>
+                  {/if}
+                </div>
+              {/if}
+            </div>
+          </div>
 
-							{#if hasTeamData}
-								<h1 class="page-title">
-									{pageTitle || 'Team Statistics'}
-								</h1>
-								<p class="page-subtitle">Comprehensive team performance analytics and statistics</p>
+          <!-- Games Display -->
+          {#if hasAnyResults}
+            <div class="games-grid">
+              {#each gameResults as { team, data, error } (team)}
+                {#if error}
+                  <div class="error-card">
+                    <div class="error-header">
+                      <h3>❌ Error loading {team}</h3>
+                    </div>
+                    <p class="error-message">{error}</p>
+                  </div>
+                {:else if data && data.length > 0}
+                  {#each data as gameResult (gameResult.id || `${gameResult.homeTeam || gameResult.home_team}-${gameResult.awayTeam || gameResult.away_team}-${gameResult.week}`)}
+                    {#if gameResult && (gameResult.homeTeam || gameResult.home_team || gameResult.awayTeam || gameResult.away_team)}
+                      <article class="game-card" class:light={!$theme} class:dark={$theme}>
+                        <!-- Game Header -->
+                        <div class="game-header">
+                          <div class="game-meta">
+                            <span class="week-badge">Week {gameResult.week || 'N/A'}</span>
+                            <span class="season-type">{capitalizeFirstChar(gameResult.seasonType || gameResult.season_type)}</span>
+                          </div>
+                          {#if gameResult.completed}
+                            <div class="status-badge final">FINAL</div>
+                          {:else}
+                            <div class="status-badge scheduled">SCHEDULED</div>
+                          {/if}
+                        </div>
 
-								<!-- Statistics Summary -->
-								<div class="stats-bar">
-									<div class="stat-item">
-										<span class="stat-number">{totalStats}</span>
-										<span class="stat-label">Stat{totalStats !== 1 ? 's' : ''} Available</span>
-									</div>
-									<div class="stat-item">
-										<span class="stat-number">{filteredTeamStatsData.length}</span>
-										<span class="stat-label">Currently Showing</span>
-									</div>
-									{#if selectedStat}
-										<div class="stat-item accent">
-											<span class="stat-number"
-												>{statTypeDisplayNames[selectedStat] || selectedStat}</span
-											>
-											<span class="stat-label">Filter Active</span>
-										</div>
-									{/if}
-								</div>
-							{:else}
-								<h1 class="page-title">Team Statistics</h1>
-								<p class="page-subtitle">No team statistics data available</p>
-							{/if}
-						</div>
-					</div>
+                        <!-- Matchup - Mobile-First Design -->
+                        <div class="matchup">
+                          <!-- Mobile Layout: Completely Vertical -->
+                          <div class="mobile-matchup">
+                            <!-- Away Team -->
+                            <div class="mobile-team away-team">
+                              <div class="mobile-team-header">
+                                <h3 class="mobile-team-name">{gameResult.awayTeam || gameResult.away_team || 'Unknown'}</h3>
+                                <div class="mobile-score away-score">
+                                  {gameResult.awayPoints ?? gameResult.away_points ?? 0}
+                                </div>
+                              </div>
+                              <div class="mobile-team-meta">
+                                <span class="mobile-location">Away</span>
+                                {#if gameResult.awayConference}
+                                  <span class="mobile-conference">{gameResult.awayConference}</span>
+                                {/if}
+                              </div>
+                            </div>
 
-					{#if hasTeamData}
-						<!-- Controls Section -->
-						<div class="controls-section">
-							<div class="sorting-controls">
-								<div class="control-group">
-									<label for="statSelect" class="control-label"> 📊 Filter by Statistic: </label>
-									<select
-										id="statSelect"
-										bind:value={selectedStat}
-										on:change={toggleSortOrder}
-										class="control-select"
-									>
-										<option value="">All Statistics</option>
-										{#each Object.entries(statTypeDisplayNames) as [stat, displayName]}
-											<option value={stat}>{displayName}</option>
-										{/each}
-									</select>
-								</div>
+                            <!-- VS Section -->
+                            <div class="mobile-vs-section">
+                              <span class="mobile-vs-text">VS</span>
+                              {#if gameResult.completed && getGameWinner(gameResult)}
+                                {@const winner = getGameWinner(gameResult)}
+                                {@const margin = getGameMargin(gameResult)}
+                                <div class="mobile-game-result">
+                                  {#if winner === 'Tie'}
+                                    <span class="mobile-result-text">Tie Game</span>
+                                  {:else}
+                                    <span class="mobile-result-text">{winner} wins</span>
+                                    {#if margin > 0}
+                                      <span class="mobile-margin">by {margin}</span>
+                                    {/if}
+                                  {/if}
+                                </div>
+                              {/if}
+                            </div>
 
-								<div class="sort-indicator">
-									{#if selectedStat}
-										<span class="sort-badge">
-											{sortOrder === 'asc' ? '↑' : '↓'}
-											{sortOrder === 'asc' ? 'Ascending' : 'Descending'}
-										</span>
-									{/if}
-								</div>
-							</div>
-						</div>
+                            <!-- Home Team -->
+                            <div class="mobile-team home-team">
+                              <div class="mobile-team-header">
+                                <h3 class="mobile-team-name">{gameResult.homeTeam || gameResult.home_team || 'Unknown'}</h3>
+                                <div class="mobile-score home-score">
+                                  {gameResult.homePoints ?? gameResult.home_points ?? 0}
+                                </div>
+                              </div>
+                              <div class="mobile-team-meta">
+                                <span class="mobile-location">Home</span>
+                                {#if gameResult.homeConference}
+                                  <span class="mobile-conference">{gameResult.homeConference}</span>
+                                {/if}
+                              </div>
+                            </div>
+                          </div>
 
-						<!-- Stats Grid -->
-						<div class="stats-grid">
-							{#each displayedStats as teamStat (teamStat.team + teamStat.statName)}
-								<article class="stat-card" class:light={!$theme} class:dark={$theme}>
-									<!-- Card Header -->
-									<div class="card-header">
-										<div class="team-info">
-											<h3 class="team-name">{teamStat.team}</h3>
-											<div class="team-meta">
-												<span class="conference-badge">{teamStat.conference}</span>
-												{#if teamStat.startWeek && teamStat.endWeek}
-													<span class="week-range">
-														Week {teamStat.startWeek}
-														{#if teamStat.startWeek !== teamStat.endWeek}
-															- {teamStat.endWeek}
-														{/if}
-													</span>
-												{/if}
-											</div>
-										</div>
-										<div class="stat-category {getStatCategory(teamStat.statName)}">
-											{#if getStatCategory(teamStat.statName) === 'offense'}
-												⚡
-											{:else if getStatCategory(teamStat.statName) === 'defense'}
-												🛡️
-											{:else if getStatCategory(teamStat.statName) === 'special-teams'}
-												🏈
-											{:else}
-												📈
-											{/if}
-										</div>
-									</div>
+                          <!-- Desktop Layout: Keep Original -->
+                          <div class="desktop-matchup">
+                            <div class="team-section away">
+                              <div class="team-info">
+                                <h3 class="team-name">{gameResult.awayTeam || gameResult.away_team || 'Unknown'}</h3>
+                                <div class="team-meta">
+                                  {#if gameResult.awayConference}
+                                    <span class="conference">{gameResult.awayConference}</span>
+                                  {/if}
+                                  <span class="location">Away</span>
+                                </div>
+                              </div>
+                              <div class="score">
+                                {gameResult.awayPoints ?? gameResult.away_points ?? 0}
+                              </div>
+                            </div>
 
-									<!-- Card Body -->
-									<div class="card-body">
-										<div class="stat-info">
-											<h4 class="stat-name">
-												{statTypeDisplayNames[teamStat.statName] || teamStat.statName}
-											</h4>
-											<div class="stat-value">{formatStatValue(teamStat.statValue)}</div>
-										</div>
-									</div>
+                            <div class="vs-section">
+                              <span class="vs-text">vs</span>
+                              {#if gameResult.completed && getGameWinner(gameResult)}
+                                {@const winner = getGameWinner(gameResult)}
+                                {@const margin = getGameMargin(gameResult)}
+                                <div class="game-summary">
+                                  {#if winner === 'Tie'}
+                                    <span class="result-text">Tie Game</span>
+                                  {:else}
+                                    <span class="result-text">{winner} wins</span>
+                                    {#if margin > 0}
+                                      <span class="margin">by {margin}</span>
+                                    {/if}
+                                  {/if}
+                                </div>
+                              {/if}
+                            </div>
 
-									<!-- Card Footer -->
-									<div class="card-footer">
-										<div class="stat-details">
-											<span class="detail-label">Category:</span>
-											<span class="detail-value">
-												{capitalizeFirstChar(getStatCategory(teamStat.statName).replace('-', ' '))}
-											</span>
-										</div>
-									</div>
-								</article>
-							{/each}
-						</div>
+                            <div class="team-section home">
+                              <div class="team-info">
+                                <h3 class="team-name">{gameResult.homeTeam || gameResult.home_team || 'Unknown'}</h3>
+                                <div class="team-meta">
+                                  {#if gameResult.homeConference}
+                                    <span class="conference">{gameResult.homeConference}</span>
+                                  {/if}
+                                  <span class="location">Home</span>
+                                </div>
+                              </div>
+                              <div class="score">
+                                {gameResult.homePoints ?? gameResult.home_points ?? 0}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
 
-						<!-- Pagination -->
-						{#if totalPages > 1}
-							<div class="pagination-section">
-								<nav class="pagination" aria-label="Team statistics pagination">
-									{#if currentPage > 0}
-										<a
-											href="?year={encodeURIComponent(year)}&team={encodeURIComponent(
-												team
-											)}&conference={encodeURIComponent(conference)}&startWeek={encodeURIComponent(
-												startWeek
-											)}&endWeek={encodeURIComponent(endWeek)}&limit={pageSize}&skip={pageSize *
-												(currentPage - 1)}"
-											class="pagination-item prev"
-											aria-label="Previous page"
-										>
-											← Previous
-										</a>
-									{/if}
+                        <!-- Game Details -->
+                        <div class="game-details">
+                          <div class="detail-row">
+                            <span class="detail-label">📅</span>
+                            <span class="detail-value">
+                              {gameResult.startDate || gameResult.start_date ? 
+                                formatStartDate(gameResult.startDate || gameResult.start_date) : 
+                                'Date TBD'}
+                            </span>
+                          </div>
+                          
+                          <div class="detail-row">
+                            <span class="detail-label">🏟️</span>
+                            <span class="detail-value">{gameResult.venue || 'Venue TBD'}</span>
+                          </div>
 
-									{#each Array(Math.min(totalPages, 5)) as _, idx}
-										{@const pageNum = Math.max(0, Math.min(currentPage - 2, totalPages - 5)) + idx}
-										{#if pageNum < totalPages}
-											<a
-												href="?year={encodeURIComponent(year)}&team={encodeURIComponent(
-													team
-												)}&conference={encodeURIComponent(
-													conference
-												)}&startWeek={encodeURIComponent(startWeek)}&endWeek={encodeURIComponent(
-													endWeek
-												)}&limit={pageSize}&skip={pageSize * pageNum}"
-												class="pagination-item {currentPage === pageNum ? 'active' : ''}"
-												aria-label="Page {pageNum + 1}"
-											>
-												{pageNum + 1}
-											</a>
-										{/if}
-									{/each}
+                          {#if gameResult.attendance}
+                            <div class="detail-row">
+                              <span class="detail-label">👥</span>
+                              <span class="detail-value">{gameResult.attendance.toLocaleString()} attendance</span>
+                            </div>
+                          {/if}
 
-									{#if currentPage < totalPages - 1}
-										<a
-											href="?year={encodeURIComponent(year)}&team={encodeURIComponent(
-												team
-											)}&conference={encodeURIComponent(conference)}&startWeek={encodeURIComponent(
-												startWeek
-											)}&endWeek={encodeURIComponent(endWeek)}&limit={pageSize}&skip={pageSize *
-												(currentPage + 1)}"
-											class="pagination-item next"
-											aria-label="Next page"
-										>
-											Next →
-										</a>
-									{/if}
-								</nav>
+                          {#if gameResult.notes}
+                            <div class="detail-row">
+                              <span class="detail-label">📝</span>
+                              <span class="detail-value">{gameResult.notes}</span>
+                            </div>
+                          {/if}
 
-								<div class="pagination-info">
-									Showing {currentPage * pageSize + 1} - {Math.min(
-										(currentPage + 1) * pageSize,
-										filteredTeamStatsData.length
-									)}
-									of {filteredTeamStatsData.length} statistics
-								</div>
-							</div>
-						{/if}
-					{:else}
-						<!-- Empty State -->
-						<div class="empty-state">
-							<div class="empty-content">
-								{#if hasSearchParams}
-									<h3>📊 No Results Found</h3>
-									<p>No team statistics found for your search criteria.</p>
-									<div class="search-criteria-display">
-										<strong>Your search:</strong>
-										{year}
-										{#if team}• {team}{/if}
-										{#if conference}• {conference}{/if}
-										{#if startWeek}• Week {startWeek}{#if endWeek && endWeek !== startWeek}
-												to {endWeek}{/if}{/if}
-									</div>
-									<p class="retry-suggestion">Try adjusting your search parameters below.</p>
-								{:else}
-									<h3>📊 Ready to Search</h3>
-									<p>Enter search criteria below to view team statistics.</p>
-									<p class="help-text">
-										Start by entering a year and optionally filter by team, conference, or weeks.
-									</p>
-								{/if}
-							</div>
-						</div>
-					{/if}
+                          <div class="detail-row">
+                            <span class="detail-label">🏆</span>
+                            <span class="detail-value">
+                              {(gameResult.conferenceGame ?? gameResult.conference_game) ? 'Conference Game' : 'Non-Conference Game'}
+                            </span>
+                          </div>
+                        </div>
+                      </article>
+                    {/if}
+                  {/each}
+                {:else}
+                  <div class="no-games-card">
+                    <div class="no-games-content">
+                      <h3>📅 {team}</h3>
+                      <p>No games found for Week {week} of {year}</p>
+                      <small>This team may have had a bye week or the game data is unavailable.</small>
+                    </div>
+                  </div>
+                {/if}
+              {/each}
+            </div>
+          {:else}
+            <div class="empty-state">
+              <div class="empty-content">
+                <h3>🏈 No Game Data Available</h3>
+                <p>Please select teams from the game results page to view their games.</p>
+              </div>
+            </div>
+          {/if}
+        </section>
+      </div>
 
-					<!-- Team Search Section -->
-					<section class="search-section">
-						<TeamStatsWidget />
-					</section>
-				</section>
-			</div>
-		{/if}
-	</div>
+      <!-- Team Search Section -->
+      <section class="search-section">
+        <ResubmitTeams />
+      </section>
+    {/if}
+  </div>
 </ErrorBoundary>
 
 <style>
-	/* ========================================
-    CSS VARIABLES & THEME COLORS
-  ======================================== */
-	.light {
-		--bg-primary: #ffffff;
-		--bg-secondary: #f8fafc;
-		--bg-tertiary: #f1f5f9;
-		--text-primary: #1e293b;
-		--text-secondary: #64748b;
-		--text-accent: #dc2626;
-		--border-primary: #e2e8f0;
-		--border-secondary: #cbd5e1;
-		--shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-		--shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-		--shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-		--accent-blue: #3b82f6;
-		--accent-green: #10b981;
-		--accent-orange: #f59e0b;
-		--accent-red: #ef4444;
-		--accent-purple: #8b5cf6;
-	}
-
-	.dark {
-		--bg-primary: #1e293b;
-		--bg-secondary: #334155;
-		--bg-tertiary: #475569;
-		--text-primary: #f1f5f9;
-		--text-secondary: #cbd5e1;
-		--text-accent: #f87171;
-		--border-primary: #475569;
-		--border-secondary: #64748b;
-		--shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
-		--shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
-		--shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
-		--accent-blue: #60a5fa;
-		--accent-green: #34d399;
-		--accent-orange: #fbbf24;
-		--accent-red: #f87171;
-		--accent-purple: #a78bfa;
-	}
-
-	/* ========================================
-    LAYOUT & STRUCTURE
-  ======================================== */
-	.wrapper {
-		min-height: 100vh;
-		background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
-		width: 100%;
-	}
-
-	.stats-container {
-		width: min(95%, 55vw);
-		max-width: 1000px;
-		min-width: 320px;
-		margin: 0 auto;
-		padding: 2rem 1.5rem;
-		box-sizing: border-box;
-	}
-
-	.stats-section {
-		display: flex;
-		flex-direction: column;
-		gap: 2rem;
-	}
-
-	/* ========================================
-    HEADER SECTION
-  ======================================== */
-	.header-section {
-		text-align: center;
-		padding: 1rem 0;
-	}
-
-	.header-content {
-		max-width: 800px;
-		margin: 0 auto;
-		padding: 0 1rem;
-	}
-
-	.header-icon {
-		width: 64px;
-		height: 64px;
-		margin-bottom: 1rem;
-		opacity: 0.9;
-	}
-
-	.page-title {
-		font-size: 2.5rem;
-		font-weight: 800;
-		color: var(--text-primary);
-		margin: 0 0 0.5rem 0;
-		line-height: 1.2;
-		word-wrap: break-word;
-		hyphens: auto;
-	}
-
-	.page-subtitle {
-		font-size: 1.125rem;
-		color: var(--text-secondary);
-		margin: 0 0 2rem 0;
-		line-height: 1.4;
-	}
-
-	/* ========================================
-    STATISTICS BAR
-  ======================================== */
-	.stats-bar {
-		display: flex;
-		justify-content: center;
-		gap: 1rem;
-		margin: 1.5rem 0;
-		flex-wrap: wrap;
-	}
-
-	.stat-item {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		padding: 0.75rem 1rem;
-		background: var(--bg-primary);
-		border-radius: 0.75rem;
-		box-shadow: var(--shadow-sm);
-		min-width: 80px;
-		flex: 1;
-		max-width: 120px;
-	}
-
-	.stat-item.accent {
-		background: var(--accent-blue);
-		color: white;
-	}
-
-	.stat-number {
-		font-size: 1.25rem;
-		font-weight: 700;
-		color: var(--text-accent);
-	}
-
-	.stat-item.accent .stat-number {
-		color: white;
-	}
-
-	.stat-label {
-		font-size: 0.75rem;
-		color: var(--text-secondary);
-		margin-top: 0.25rem;
-		text-align: center;
-		line-height: 1.2;
-	}
-
-	.stat-item.accent .stat-label {
-		color: white;
-		opacity: 0.9;
-	}
-
-	/* ========================================
-    CONTROLS SECTION - CENTERED & COMPACT
-  ======================================== */
-	.controls-section {
-		background: var(--bg-primary);
-		border-radius: 1rem;
-		padding: 1.5rem;
-		box-shadow: var(--shadow-md);
-		border: 1px solid var(--border-primary);
-		width: fit-content;
-		max-width: 100%;
-		margin: 0 auto;
-		display: flex;
-		justify-content: center;
-	}
-
-	.sorting-controls {
-		display: flex;
-		align-items: center;
-		gap: 1.5rem;
-		flex-wrap: wrap;
-		justify-content: center;
-	}
-
-	.control-group {
-		display: flex;
-		align-items: center;
-		gap: 0.75rem;
-		white-space: nowrap;
-	}
-
-	.control-label {
-		font-weight: 600;
-		color: var(--text-primary);
-		font-size: 0.875rem;
-		white-space: nowrap;
-	}
-
-	.control-select {
-		padding: 0.5rem 0.75rem;
-		border: 1px solid var(--border-secondary);
-		border-radius: 0.5rem;
-		background: var(--bg-secondary);
-		color: var(--text-primary);
-		font-size: 0.875rem;
-		cursor: pointer;
-		transition: all 0.2s ease;
-		min-width: 200px;
-	}
-
-	.control-select:focus {
-		outline: none;
-		border-color: var(--accent-blue);
-		box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1);
-	}
-
-	.sort-indicator {
-		display: flex;
-		align-items: center;
-	}
-
-	.sort-badge {
-		background: var(--accent-green);
-		color: white;
-		padding: 0.25rem 0.75rem;
-		border-radius: 1rem;
-		font-size: 0.75rem;
-		font-weight: 600;
-		white-space: nowrap;
-	}
-
-	/* ========================================
-    STATS GRID WITH PROPER SPACING
-  ======================================== */
-	.stats-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-		gap: 1.5rem;
-		margin-top: 1rem;
-		width: 100%;
-		padding: 0 1rem;
-	}
-
-	/* ========================================
-    STAT CARDS
-  ======================================== */
-	.stat-card {
-		background: var(--bg-primary);
-		border-radius: 1rem;
-		box-shadow: var(--shadow-lg);
-		overflow: hidden;
-		transition: all 0.3s ease;
-		border: 1px solid var(--border-primary);
-		width: 100%;
-	}
-
-	.stat-card:hover {
-		transform: translateY(-4px);
-		box-shadow: var(--shadow-lg), 0 20px 25px -5px rgb(0 0 0 / 0.1);
-	}
-
-	.card-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: flex-start;
-		padding: 1rem;
-		background: var(--bg-secondary);
-		border-bottom: 1px solid var(--border-primary);
-		flex-wrap: wrap;
-		gap: 0.5rem;
-	}
-
-	.team-info {
-		flex: 1;
-		min-width: 0;
-	}
-
-	.team-name {
-		font-size: 1rem;
-		font-weight: 700;
-		color: var(--text-primary);
-		margin: 0 0 0.5rem 0;
-		line-height: 1.2;
-		word-wrap: break-word;
-		hyphens: auto;
-	}
-
-	.team-meta {
-		display: flex;
-		gap: 0.5rem;
-		flex-wrap: wrap;
-	}
-
-	.conference-badge {
-		background: var(--accent-blue);
-		color: white;
-		padding: 0.125rem 0.5rem;
-		border-radius: 0.25rem;
-		font-size: 0.7rem;
-		font-weight: 600;
-		white-space: nowrap;
-	}
-
-	.week-range {
-		background: var(--bg-tertiary);
-		color: var(--text-secondary);
-		padding: 0.125rem 0.5rem;
-		border-radius: 0.25rem;
-		font-size: 0.7rem;
-		font-weight: 500;
-		white-space: nowrap;
-	}
-
-	.stat-category {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		width: 2rem;
-		height: 2rem;
-		border-radius: 50%;
-		font-size: 1rem;
-		background: var(--bg-tertiary);
-		flex-shrink: 0;
-	}
-
-	.stat-category.offense {
-		background: var(--accent-orange);
-	}
-
-	.stat-category.defense {
-		background: var(--accent-red);
-	}
-
-	.stat-category.special-teams {
-		background: var(--accent-purple);
-	}
-
-	.card-body {
-		padding: 1rem;
-	}
-
-	.stat-info {
-		text-align: center;
-	}
-
-	.stat-name {
-		font-size: 0.875rem;
-		font-weight: 600;
-		color: var(--text-secondary);
-		margin: 0 0 0.75rem 0;
-		line-height: 1.3;
-		word-wrap: break-word;
-		hyphens: auto;
-	}
-
-	.stat-value {
-		font-size: 2rem;
-		font-weight: 800;
-		color: var(--text-accent);
-		line-height: 1;
-	}
-
-	.card-footer {
-		padding: 0.75rem 1rem;
-		background: var(--bg-tertiary);
-		border-top: 1px solid var(--border-primary);
-	}
-
-	.stat-details {
-		display: flex;
-		justify-content: center;
-		gap: 0.5rem;
-		font-size: 0.75rem;
-	}
-
-	.detail-label {
-		color: var(--text-secondary);
-		font-weight: 500;
-	}
-
-	.detail-value {
-		color: var(--text-primary);
-		font-weight: 600;
-	}
-
-	/* ========================================
-    PAGINATION
-  ======================================== */
-	.pagination-section {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 1rem;
-		margin-top: 2rem;
-		padding: 0 1rem;
-	}
-
-	.pagination {
-		display: flex;
-		gap: 0.5rem;
-		align-items: center;
-		flex-wrap: wrap;
-		justify-content: center;
-	}
-
-	.pagination-item {
-		padding: 0.5rem 0.75rem;
-		border-radius: 0.5rem;
-		background: var(--bg-primary);
-		color: var(--text-primary);
-		text-decoration: none;
-		border: 1px solid var(--border-primary);
-		transition: all 0.2s ease;
-		font-size: 0.875rem;
-		font-weight: 500;
-	}
-
-	.pagination-item:hover {
-		background: var(--bg-secondary);
-		transform: translateY(-1px);
-	}
-
-	.pagination-item.active {
-		background: var(--accent-blue);
-		color: white;
-		border-color: var(--accent-blue);
-	}
-
-	.pagination-item.prev,
-	.pagination-item.next {
-		font-weight: 600;
-	}
-
-	.pagination-info {
-		font-size: 0.875rem;
-		color: var(--text-secondary);
-		text-align: center;
-	}
-
-	/* ========================================
-    EMPTY STATE
-  ======================================== */
-	.empty-state {
-		text-align: center;
-		padding: 3rem 1rem;
-	}
-
-	.empty-content h3 {
-		color: var(--text-primary);
-		margin: 0 0 1rem 0;
-		font-size: 1.25rem;
-	}
-
-	.empty-content p {
-		color: var(--text-secondary);
-		font-size: 1rem;
-		margin: 0 0 1rem 0;
-	}
-
-	.search-criteria-display {
-		background: var(--bg-secondary);
-		padding: 1rem;
-		border-radius: 0.5rem;
-		margin: 1rem 0;
-		font-size: 0.875rem;
-		color: var(--text-secondary);
-	}
-
-	.retry-suggestion {
-		font-size: 0.875rem;
-		color: var(--text-secondary);
-		margin: 0.5rem 0 0 0;
-		font-style: italic;
-	}
-
-	.help-text {
-		font-size: 0.875rem;
-		color: var(--text-secondary);
-		margin: 0.5rem 0 0 0;
-		opacity: 0.8;
-	}
-
-	.search-section {
-		margin-top: 2rem;
-		padding: 0 1rem;
-	}
-
-	/* ========================================
-    MOBILE RESPONSIVE (≤768px)
-  ======================================== */
-	@media (max-width: 768px) {
-		.stats-container {
-			width: 95%;
-			max-width: none;
-			padding: 1rem;
-		}
-
-		.page-title {
-			font-size: 1.75rem;
-		}
-
-		.page-subtitle {
-			font-size: 1rem;
-		}
-
-		.header-icon {
-			width: 48px;
-			height: 48px;
-		}
-
-		.controls-section {
-			width: 100%;
-			margin: 0;
-			padding: 1rem;
-		}
-
-		.sorting-controls {
-			flex-direction: column;
-			align-items: stretch;
-			gap: 1rem;
-		}
-
-		.control-group {
-			flex-direction: column;
-			align-items: stretch;
-			gap: 0.5rem;
-		}
-
-		.control-label {
-			text-align: center;
-			white-space: normal;
-		}
-
-		.control-select {
-			width: 100%;
-			min-width: unset;
-			font-size: 16px; /* Prevent iOS zoom */
-		}
-
-		.sort-indicator {
-			justify-content: center;
-		}
-
-		.stats-grid {
-			grid-template-columns: 1fr;
-			gap: 1rem;
-			padding: 0;
-		}
-
-		.stats-bar {
-			gap: 0.5rem;
-			margin: 1rem 0;
-		}
-
-		.stat-item {
-			padding: 0.5rem;
-			min-width: 70px;
-			max-width: none;
-			flex: 1;
-		}
-
-		.stat-number {
-			font-size: 1rem;
-		}
-
-		.stat-label {
-			font-size: 0.7rem;
-		}
-
-		.card-header {
-			padding: 0.75rem;
-			flex-direction: column;
-			align-items: stretch;
-			gap: 0.75rem;
-		}
-
-		.team-info {
-			text-align: center;
-		}
-
-		.team-name {
-			font-size: 0.9rem;
-		}
-
-		.team-meta {
-			justify-content: center;
-			font-size: 0.65rem;
-		}
-
-		.stat-category {
-			align-self: center;
-			width: 1.75rem;
-			height: 1.75rem;
-			font-size: 0.875rem;
-		}
-
-		.card-body {
-			padding: 0.75rem;
-		}
-
-		.stat-name {
-			font-size: 0.8rem;
-		}
-
-		.stat-value {
-			font-size: 1.5rem;
-		}
-
-		.card-footer {
-			padding: 0.5rem 0.75rem;
-		}
-
-		.stat-details {
-			font-size: 0.7rem;
-		}
-
-		.pagination-section {
-			padding: 0;
-		}
-
-		.pagination {
-			justify-content: center;
-			gap: 0.25rem;
-		}
-
-		.pagination-item {
-			padding: 0.375rem 0.5rem;
-			font-size: 0.75rem;
-		}
-
-		.pagination-info {
-			font-size: 0.75rem;
-			padding: 0 1rem;
-			text-align: center;
-		}
-
-		.empty-state {
-			padding: 2rem 1rem;
-		}
-
-		.search-section {
-			margin-top: 1.5rem;
-			padding: 0;
-		}
-	}
-
-	/* ========================================
-    EXTRA SMALL MOBILE (≤480px)
-  ======================================== */
-	@media (max-width: 480px) {
-		.stats-container {
-			padding: 0.5rem;
-		}
-
-		.page-title {
-			font-size: 1.5rem;
-			line-height: 1.3;
-		}
-
-		.page-subtitle {
-			font-size: 0.875rem;
-			line-height: 1.4;
-		}
-
-		.controls-section {
-			padding: 0.75rem;
-		}
-
-		.stat-card {
-			border-radius: 0.75rem;
-		}
-
-		.card-header {
-			padding: 0.5rem;
-		}
-
-		.card-body {
-			padding: 0.5rem;
-		}
-
-		.team-name {
-			font-size: 0.8rem;
-		}
-
-		.stat-value {
-			font-size: 1.25rem;
-		}
-
-		.stat-item {
-			padding: 0.375rem;
-			min-width: 60px;
-		}
-
-		.stat-number {
-			font-size: 0.875rem;
-		}
-
-		.stat-label {
-			font-size: 0.65rem;
-		}
-	}
-
-	/* ========================================
-    TABLET (769px - 1024px)
-  ======================================== */
-	@media (min-width: 769px) and (max-width: 1024px) {
-		.stats-grid {
-			grid-template-columns: repeat(2, 1fr);
-			gap: 1.5rem;
-		}
-
-		.controls-section {
-			max-width: 600px;
-		}
-	}
-
-	/* ========================================
-    LARGE DESKTOP (≥1025px)
-  ======================================== */
-	@media (min-width: 1025px) {
-		.stats-grid {
-			grid-template-columns: repeat(3, 1fr);
-		}
-
-		.controls-section {
-			max-width: 700px;
-		}
-	}
-
-	/* ========================================
-    UTILITY CLASSES
-  ======================================== */
-	.team-name,
-	.page-title,
-	.page-subtitle,
-	.stat-name,
-	.detail-value {
-		overflow-wrap: break-word;
-		word-break: break-word;
-		hyphens: auto;
-	}
-
-	.wrapper,
-	.stats-container,
-	.stats-section,
-	.stats-grid,
-	.stat-card {
-		max-width: 100%;
-		overflow-x: hidden;
-	}
+.light {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
+  --bg-tertiary: #f1f5f9;
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --text-accent: #dc2626;
+  --border-primary: #e2e8f0;
+  --border-secondary: #cbd5e1;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --accent-blue: #3b82f6;
+  --accent-green: #10b981;
+  --accent-orange: #f59e0b;
+  --accent-red: #ef4444;
+}
+
+.dark {
+  --bg-primary: #1e293b;
+  --bg-secondary: #334155;
+  --bg-tertiary: #475569;
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-accent: #f87171;
+  --border-primary: #475569;
+  --border-secondary: #64748b;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+  --accent-blue: #60a5fa;
+  --accent-green: #34d399;
+  --accent-orange: #fbbf24;
+  --accent-red: #f87171;
+}
+
+/* ========================================
+   LAYOUT & STRUCTURE
+======================================== */
+.wrapper {
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+}
+
+.results-container {
+  width: min(33vw, 1000px);
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.results-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* ========================================
+   HEADER SECTION
+======================================== */
+.header-section {
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.header-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.header-icon {
+  width: 64px;
+  height: 64px;
+  margin-bottom: 1rem;
+  opacity: 0.9;
+}
+
+.page-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0 0 0.5rem 0;
+  line-height: 1.2;
+}
+
+.team-subtitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-accent);
+  margin: 0 0 2rem 0;
+  line-height: 1.3;
+}
+
+.no-selection {
+  font-size: 1.125rem;
+  color: var(--text-secondary);
+  margin: 1rem 0;
+}
+
+/* ========================================
+   BANNERS & NOTIFICATIONS
+======================================== */
+.info-banner {
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-green));
+  border-radius: 1rem;
+  padding: 1.5rem;
+  margin: 1rem 0;
+  box-shadow: var(--shadow-md);
+}
+
+.info-content {
+  color: white;
+  text-align: center;
+}
+
+.info-primary {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+}
+
+.info-secondary {
+  margin: 0.25rem 0;
+  opacity: 0.9;
+}
+
+.error-banner {
+  background: var(--accent-red);
+  color: white;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin: 1rem 0;
+  box-shadow: var(--shadow-md);
+}
+
+/* ========================================
+   STATISTICS BAR
+======================================== */
+.stats-bar {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin: 1.5rem 0;
+  flex-wrap: wrap;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+  background: var(--bg-primary);
+  border-radius: 0.75rem;
+  box-shadow: var(--shadow-sm);
+  min-width: 100px;
+}
+
+.stat-item.warning {
+  background: var(--accent-orange);
+  color: white;
+}
+
+.stat-number {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-accent);
+}
+
+.stat-item.warning .stat-number {
+  color: white;
+}
+
+.stat-label {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+}
+
+.stat-item.warning .stat-label {
+  color: white;
+  opacity: 0.9;
+}
+
+/* ========================================
+   GAMES GRID & GAME CARDS
+======================================== */
+.games-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.game-card {
+  background: var(--bg-primary);
+  border-radius: 1rem;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border: 1px solid var(--border-primary);
+}
+
+.game-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg), 0 20px 25px -5px rgb(0 0 0 / 0.1);
+}
+
+/* ========================================
+   GAME HEADER
+======================================== */
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-primary);
+}
+
+.game-meta {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.week-badge {
+  background: var(--accent-blue);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.season-type {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.status-badge {
+  padding: 0.375rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.status-badge.final {
+  background: var(--accent-green);
+  color: white;
+}
+
+.status-badge.scheduled {
+  background: var(--accent-orange);
+  color: white;
+}
+
+/* ========================================
+   MOBILE MATCHUP LAYOUT (DEFAULT)
+======================================== */
+.matchup {
+  padding: 1rem;
+}
+
+.mobile-matchup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.desktop-matchup {
+  display: none;
+}
+
+.mobile-team {
+  background: var(--bg-secondary);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border-primary);
+}
+
+.mobile-team-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.mobile-team-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  line-height: 1.2;
+}
+
+.mobile-score {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-accent);
+  min-width: 50px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.mobile-team-meta {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  flex-wrap: wrap;
+}
+
+.mobile-location {
+  background: var(--bg-tertiary);
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.mobile-conference {
+  background: var(--accent-blue);
+  color: white;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.mobile-vs-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0.5rem 0;
+  border-top: 1px solid var(--border-primary);
+  border-bottom: 1px solid var(--border-primary);
+}
+
+.mobile-vs-text {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.mobile-game-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.125rem;
+}
+
+.mobile-result-text {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-accent);
+  text-align: center;
+}
+
+.mobile-margin {
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+}
+
+/* ========================================
+   GAME DETAILS
+======================================== */
+.game-details {
+  padding: 1.5rem;
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-primary);
+}
+
+.detail-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border-primary);
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+.detail-label {
+  font-size: 1rem;
+  width: 1.5rem;
+  text-align: center;
+}
+
+.detail-value {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  flex: 1;
+}
+
+/* ========================================
+   ERROR & EMPTY STATES
+======================================== */
+.error-card,
+.no-games-card {
+  background: var(--bg-primary);
+  border-radius: 1rem;
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  border: 1px solid var(--border-primary);
+}
+
+.error-card {
+  border-color: var(--accent-red);
+}
+
+.error-header {
+  background: var(--accent-red);
+  color: white;
+  padding: 1rem 1.5rem;
+}
+
+.error-header h3 {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.error-message {
+  padding: 1.5rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.no-games-content {
+  padding: 2rem 1.5rem;
+  text-align: center;
+}
+
+.no-games-content h3 {
+  color: var(--text-primary);
+  margin: 0 0 0.5rem 0;
+  font-size: 1.125rem;
+}
+
+.no-games-content p {
+  color: var(--text-secondary);
+  margin: 0 0 0.5rem 0;
+}
+
+.no-games-content small {
+  color: var(--text-secondary);
+  opacity: 0.8;
+  font-size: 0.75rem;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+.empty-content h3 {
+  color: var(--text-primary);
+  margin: 0 0 1rem 0;
+  font-size: 1.5rem;
+}
+
+.empty-content p {
+  color: var(--text-secondary);
+  font-size: 1.125rem;
+  margin: 0;
+}
+
+.search-section {
+  margin-top: 3rem;
+}
+
+/* ========================================
+   EXTRA SMALL PHONES (≤360px)
+======================================== */
+@media (max-width: 360px) {
+  .matchup {
+    padding: 0.75rem;
+  }
+
+  .mobile-team {
+    padding: 0.5rem;
+  }
+
+  .mobile-team-name {
+    font-size: 0.8rem;
+  }
+
+  .mobile-score {
+    font-size: 1.25rem;
+    min-width: 45px;
+  }
+
+  .mobile-team-meta {
+    font-size: 0.65rem;
+  }
+
+  .mobile-vs-text {
+    font-size: 0.75rem;
+  }
+
+  .mobile-result-text {
+    font-size: 0.7rem;
+  }
+
+  .mobile-margin {
+    font-size: 0.6rem;
+  }
+}
+
+/* ========================================
+   MOBILE PHONES (≤768px)
+======================================== */
+@media (max-width: 768px) {
+  .results-container {
+    padding: 1rem 0.5rem;
+  }
+
+  .page-title {
+    font-size: 1.75rem;
+  }
+
+  .team-subtitle {
+    font-size: 1.125rem;
+  }
+
+  .header-icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .games-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .game-card {
+    border-radius: 0.75rem;
+  }
+
+  .matchup {
+    gap: 0.75rem;
+  }
+
+  .game-details {
+    padding: 1rem;
+  }
+
+  .detail-row {
+    padding: 0.375rem 0;
+  }
+}
+
+/* ========================================
+   TABLET & DESKTOP (≥769px)
+======================================== */
+@media (min-width: 769px) {
+  .mobile-matchup {
+    display: none;
+  }
+
+  .desktop-matchup {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .matchup {
+    padding: 2rem 1.5rem;
+  }
+
+  .team-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .team-section.away {
+    justify-content: flex-end;
+    text-align: right;
+  }
+
+  .team-section.home {
+    justify-content: flex-start;
+    text-align: left;
+  }
+
+  .team-info {
+    flex: 1;
+  }
+
+  .team-name {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 0.25rem 0;
+    line-height: 1.2;
+    word-wrap: break-word;
+    hyphens: auto;
+  }
+
+  .team-meta {
+    display: flex;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    flex-wrap: wrap;
+  }
+
+  .team-section.away .team-meta {
+    justify-content: flex-end;
+  }
+
+  .conference {
+    background: var(--bg-tertiary);
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.25rem;
+    font-weight: 500;
+  }
+
+  .location {
+    font-weight: 500;
+    opacity: 0.8;
+  }
+
+  .score {
+    font-size: 2.875rem;
+    font-weight: 800;
+    color: var(--text-accent);
+    min-width: 80px;
+    text-align: center;
+  }
+
+  .vs-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 0 1rem;
+  }
+
+  .vs-text {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+  }
+
+  .game-summary {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .result-text {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-accent);
+  }
+
+  .margin {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+  }
+}
 </style>

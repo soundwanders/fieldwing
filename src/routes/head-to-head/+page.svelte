@@ -1,3 +1,4 @@
+<!-- src/routes/head-to-head/+page.svelte -->
 <script lang="ts">
 	import { theme } from '$lib/stores/theme';
 	import { formatStartDate } from '$lib/utils/formatStartDate';
@@ -34,9 +35,9 @@
 						{team1 ? team1 : ''}
 						vs
 						{team2 ? team2 : ''}
-						from 
-						{matchupData.startYear || 'Unknown Start Year'} 
-						to 
+						from
+						{matchupData.startYear || 'Unknown Start Year'}
+						to
 						{matchupData.endYear || 'Unknown End Year'}
 					</h1>
 				</div>
@@ -68,7 +69,7 @@
 								<p class="matchup-info">
 									Date: {formatStartDate(gameResult.date)}
 								</p>
-								
+
 								<p class="matchup-info">Venue: {gameResult.venue || 'Unknown Venue'}</p>
 							</article>
 						{/if}
@@ -357,7 +358,8 @@
 			text-align: center;
 		}
 
-		.team1, .team2 {
+		.team1,
+		.team2 {
 			word-wrap: break-word;
 			hyphens: auto;
 			flex: 1;

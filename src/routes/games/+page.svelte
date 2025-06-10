@@ -1,4 +1,4 @@
-<!-- src/routes/games/+page.svelte - POLISHED VERSION -->
+<!-- src/routes/games/+page.svelte -->
 <script lang="ts">
   import { onMount } from 'svelte';
   import { theme } from '$lib/stores/theme';
@@ -795,23 +795,6 @@
   color: var(--text-secondary);
 }
 
-.mobile-team.winner {
-  background: var(--accent-green);
-  color: white;
-  border-color: var(--accent-green);
-}
-
-.mobile-team.winner .mobile-team-name,
-.mobile-team.winner .mobile-score {
-  color: white;
-}
-
-.mobile-team.winner .mobile-location,
-.mobile-team.winner .mobile-conference {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-}
-
 /* ========================================
    GAME DETAILS
 ======================================== */
@@ -925,6 +908,7 @@
 /* ========================================
    EXTRA SMALL PHONES (≤360px)
 ======================================== */
+
 @media (max-width: 360px) {
   .matchup {
     padding: 0.75rem;
@@ -1001,12 +985,7 @@
   .detail-row {
     padding: 0.375rem 0;
   }
-}
 
-/* ========================================
-   TABLET & DESKTOP (≥769px)
-======================================== */
-@media (min-width: 769px) {
   .mobile-matchup {
     display: none;
   }
@@ -1020,7 +999,12 @@
 
   .matchup {
     padding: 2rem 1.5rem;
+  }
+}
 
+/* ========================================
+   TABLET & DESKTOP (≥769px)
+======================================== */
   .light {
     --bg-primary: #ffffff;
     --bg-secondary: #f8fafc;
@@ -1366,7 +1350,6 @@
     font-size: 0.75rem;
     color: var(--text-secondary);
   }
-}
 
   /* Game Details */
   .game-details {

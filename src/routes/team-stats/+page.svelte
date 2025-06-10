@@ -1,4 +1,4 @@
-<!-- src/routes/games/+page.svelte - POLISHED VERSION -->
+<!-- src/routes/games/+page.svelte -->
 <script lang="ts">
   import { onMount } from 'svelte';
   import { theme } from '$lib/stores/theme';
@@ -793,23 +793,6 @@
 .mobile-margin {
   font-size: 0.65rem;
   color: var(--text-secondary);
-}
-
-.mobile-team.winner {
-  background: var(--accent-green);
-  color: white;
-  border-color: var(--accent-green);
-}
-
-.mobile-team.winner .mobile-team-name,
-.mobile-team.winner .mobile-score {
-  color: white;
-}
-
-.mobile-team.winner .mobile-location,
-.mobile-team.winner .mobile-conference {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
 }
 
 /* ========================================

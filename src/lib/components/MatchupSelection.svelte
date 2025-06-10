@@ -152,20 +152,19 @@
 
 				<div class="button-container">
 					<a
-						href={selectedTeamsArray.length > 0
-							? getHeadToHeadURL()
-							: '#'}
+						href={selectedTeamsArray.length > 0 ? getHeadToHeadURL() : '#'}
 						data-sveltekit-reload
 						role="button"
 					>
 						<button
-						type="button"
-						class="submit-button"
-						disabled={!selectedTeamsArray[0] || !selectedTeamsArray[1]}
-						aria-label="Submit Matchups Form"
-					>
-						Submit
-					</button>
+							type="button"
+							class="submit-button"
+							disabled={!selectedTeamsArray[0] || !selectedTeamsArray[1]}
+							aria-label="Submit Matchups Form"
+						>
+							Submit
+						</button>
+					</a>
 				</div>
 
 				{#if errorMessage}

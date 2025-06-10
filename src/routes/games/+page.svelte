@@ -949,6 +949,7 @@
 ======================================== */
 @media (max-width: 768px) {
   .results-container {
+    width: 100%;
     padding: 1rem 0.5rem;
   }
 

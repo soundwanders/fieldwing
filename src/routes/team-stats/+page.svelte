@@ -1,4 +1,3 @@
-// team-stats/+page.svelte
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import { page } from '$app/stores';
@@ -345,7 +344,7 @@
 								{/if}
 							</button>
 
-              <!-- Fixed Export Button -->
+              <!-- Export Button -->
               {#if hasResults}
                 <div class="export-container">
                   <ExportButton 
@@ -402,12 +401,6 @@
 
 					{#if teamStats.length > 0}
 						<div class="results-actions">
-							<!-- You can keep the original CSV export as an alternative or remove it -->
-							<button on:click={exportToCSV} class="btn btn-outline" title="Export data to CSV">
-								📊 Export CSV
-							</button>
-							
-							<!-- Or use the ExportButton here too -->
 							<div class="export-container">
 								<ExportButton 
 									data={exportData} 
@@ -629,18 +622,7 @@
 		transform: translateY(-2px);
 		box-shadow: var(--shadow-md);
 	}
-
-	.btn-secondary {
-		background: var(--accent-green);
-		color: white;
-	}
-
-	.btn-secondary:hover:not(:disabled) {
-		background: var(--accent-green);
-		transform: translateY(-2px);
-		box-shadow: var(--shadow-md);
-	}
-
+  
 	.btn-outline {
 		background: transparent;
 		color: var(--accent-blue);

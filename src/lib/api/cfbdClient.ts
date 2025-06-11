@@ -1,5 +1,4 @@
 // src/lib/api/cfbdClient.ts
-
 import { CFBD_API_KEY } from '$env/static/private';
 import { error } from '@sveltejs/kit';
 

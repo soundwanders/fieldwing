@@ -181,6 +181,9 @@
 		animation: fadeIn 0.2s forwards ease-out;
 		position: relative;
 		z-index: 1000;
+		width: 100%;
+		margin: 0;
+		padding: 0;
 	}
 
 	.navbar {
@@ -189,6 +192,10 @@
 		justify-content: space-between;
 		align-items: center;
 		padding: 1rem;
+		width: 100%;
+		box-sizing: border-box;
+		margin: 0;
+		background-color: inherit;
 	}
 
 	.left-section {

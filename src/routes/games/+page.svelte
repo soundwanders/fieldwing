@@ -488,9 +488,9 @@
 }
 
 .results-container {
-  width: min(33vw, 1000px);
+  width: 100%;
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: 1rem;
 }
 
 .results-section {
@@ -504,7 +504,7 @@
 ======================================== */
 .header-section {
   text-align: center;
-  padding: 2rem 0;
+  padding: 1.5rem 0;
 }
 
 .header-content {
@@ -513,14 +513,14 @@
 }
 
 .header-icon {
-  width: 64px;
-  height: 64px;
+  width: clamp(40px, 8vw, 64px);
+  height: clamp(40px, 8vw, 64px);
   margin-bottom: 1rem;
   opacity: 0.9;
 }
 
 .page-title {
-  font-size: 2.5rem;
+  font-size: clamp(1.5rem, 5vw, 2.5rem);
   font-weight: 800;
   color: var(--text-primary);
   margin: 0 0 0.5rem 0;
@@ -528,7 +528,7 @@
 }
 
 .team-subtitle {
-  font-size: 1.5rem;
+  font-size: clamp(1rem, 3vw, 1.5rem);
   font-weight: 600;
   color: var(--text-accent);
   margin: 0 0 2rem 0;
@@ -583,7 +583,7 @@
 .stats-bar {
   display: flex;
   justify-content: center;
-  gap: 2rem;
+  gap: clamp(0.5rem, 3vw, 2rem);
   margin: 1.5rem 0;
   flex-wrap: wrap;
 }
@@ -592,11 +592,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 1rem;
+  padding: clamp(0.75rem, 2vw, 1rem);
   background: var(--bg-primary);
   border-radius: 0.75rem;
   box-shadow: var(--shadow-sm);
-  min-width: 100px;
+  min-width: clamp(80px, 15vw, 100px);
 }
 
 .stat-item.warning {
@@ -605,7 +605,7 @@
 }
 
 .stat-number {
-  font-size: 1.5rem;
+  font-size: clamp(1.125rem, 3vw, 1.5rem);
   font-weight: 700;
   color: var(--text-accent);
 }
@@ -615,9 +615,10 @@
 }
 
 .stat-label {
-  font-size: 0.875rem;
+  font-size: clamp(0.75rem, 2vw, 0.875rem);
   color: var(--text-secondary);
   margin-top: 0.25rem;
+  text-align: center;
 }
 
 .stat-item.warning .stat-label {
@@ -630,7 +631,7 @@
 ======================================== */
 .games-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
   gap: 1.5rem;
   margin-top: 2rem;
 }
@@ -659,12 +660,15 @@
   padding: 1rem 1.5rem;
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border-primary);
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 .game-meta {
   display: flex;
   gap: 0.75rem;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .week-badge {
@@ -702,16 +706,17 @@
 }
 
 /* ========================================
-   MOBILE MATCHUP LAYOUT (DEFAULT)
+   FLEXIBLE MATCHUP LAYOUT
 ======================================== */
 .matchup {
-  padding: 1rem;
+  padding: clamp(1rem, 3vw, 2rem);
 }
 
+/* Mobile Layout: Default for small screens */
 .mobile-matchup {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 1rem;
   width: 100%;
 }
 
@@ -721,35 +726,34 @@
 
 .mobile-team {
   background: var(--bg-secondary);
-  border-radius: 0.5rem;
-  padding: 0.75rem;
+  border-radius: 0.75rem;
+  padding: 1rem;
   border: 1px solid var(--border-primary);
 }
 
 .mobile-team-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.5rem;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+  gap: 1rem;
 }
 
 .mobile-team-name {
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: clamp(1rem, 3.5vw, 1.25rem);
+  font-weight: 700;
   color: var(--text-primary);
   margin: 0;
   flex: 1;
   min-width: 0;
-  overflow-wrap: break-word;
-  hyphens: auto;
-  line-height: 1.2;
+  line-height: 1.3;
 }
 
 .mobile-score {
-  font-size: 1.5rem;
+  font-size: clamp(1.5rem, 5vw, 2rem);
   font-weight: 800;
   color: var(--text-accent);
-  min-width: 50px;
+  min-width: clamp(60px, 12vw, 80px);
   text-align: right;
   flex-shrink: 0;
 }
@@ -757,15 +761,15 @@
 .mobile-team-meta {
   display: flex;
   gap: 0.5rem;
-  font-size: 0.7rem;
+  font-size: clamp(0.75rem, 2vw, 0.875rem);
   color: var(--text-secondary);
   flex-wrap: wrap;
 }
 
 .mobile-location {
   background: var(--bg-tertiary);
-  padding: 0.125rem 0.375rem;
-  border-radius: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
   font-weight: 500;
   white-space: nowrap;
 }
@@ -773,8 +777,8 @@
 .mobile-conference {
   background: var(--accent-blue);
   color: white;
-  padding: 0.125rem 0.375rem;
-  border-radius: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
   font-weight: 500;
   white-space: nowrap;
 }
@@ -784,34 +788,35 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 0.5rem 0;
-  border-top: 1px solid var(--border-primary);
-  border-bottom: 1px solid var(--border-primary);
+  padding: 0.75rem 0;
+  border-top: 2px solid var(--border-primary);
+  border-bottom: 2px solid var(--border-primary);
+  margin: 0.5rem 0;
 }
 
 .mobile-vs-text {
-  font-size: 0.875rem;
+  font-size: clamp(0.875rem, 2.5vw, 1rem);
   font-weight: 600;
   color: var(--text-secondary);
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.5rem;
 }
 
 .mobile-game-result {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.125rem;
+  gap: 0.25rem;
 }
 
 .mobile-result-text {
-  font-size: 0.75rem;
+  font-size: clamp(0.875rem, 2.5vw, 1rem);
   font-weight: 600;
   color: var(--text-accent);
   text-align: center;
 }
 
 .mobile-margin {
-  font-size: 0.65rem;
+  font-size: clamp(0.75rem, 2vw, 0.875rem);
   color: var(--text-secondary);
 }
 
@@ -839,18 +844,19 @@
 }
 
 .team-name {
-  font-size: 1.875rem;
+  font-size: clamp(1.5rem, 4vw, 1.875rem);
   font-weight: 700;
   color: var(--text-primary);
   margin: 0 0 0.5rem 0;
   word-wrap: break-word;
   hyphens: auto;
+  line-height: 1.2;
 }
 
 .team-meta {
   display: flex;
   gap: 0.5rem;
-  font-size: 0.75rem;
+  font-size: clamp(0.75rem, 2vw, 0.875rem);
   color: var(--text-secondary);
   flex-wrap: wrap;
 }
@@ -862,24 +868,24 @@
 .conference {
   background: var(--accent-blue);
   color: white;
-  padding: 0.125rem 0.5rem;
-  border-radius: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
   font-weight: 500;
 }
 
 .location {
   background: var(--bg-tertiary);
-  padding: 0.125rem 0.5rem;
-  border-radius: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
   font-weight: 500;
   opacity: 0.8;
 }
 
 .score {
-  font-size: 2.875rem;
+  font-size: clamp(2rem, 6vw, 2.875rem);
   font-weight: 800;
   color: var(--text-accent);
-  min-width: 80px;
+  min-width: clamp(60px, 12vw, 80px);
   text-align: center;
 }
 
@@ -892,7 +898,7 @@
 }
 
 .vs-text {
-  font-size: 1.125rem;
+  font-size: clamp(1rem, 2.5vw, 1.125rem);
   font-weight: 600;
   color: var(--text-secondary);
   margin-bottom: 0.5rem;
@@ -906,13 +912,13 @@
 }
 
 .result-text {
-  font-size: 0.875rem;
+  font-size: clamp(0.875rem, 2vw, 1rem);
   font-weight: 600;
   color: var(--text-accent);
 }
 
 .margin {
-  font-size: 0.75rem;
+  font-size: clamp(0.75rem, 1.8vw, 0.875rem);
   color: var(--text-secondary);
 }
 
@@ -920,7 +926,7 @@
    GAME DETAILS
 ======================================== */
 .game-details {
-  padding: 1.5rem;
+  padding: clamp(1rem, 3vw, 1.5rem);
   background: var(--bg-secondary);
   border-top: 1px solid var(--border-primary);
 }
@@ -941,19 +947,14 @@
   font-size: 1rem;
   width: 1.5rem;
   text-align: center;
+  flex-shrink: 0;
 }
 
 .detail-value {
-  font-size: 0.875rem;
+  font-size: clamp(0.875rem, 2vw, 1rem);
   color: var(--text-secondary);
   flex: 1;
-}
-
-/* ========================================
-   EXPORT BUTTON CONTAINER
-======================================== */
-.export-container {
-  align-content: center;
+  line-height: 1.4;
 }
 
 /* ========================================
@@ -1033,90 +1034,57 @@
   margin-top: 3rem;
 }
 
-/* ========================================
-   EXTRA SMALL PHONES (≤360px)
-======================================== */
-@media (max-width: 360px) {
-  .matchup {
-    padding: 0.75rem;
-  }
+.export-container {
+  align-content: center;
+}
 
-  .mobile-team {
+/* ========================================
+   RESPONSIVE BREAKPOINTS
+======================================== */
+
+/* Small phones */
+@media (max-width: 480px) {
+  .results-container {
     padding: 0.5rem;
   }
-
-  .mobile-team-name {
-    font-size: 0.8rem;
-  }
-
-  .mobile-score {
-    font-size: 1.25rem;
-    min-width: 45px;
-  }
-
-  .mobile-team-meta {
-    font-size: 0.65rem;
-  }
-
-  .mobile-vs-text {
-    font-size: 0.75rem;
-  }
-
-  .mobile-result-text {
-    font-size: 0.7rem;
-  }
-
-  .mobile-margin {
-    font-size: 0.6rem;
-  }
-}
-
-/* ========================================
-   MOBILE PHONES (≤768px)
-======================================== */
-@media (max-width: 768px) {
-  .results-container {
-    padding: 1rem 0.5rem;
-  }
-
-  .page-title {
-    font-size: 1.75rem;
-  }
-
-  .team-subtitle {
-    font-size: 1.125rem;
-  }
-
-  .header-icon {
-    width: 48px;
-    height: 48px;
-  }
-
+  
   .games-grid {
-    grid-template-columns: 1fr;
+    margin-top: 0;
     gap: 1rem;
   }
-
-  .game-card {
-    border-radius: 0.75rem;
+  
+  .mobile-team {
+    padding: 0.75rem;
   }
-
-  .game-details {
-    padding: 1rem;
-  }
-
-  .detail-row {
-    padding: 0.375rem 0;
+  
+  .mobile-team-header {
+    gap: 0.75rem;
   }
 }
 
-/* ========================================
-   DESKTOP & TABLET (≥769px) - THE FIX!
-======================================== */
-@media (min-width: 769px) {
+/* Covers most phones */
+@media (max-width: 768px) {
+  .games-grid {
+    margin-top: 0;
+  }
+}
+
+/* Large tablets and small laptops */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .results-container {
+    width: min(90vw, 1200px);
+    padding: 1.5rem;
+  }
+  
+  .games-grid {
+    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+  }
+}
+
+/* Desktop: Switch to horizontal layout */
+@media (min-width: 1025px) {
   .results-container {
     max-width: 1400px;
-    margin: 0 auto;
     padding: 2rem 1rem;
   }
 
@@ -1128,12 +1096,12 @@
   .desktop-matchup {
     display: grid;
     grid-template-columns: 1fr auto 1fr;
-    gap: 1rem;
+    gap: 1.5rem;
     align-items: center;
   }
 
-  .matchup {
-    padding: 2rem 1.5rem;
+  .games-grid {
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
   }
 }
 </style>

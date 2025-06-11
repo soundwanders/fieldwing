@@ -221,7 +221,7 @@ class CFBDApiClient {
 		throw error(500, `Failed to fetch data from ${endpoint}: ${lastError.message}`);
 	}
 
-	// Typed API methods with FIXED validation
+	// Typed API methods with validation
 	async getGames(params: GameSearchParams = {}): Promise<Game[]> {
 		return this.request('/games', params, { validateResponse: false }, isGame);
 	}

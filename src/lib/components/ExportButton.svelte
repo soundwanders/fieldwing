@@ -314,7 +314,6 @@
 	/* Mobile responsiveness */
 	@media (max-width: 768px) {
 		.export-button {
-			width: 100%;
 			justify-content: center;
 		}
 

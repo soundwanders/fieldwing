@@ -1,4 +1,3 @@
-<!-- src/routes/player-stats/+page.svelte -->
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import { page } from '$app/stores';

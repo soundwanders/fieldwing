@@ -1,3 +1,4 @@
+// team-stats/+page.svelte
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import { page } from '$app/stores';
@@ -8,6 +9,7 @@
 	import FormField from '$lib/components/FormField.svelte';
 	import TeamStatsTable from '$lib/components/TeamStatsTable.svelte';
 	import type { TeamStat } from '$lib/types/api';
+	import ExportButton from '$lib/components/ExportButton.svelte';
 
 	export let data: { 
 		teamData?: { teamStatsData: TeamStat[]; total: number }; 
@@ -33,6 +35,23 @@
 
 	// Form validation
 	let formErrors: Record<string, string> = {};
+
+	// Reactive variables for export functionality (similar to games route)
+	$: hasResults = teamStats.length > 0;
+	$: exportData = teamStats; // The data we want to export
+	$: exportFilename = (() => {
+		let filename = `team-stats-${searchParams.year}`;
+		if (searchParams.team) filename += `-${searchParams.team.replace(/\s+/g, '-')}`;
+		if (searchParams.conference) filename += `-${searchParams.conference}`;
+		if (searchParams.startWeek && searchParams.endWeek) {
+			filename += `-weeks-${searchParams.startWeek}-${searchParams.endWeek}`;
+		} else if (searchParams.startWeek) {
+			filename += `-week-${searchParams.startWeek}+`;
+		} else if (searchParams.endWeek) {
+			filename += `-week-1-${searchParams.endWeek}`;
+		}
+		return filename;
+	})();
 
 	// Initialize from server data or URL parameters
 	function initializeFromData(): void {
@@ -182,7 +201,7 @@
 		fetchTeamStats();
 	}
 
-	// CSV Export
+	// CSV Export (keep this as backup/legacy)
 	function exportToCSV(): void {
 		if (teamStats.length === 0) {
 			alert('No data to export');
@@ -326,14 +345,19 @@
 								{/if}
 							</button>
 
-							<button
-								type="button"
-								on:click={exportToCSV}
-								disabled={teamStats.length === 0}
-								class="btn btn-secondary"
-							>
-								📊 Export CSV
-							</button>
+              <!-- Fixed Export Button -->
+              {#if hasResults}
+                <div class="export-container">
+                  <ExportButton 
+                    data={exportData} 
+                    type="team-stats" 
+                    variant="outline"
+                    size="medium"
+                    filename={exportFilename}
+                    showCount={true}
+                  />
+                </div>
+              {/if}
 						</div>
 					</div>
 
@@ -378,9 +402,22 @@
 
 					{#if teamStats.length > 0}
 						<div class="results-actions">
+							<!-- You can keep the original CSV export as an alternative or remove it -->
 							<button on:click={exportToCSV} class="btn btn-outline" title="Export data to CSV">
-								📊 Export
+								📊 Export CSV
 							</button>
+							
+							<!-- Or use the ExportButton here too -->
+							<div class="export-container">
+								<ExportButton 
+									data={exportData} 
+									type="team-stats" 
+									variant="primary"
+									size="small"
+									filename={exportFilename}
+									showCount={false}
+								/>
+							</div>
 						</div>
 					{/if}
 				</div>

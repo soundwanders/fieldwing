@@ -1,4 +1,3 @@
-<!-- src/lib/components/TeamSearchbar.svelte -->
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import { selectedTeams, selectedWeek } from '$lib/stores/store';
@@ -136,7 +135,7 @@
 	<section class="searchbar-section">
 		<article class="searchbar-flex-container">
 			<div class="label-wrapper">
-				<label for="teamSearch">Search for a Team:</label>
+				<label for="teamSearch">Search Teams:</label>
 			</div>
 
 			<div class="input-wrapper">
@@ -147,7 +146,7 @@
 					class:dark={$theme}
 					id="teamSearch"
 					bind:value={searchQuery}
-					placeholder="Enter team name (min 3 characters)"
+					placeholder="Enter team name"
 					on:input={handleInput}
 					autocomplete="off"
 				/>

@@ -215,14 +215,7 @@
 	.mobile-container {
 		width: 100%;
 		max-width: 100%;
-		padding: 0 1rem;
 		box-sizing: border-box;
-	}
-
-	@media (max-width: 480px) {
-		.mobile-container {
-			padding: 0 0.5rem;
-		}
 	}
 	
 	button {

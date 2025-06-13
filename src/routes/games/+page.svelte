@@ -199,7 +199,7 @@
                 </div>
               {:else}
                 <h1 class="page-title">Game Results</h1>
-                <p class="no-selection">Please select teams to view their game results</p>
+                <p class="no-selection">Please select teams to view game results</p>
               {/if}
               
               <!-- Statistics Summary with Export Button -->

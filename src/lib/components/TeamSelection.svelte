@@ -490,8 +490,8 @@
 
 	.hero-icon {
 		display: inline-block;
-		width: clamp(36px, 6vw, 64px);
-		height: clamp(36px, 6vw, 64px);
+		width: clamp(36px, 6vw, 56px);
+		height: clamp(36px, 6vw, 56px);
 		opacity: 0.9;
 		filter: drop-shadow(0 4px 6px rgb(0 0 0 / 0.1));
 	}

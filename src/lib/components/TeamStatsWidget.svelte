@@ -1,5 +1,3 @@
-<!-- TeamStatsWidget.svelte -->
-
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { statsNameTrim } from '$lib/utils/statsNameTrim';

@@ -212,6 +212,12 @@
 		justify-content: center;
 	}
 
+	.mobile-container {
+		width: 100%;
+		max-width: 100%;
+		box-sizing: border-box;
+	}
+	
 	button {
 		width: 1.5rem;
 		height: auto;
@@ -229,6 +235,14 @@
 	button:active {
 		translate: 0 1px;
 	}
+
+/* Focus styles for mobile accessibility */
+@media (max-width: 768px) {
+	*:focus {
+		outline: 2px solid #3b82f6;
+		outline-offset: 2px;
+	}
+}
 
 	/* Focus styles for accessibility */
 	.link:focus,

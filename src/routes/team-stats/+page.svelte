@@ -1,1103 +1,857 @@
-<!-- src/routes/games/+page.svelte -->
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { theme } from '$lib/stores/theme';
-  import { formatStartDate } from '$lib/utils/formatStartDate';
-  import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
-  import ErrorBoundary from '$lib/components/ErrorBoundary.svelte';
-  import ResubmitTeams from '$lib/components/ResubmitTeams.svelte';
-  import '../../styles/main.css';
+	import { onMount, onDestroy } from 'svelte';
+	import { page } from '$app/stores';
+	import { goto } from '$app/navigation';
+	import { theme } from '$lib/stores/theme';
+	import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
+	import ErrorMessage from '$lib/components/ErrorMessage.svelte';
+	import FormField from '$lib/components/FormField.svelte';
+	import TeamStatsTable from '$lib/components/TeamStatsTable.svelte';
+	import type { TeamStat } from '$lib/types/api';
+	import ExportButton from '$lib/components/ExportButton.svelte';
 
-  // Type the data prop properly
-  export let data: {
-    gameResults?: Array<{
-      team: string;
-      data: any[];
-      error: string | null;
-    }>;
-    teams?: string[];
-    year?: string;
-    week?: string;
-    error?: string;
-  };
+	export let data: { 
+		teamData?: { teamStatsData: TeamStat[]; total: number }; 
+		searchParams?: Record<string, string>;
+		error?: string;
+	} = {};
 
-  let isLoading = true;
-  let pageError: Error | null = null;
+	// Component state
+	let teamStats: TeamStat[] = [];
+	let isLoading = false;
+	let error: string | null = null;
+	let totalItems = 0;
+	let isInitialized = false;
 
-  // Extract data with proper error handling
-  $: gameResults = data?.gameResults || [];
-  $: teams = data?.teams || [];
-  $: year = data?.year || new Date().getFullYear().toString();
-  $: week = data?.week || '1';
+	// Form state
+	let searchParams = {
+		year: '',
+		team: '',
+		conference: '',
+		startWeek: '',
+		endWeek: ''
+	};
 
-  // Create formatted teams display
-  $: formattedTeams = Array.isArray(teams) ? teams.join(', ') : 'No Teams Selected';
-  $: teamTitleList = formattedTeams;
+	// Form validation
+	let formErrors: Record<string, string> = {};
 
-  // Data availability checks
-  $: hasSuccessfulApiCalls = gameResults.some(result => result.error === null);
-  $: hasGamesData = gameResults.some(result => result.error === null && result.data.length > 0);
-  $: hasAnyResults = gameResults.length > 0;
-  $: hasApiErrors = gameResults.some(result => result.error !== null);
+	// Reactive variables for export functionality (similar to games route)
+	$: hasResults = teamStats.length > 0;
+	$: exportData = teamStats; // The data we want to export
+	$: exportFilename = (() => {
+		let filename = `team-stats-${searchParams.year}`;
+		if (searchParams.team) filename += `-${searchParams.team.replace(/\s+/g, '-')}`;
+		if (searchParams.conference) filename += `-${searchParams.conference}`;
+		if (searchParams.startWeek && searchParams.endWeek) {
+			filename += `-weeks-${searchParams.startWeek}-${searchParams.endWeek}`;
+		} else if (searchParams.startWeek) {
+			filename += `-week-${searchParams.startWeek}+`;
+		} else if (searchParams.endWeek) {
+			filename += `-week-1-${searchParams.endWeek}`;
+		}
+		return filename;
+	})();
 
-  // Get the first successful game for header info
-  $: firstGame = (() => {
-    const result = gameResults.find(result => result.error === null && result.data.length > 0);
-    if (!result) return null;
-    
-    const game = result.data[0];
-    if (!game) return null;
-    
-    // Normalize the property names for consistent access
-    return {
-      ...game,
-      home_team: game.homeTeam || game.home_team,
-      away_team: game.awayTeam || game.away_team,
-      season_type: game.seasonType || game.season_type,
-      start_date: game.startDate || game.start_date,
-      home_points: game.homePoints ?? game.home_points,
-      away_points: game.awayPoints ?? game.away_points,
-      conference_game: game.conferenceGame ?? game.conference_game
-    };
-  })();
+	// Initialize from server data or URL parameters
+	function initializeFromData(): void {
+		if (typeof window === 'undefined') return;
 
-  // Statistics
-  $: totalGames = gameResults.reduce((sum, result) => 
-    result.error === null ? sum + result.data.length : sum, 0);
-  $: successfulTeams = gameResults.filter(r => r.error === null).length;
-  $: failedTeams = gameResults.filter(r => r.error !== null).length;
+		const urlParams = new URLSearchParams(window.location.search);
 
-  // Helper functions
-  function capitalizeFirstChar(str: string | undefined | null): string {
-    if (!str || typeof str !== 'string') {
-      return 'Regular';
-    }
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  }
+		searchParams = {
+			year: urlParams.get('year') || data.searchParams?.year || new Date().getFullYear().toString(),
+			team: urlParams.get('team') || data.searchParams?.team || '',
+			conference: urlParams.get('conference') || data.searchParams?.conference || '',
+			startWeek: urlParams.get('startWeek') || data.searchParams?.startWeek || '',
+			endWeek: urlParams.get('endWeek') || data.searchParams?.endWeek || ''
+		};
 
-  function handleRetry() {
-    pageError = null;
-    window.location.reload();
-  }
+		// If we have server data, use it
+		if (data.teamData?.teamStatsData) {
+			teamStats = data.teamData.teamStatsData;
+			totalItems = data.teamData.total;
+		}
+	}
 
-  function checkForDataErrors() {
-    if (data?.error) {
-      pageError = new Error(data.error);
-      return;
-    }
+	// Form validation function
+	function validateForm(): boolean {
+		formErrors = {};
 
-    if (teams.length > 0 && gameResults.length === 0) {
-      pageError = new Error('No game data was returned for the selected teams');
-      return;
-    }
+		if (!searchParams.year) {
+			formErrors.year = 'Year is required';
+			return false;
+		}
 
-    if (gameResults.length > 0 && !hasSuccessfulApiCalls) {
-      const errors = gameResults
-        .filter(r => r.error)
-        .map(r => r.error)
-        .filter(e => e)
-        .join('; ');
-      pageError = new Error(`Failed to load games for all teams: ${errors || 'Unknown API error'}`);
-      return;
-    }
+		const year = parseInt(searchParams.year);
+		const currentYear = new Date().getFullYear();
+		if (isNaN(year) || year < 1900 || year > currentYear + 1) {
+			formErrors.year = `Year must be between 1900 and ${currentYear + 1}`;
+			return false;
+		}
 
-    pageError = null;
-  }
+		if (searchParams.startWeek) {
+			const week = parseInt(searchParams.startWeek);
+			if (isNaN(week) || week < 1 || week > 14) {
+				formErrors.startWeek = 'Start week must be between 1 and 14';
+				return false;
+			}
+		}
 
-  function getGameWinner(game: any): string | null {
-    const homePoints = game.homePoints ?? game.home_points ?? 0;
-    const awayPoints = game.awayPoints ?? game.away_points ?? 0;
-    const homeTeam = game.homeTeam || game.home_team;
-    const awayTeam = game.awayTeam || game.away_team;
-    
-    if (!game.completed) return null;
-    if (homePoints > awayPoints) return homeTeam;
-    if (awayPoints > homePoints) return awayTeam;
-    return 'Tie';
-  }
+		if (searchParams.endWeek) {
+			const week = parseInt(searchParams.endWeek);
+			if (isNaN(week) || week < 1 || week > 14) {
+				formErrors.endWeek = 'End week must be between 1 and 14';
+				return false;
+			}
+		}
 
-  function getGameMargin(game: any): number {
-    const homePoints = game.homePoints ?? game.home_points ?? 0;
-    const awayPoints = game.awayPoints ?? game.away_points ?? 0;
-    return Math.abs(homePoints - awayPoints);
-  }
+		if (searchParams.startWeek && searchParams.endWeek) {
+			const start = parseInt(searchParams.startWeek);
+			const end = parseInt(searchParams.endWeek);
+			if (start > end) {
+				formErrors.endWeek = 'End week must be greater than or equal to start week';
+				return false;
+			}
+		}
 
-  onMount(() => {
-    checkForDataErrors();
+		return true;
+	}
 
-    const timer = setTimeout(() => {
-      isLoading = false;
-    }, 300);
+	// API call function
+	async function fetchTeamStats(): Promise<void> {
+		if (!validateForm()) {
+			teamStats = [];
+			totalItems = 0;
+			return;
+		}
 
-    return () => clearTimeout(timer);
-  });
+		isLoading = true;
+		error = null;
+
+		try {
+			const params = new URLSearchParams();
+			params.set('year', searchParams.year);
+
+			if (searchParams.team) params.set('team', searchParams.team);
+			if (searchParams.conference) params.set('conference', searchParams.conference);
+			if (searchParams.startWeek) params.set('startWeek', searchParams.startWeek);
+			if (searchParams.endWeek) params.set('endWeek', searchParams.endWeek);
+
+			const response = await fetch(`/api/team-stats?${params.toString()}`);
+
+			if (!response.ok) {
+				const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+				throw new Error(errorData.error || `HTTP ${response.status}`);
+			}
+
+			const result = await response.json();
+
+			if (result.data && Array.isArray(result.data)) {
+				teamStats = result.data;
+				totalItems = result.data.length;
+
+				if (teamStats.length === 0 && searchParams.year) {
+					error = 'No team statistics found for your search criteria. Try adjusting your filters.';
+				}
+			} else {
+				throw new Error('Invalid response format');
+			}
+		} catch (err) {
+			error = err instanceof Error ? err.message : 'Failed to fetch team stats';
+			teamStats = [];
+			totalItems = 0;
+		} finally {
+			isLoading = false;
+		}
+	}
+
+	// Handle form field changes
+	function handleFieldChange(event: CustomEvent<{ value: string | number }>, field: string): void {
+		searchParams = {
+			...searchParams,
+			[field]: event.detail.value
+		};
+
+		// Clear errors for this field
+		if (formErrors[field]) {
+			const newErrors = { ...formErrors };
+			delete newErrors[field];
+			formErrors = newErrors;
+		}
+	}
+
+	// Handle form submission
+	function handleSearch(): void {
+		if (!validateForm()) {
+			return;
+		}
+
+		// Update URL and trigger search
+		const url = new URL(window.location.href);
+		Object.entries(searchParams).forEach(([key, value]) => {
+			if (value && value !== '') {
+				url.searchParams.set(key, String(value));
+			} else {
+				url.searchParams.delete(key);
+			}
+		});
+
+		goto(url.pathname + url.search, { replaceState: true });
+		fetchTeamStats();
+	}
+
+	// CSV Export (keep this as backup/legacy)
+	function exportToCSV(): void {
+		if (teamStats.length === 0) {
+			alert('No data to export');
+			return;
+		}
+
+		const headers = ['Team', 'Conference', 'Stat Name', 'Stat Value'];
+		const csvContent = [
+			headers.join(','),
+			...teamStats.map((stat) =>
+				[
+					`"${stat.team}"`,
+					`"${stat.conference}"`,
+					`"${stat.statName}"`,
+					stat.statValue
+				].join(',')
+			)
+		].join('\n');
+
+		const blob = new Blob([csvContent], { type: 'text/csv' });
+		const url = window.URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = `team-stats-${searchParams.year}-${Date.now()}.csv`;
+		document.body.appendChild(a);
+		a.click();
+		window.URL.revokeObjectURL(url);
+		document.body.removeChild(a);
+	}
+
+	// Initialize on mount
+	onMount(() => {
+		initializeFromData();
+		isInitialized = true;
+	});
+
+	// Cleanup
+	onDestroy(() => {
+		// Any cleanup needed
+	});
 </script>
 
 <svelte:head>
-  <title>Game Results - Fieldwing</title>
-  <meta name="description" content="View college football game results and scores for your favorite teams." />
+	<title>Team Statistics - Fieldwing</title>
+	<meta
+		name="description"
+		content="Search and analyze college football team statistics by year, team, conference, and week range."
+	/>
 </svelte:head>
 
-<ErrorBoundary bind:error={pageError} on:retry={handleRetry}>
-  <div class="wrapper">
-    {#if isLoading}
-      <LoadingSpinner 
-        size="large" 
-        text="Loading game results..." 
-        fullScreen={true}
-      />
-    {:else}
-      <div class="results-container" class:light={!$theme} class:dark={$theme}>
-        <section class="results-section">
-          <!-- Header Section -->
-          <div class="header-section">
-            <div class="header-content">
-              <img class="header-icon" src="/gameresults.png" alt="Game Results" aria-hidden="true" />
-              
-              {#if hasGamesData && firstGame}
-                <h1 class="page-title">
-                  Week {firstGame.week}, {firstGame.season} Results
-                </h1>
-                <h2 class="team-subtitle">
-                  {teamTitleList}
-                </h2>
-              {:else if hasSuccessfulApiCalls}
-                <h1 class="page-title">
-                  Week {week}, {year} Results
-                </h1>
-                <h2 class="team-subtitle">
-                  {teamTitleList}
-                </h2>
-                {#if totalGames === 0}
-                  <div class="info-banner">
-                    <div class="info-content">
-                      <p class="info-primary">✅ Successfully connected to data source</p>
-                      <p class="info-secondary">📅 No games scheduled for these teams in Week {week} of {year}</p>
-                      {#if parseInt(year) > new Date().getFullYear()}
-                        <p class="info-secondary">⏭️ Future seasons may not have scheduled games yet</p>
-                      {/if}
-                    </div>
-                  </div>
-                {/if}
-              {:else if teams.length > 0}
-                <h1 class="page-title">
-                  Week {week}, {year} Results
-                </h1>
-                <h2 class="team-subtitle">
-                  {teamTitleList}
-                </h2>
-                <div class="error-banner">
-                  <p>❌ Failed to load game data</p>
+<div class="wrapper" class:light={!$theme} class:dark={$theme}>
+	<div class="container">
+		<!-- Header Section -->
+		<div class="header-section">
+			<div class="header-content">
+				<img class="header-icon" src="/teamstats.png" alt="Team Stats" />
+				<h1 class="page-title">Team Statistics</h1>
+				<p class="page-subtitle">
+					Analyze team performance metrics and statistics across college football
+				</p>
+			</div>
+		</div>
+
+		<!-- Search Form -->
+		<div class="search-section">
+			<div class="search-card">
+				<div class="search-header">
+					<h2 class="search-title">🔍 Search Team Stats</h2>
+					<p class="search-subtitle">Find team statistics by customizing your search criteria</p>
+				</div>
+
+				<form on:submit|preventDefault={handleSearch} class="search-form">
+					<div class="form-grid">
+						<!-- Year (Required) -->
+						<FormField
+							label="Year"
+							type="number"
+							value={searchParams.year}
+							required={true}
+							error={formErrors.year}
+							placeholder="2023"
+							min="1900"
+							max={new Date().getFullYear() + 1}
+							on:change={(e) => handleFieldChange(e, 'year')}
+						/>
+
+						<!-- Team -->
+						<FormField
+							label="Team"
+							type="text"
+							value={searchParams.team}
+							placeholder="e.g., Auburn"
+							on:change={(e) => handleFieldChange(e, 'team')}
+						/>
+
+						<!-- Conference -->
+						<FormField
+							label="Conference"
+							type="text"
+							value={searchParams.conference}
+							placeholder="e.g., SEC"
+							on:change={(e) => handleFieldChange(e, 'conference')}
+						/>
+
+						<!-- Start Week -->
+						<FormField
+							label="Start Week"
+							type="number"
+							value={searchParams.startWeek}
+							error={formErrors.startWeek}
+							placeholder="1"
+							min="1"
+							max="14"
+							on:change={(e) => handleFieldChange(e, 'startWeek')}
+						/>
+
+						<!-- End Week -->
+						<FormField
+							label="End Week"
+							type="number"
+							value={searchParams.endWeek}
+							error={formErrors.endWeek}
+							placeholder="14"
+							min="1"
+							max="14"
+							on:change={(e) => handleFieldChange(e, 'endWeek')}
+						/>
+
+						<!-- Search Button -->
+						<div class="form-actions">
+							<button
+								type="submit"
+								class="btn btn-primary"
+								disabled={isLoading || Object.keys(formErrors).length > 0}
+							>
+								{#if isLoading}
+									<span class="btn-spinner" />
+									Searching...
+								{:else}
+									🔍 Search Stats
+								{/if}
+							</button>
+
+              <!-- Export Button -->
+              {#if hasResults}
+                <div class="export-container">
+                  <ExportButton 
+                    data={exportData} 
+                    type="team-stats" 
+                    variant="outline"
+                    size="medium"
+                    filename={exportFilename}
+                    showCount={true}
+                  />
                 </div>
-              {:else}
-                <h1 class="page-title">Game Results</h1>
-                <p class="no-selection">Please select teams to view their game results</p>
               {/if}
-              
-              <!-- Statistics Summary -->
-              {#if hasAnyResults && totalGames > 0}
-                <div class="stats-bar">
-                  <div class="stat-item">
-                    <span class="stat-number">{totalGames}</span>
-                    <span class="stat-label">Game{totalGames !== 1 ? 's' : ''} Found</span>
-                  </div>
-                  <div class="stat-item">
-                    <span class="stat-number">{successfulTeams}</span>
-                    <span class="stat-label">Team{successfulTeams !== 1 ? 's' : ''} Loaded</span>
-                  </div>
-                  {#if failedTeams > 0}
-                    <div class="stat-item warning">
-                      <span class="stat-number">{failedTeams}</span>
-                      <span class="stat-label">Failed</span>
-                    </div>
-                  {/if}
-                </div>
-              {/if}
-            </div>
-          </div>
+						</div>
+					</div>
 
-          <!-- Games Display -->
-          {#if hasAnyResults}
-            <div class="games-grid">
-              {#each gameResults as { team, data, error } (team)}
-                {#if error}
-                  <div class="error-card">
-                    <div class="error-header">
-                      <h3>❌ Error loading {team}</h3>
-                    </div>
-                    <p class="error-message">{error}</p>
-                  </div>
-                {:else if data && data.length > 0}
-                  {#each data as gameResult (gameResult.id || `${gameResult.homeTeam || gameResult.home_team}-${gameResult.awayTeam || gameResult.away_team}-${gameResult.week}`)}
-                    {#if gameResult && (gameResult.homeTeam || gameResult.home_team || gameResult.awayTeam || gameResult.away_team)}
-                      <article class="game-card" class:light={!$theme} class:dark={$theme}>
-                        <!-- Game Header -->
-                        <div class="game-header">
-                          <div class="game-meta">
-                            <span class="week-badge">Week {gameResult.week || 'N/A'}</span>
-                            <span class="season-type">{capitalizeFirstChar(gameResult.seasonType || gameResult.season_type)}</span>
-                          </div>
-                          {#if gameResult.completed}
-                            <div class="status-badge final">FINAL</div>
-                          {:else}
-                            <div class="status-badge scheduled">SCHEDULED</div>
-                          {/if}
-                        </div>
+					<!-- Form Validation Summary -->
+					{#if Object.keys(formErrors).length > 0}
+						<div class="validation-summary">
+							<div class="validation-header">
+								<span class="validation-icon">⚠️</span>
+								<span class="validation-text">Please fix the following errors:</span>
+							</div>
+							<ul class="validation-list">
+								{#each Object.entries(formErrors) as [field, error]}
+									<li>{field}: {error}</li>
+								{/each}
+							</ul>
+						</div>
+					{/if}
+				</form>
+			</div>
+		</div>
 
-                        <!-- Matchup - Mobile-First Design -->
-                        <div class="matchup">
-                          <!-- Mobile Layout: Completely Vertical -->
-                          <div class="mobile-matchup">
-                            <!-- Away Team -->
-                            <div class="mobile-team away-team">
-                              <div class="mobile-team-header">
-                                <h3 class="mobile-team-name">{gameResult.awayTeam || gameResult.away_team || 'Unknown'}</h3>
-                                <div class="mobile-score away-score">
-                                  {gameResult.awayPoints ?? gameResult.away_points ?? 0}
-                                </div>
-                              </div>
-                              <div class="mobile-team-meta">
-                                <span class="mobile-location">Away</span>
-                                {#if gameResult.awayConference}
-                                  <span class="mobile-conference">{gameResult.awayConference}</span>
-                                {/if}
-                              </div>
-                            </div>
+		<!-- Results Section -->
+		<div class="results-section">
+			<div class="results-card">
+				<!-- Results Header -->
+				<div class="results-header">
+					<div class="results-title-section">
+						<h2 class="results-title">
+							📈 Search Results
+							{#if teamStats.length > 0}
+								<span class="results-count">({teamStats.length} records)</span>
+							{/if}
+						</h2>
+						{#if searchParams.year && isInitialized}
+							<p class="results-subtitle">
+								Showing team statistics for {searchParams.year}
+								{#if searchParams.team}• {searchParams.team}{/if}
+								{#if searchParams.conference}• {searchParams.conference}{/if}
+							</p>
+						{/if}
+					</div>
 
-                            <!-- VS Section -->
-                            <div class="mobile-vs-section">
-                              <span class="mobile-vs-text">VS</span>
-                              {#if gameResult.completed && getGameWinner(gameResult)}
-                                {@const winner = getGameWinner(gameResult)}
-                                {@const margin = getGameMargin(gameResult)}
-                                <div class="mobile-game-result">
-                                  {#if winner === 'Tie'}
-                                    <span class="mobile-result-text">Tie Game</span>
-                                  {:else}
-                                    <span class="mobile-result-text">{winner} wins</span>
-                                    {#if margin > 0}
-                                      <span class="mobile-margin">by {margin}</span>
-                                    {/if}
-                                  {/if}
-                                </div>
-                              {/if}
-                            </div>
+					{#if teamStats.length > 0}
+						<div class="results-actions">
+							<div class="export-container">
+								<ExportButton 
+									data={exportData} 
+									type="team-stats" 
+									variant="primary"
+									size="small"
+									filename={exportFilename}
+									showCount={false}
+								/>
+							</div>
+						</div>
+					{/if}
+				</div>
 
-                            <!-- Home Team -->
-                            <div class="mobile-team home-team">
-                              <div class="mobile-team-header">
-                                <h3 class="mobile-team-name">{gameResult.homeTeam || gameResult.home_team || 'Unknown'}</h3>
-                                <div class="mobile-score home-score">
-                                  {gameResult.homePoints ?? gameResult.home_points ?? 0}
-                                </div>
-                              </div>
-                              <div class="mobile-team-meta">
-                                <span class="mobile-location">Home</span>
-                                {#if gameResult.homeConference}
-                                  <span class="mobile-conference">{gameResult.homeConference}</span>
-                                {/if}
-                              </div>
-                            </div>
-                          </div>
-
-                          <!-- Desktop Layout: Keep Original -->
-                          <div class="desktop-matchup">
-                            <div class="team-section away">
-                              <div class="team-info">
-                                <h3 class="team-name">{gameResult.awayTeam || gameResult.away_team || 'Unknown'}</h3>
-                                <div class="team-meta">
-                                  {#if gameResult.awayConference}
-                                    <span class="conference">{gameResult.awayConference}</span>
-                                  {/if}
-                                  <span class="location">Away</span>
-                                </div>
-                              </div>
-                              <div class="score">
-                                {gameResult.awayPoints ?? gameResult.away_points ?? 0}
-                              </div>
-                            </div>
-
-                            <div class="vs-section">
-                              <span class="vs-text">vs</span>
-                              {#if gameResult.completed && getGameWinner(gameResult)}
-                                {@const winner = getGameWinner(gameResult)}
-                                {@const margin = getGameMargin(gameResult)}
-                                <div class="game-summary">
-                                  {#if winner === 'Tie'}
-                                    <span class="result-text">Tie Game</span>
-                                  {:else}
-                                    <span class="result-text">{winner} wins</span>
-                                    {#if margin > 0}
-                                      <span class="margin">by {margin}</span>
-                                    {/if}
-                                  {/if}
-                                </div>
-                              {/if}
-                            </div>
-
-                            <div class="team-section home">
-                              <div class="team-info">
-                                <h3 class="team-name">{gameResult.homeTeam || gameResult.home_team || 'Unknown'}</h3>
-                                <div class="team-meta">
-                                  {#if gameResult.homeConference}
-                                    <span class="conference">{gameResult.homeConference}</span>
-                                  {/if}
-                                  <span class="location">Home</span>
-                                </div>
-                              </div>
-                              <div class="score">
-                                {gameResult.homePoints ?? gameResult.home_points ?? 0}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        <!-- Game Details -->
-                        <div class="game-details">
-                          <div class="detail-row">
-                            <span class="detail-label">📅</span>
-                            <span class="detail-value">
-                              {gameResult.startDate || gameResult.start_date ? 
-                                formatStartDate(gameResult.startDate || gameResult.start_date) : 
-                                'Date TBD'}
-                            </span>
-                          </div>
-                          
-                          <div class="detail-row">
-                            <span class="detail-label">🏟️</span>
-                            <span class="detail-value">{gameResult.venue || 'Venue TBD'}</span>
-                          </div>
-
-                          {#if gameResult.attendance}
-                            <div class="detail-row">
-                              <span class="detail-label">👥</span>
-                              <span class="detail-value">{gameResult.attendance.toLocaleString()} attendance</span>
-                            </div>
-                          {/if}
-
-                          {#if gameResult.notes}
-                            <div class="detail-row">
-                              <span class="detail-label">📝</span>
-                              <span class="detail-value">{gameResult.notes}</span>
-                            </div>
-                          {/if}
-
-                          <div class="detail-row">
-                            <span class="detail-label">🏆</span>
-                            <span class="detail-value">
-                              {(gameResult.conferenceGame ?? gameResult.conference_game) ? 'Conference Game' : 'Non-Conference Game'}
-                            </span>
-                          </div>
-                        </div>
-                      </article>
-                    {/if}
-                  {/each}
-                {:else}
-                  <div class="no-games-card">
-                    <div class="no-games-content">
-                      <h3>📅 {team}</h3>
-                      <p>No games found for Week {week} of {year}</p>
-                      <small>This team may have had a bye week or the game data is unavailable.</small>
-                    </div>
-                  </div>
-                {/if}
-              {/each}
-            </div>
-          {:else}
-            <div class="empty-state">
-              <div class="empty-content">
-                <h3>🏈 No Game Data Available</h3>
-                <p>Please select teams from the game results page to view their games.</p>
-              </div>
-            </div>
-          {/if}
-        </section>
-      </div>
-
-      <!-- Team Search Section -->
-      <section class="search-section">
-        <ResubmitTeams />
-      </section>
-    {/if}
-  </div>
-</ErrorBoundary>
+				<!-- Results Content -->
+				<div class="results-content">
+					{#if error}
+						<div class="error-state">
+							<div class="error-icon">❌</div>
+							<div class="error-content">
+								<h3>Search Error</h3>
+								<p>{error}</p>
+								<button class="btn btn-primary" on:click={fetchTeamStats}> 🔄 Try Again </button>
+							</div>
+						</div>
+					{:else if isLoading}
+						<div class="loading-state">
+							<LoadingSpinner size="large" text="Searching team statistics..." />
+						</div>
+					{:else if !searchParams.year}
+						<div class="empty-state">
+							<div class="empty-icon">🏈</div>
+							<div class="empty-content">
+								<h3>Ready to Search</h3>
+								<p>Enter a year above to start searching for team statistics.</p>
+							</div>
+						</div>
+					{:else if teamStats.length === 0 && isInitialized}
+						<div class="empty-state">
+							<div class="empty-icon">📊</div>
+							<div class="empty-content">
+								<h3>No Statistics Found</h3>
+								<p>No team statistics match your search criteria.</p>
+								<small>Try adjusting your search parameters or check if data exists for the selected year.</small>
+							</div>
+						</div>
+					{:else if teamStats.length > 0}
+						<!-- Team Stats Table -->
+						<div class="table-section">
+							<TeamStatsTable stats={teamStats} sortable={true} />
+						</div>
+					{/if}
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
 
 <style>
-.light {
-  --bg-primary: #ffffff;
-  --bg-secondary: #f8fafc;
-  --bg-tertiary: #f1f5f9;
-  --text-primary: #1e293b;
-  --text-secondary: #64748b;
-  --text-accent: #dc2626;
-  --border-primary: #e2e8f0;
-  --border-secondary: #cbd5e1;
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --accent-blue: #3b82f6;
-  --accent-green: #10b981;
-  --accent-orange: #f59e0b;
-  --accent-red: #ef4444;
-}
-
-.dark {
-  --bg-primary: #1e293b;
-  --bg-secondary: #334155;
-  --bg-tertiary: #475569;
-  --text-primary: #f1f5f9;
-  --text-secondary: #cbd5e1;
-  --text-accent: #f87171;
-  --border-primary: #475569;
-  --border-secondary: #64748b;
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
-  --accent-blue: #60a5fa;
-  --accent-green: #34d399;
-  --accent-orange: #fbbf24;
-  --accent-red: #f87171;
-}
-
-/* ========================================
-   LAYOUT & STRUCTURE
-======================================== */
-.wrapper {
-  min-height: 100vh;
-  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
-}
-
-.results-container {
-  width: min(33vw, 1000px);
-  margin: 0 auto;
-  padding: 2rem 1rem;
-}
-
-.results-section {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-/* ========================================
-   HEADER SECTION
-======================================== */
-.header-section {
-  text-align: center;
-  padding: 2rem 0;
-}
-
-.header-content {
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.header-icon {
-  width: 64px;
-  height: 64px;
-  margin-bottom: 1rem;
-  opacity: 0.9;
-}
-
-.page-title {
-  font-size: 2.5rem;
-  font-weight: 800;
-  color: var(--text-primary);
-  margin: 0 0 0.5rem 0;
-  line-height: 1.2;
-}
-
-.team-subtitle {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--text-accent);
-  margin: 0 0 2rem 0;
-  line-height: 1.3;
-}
-
-.no-selection {
-  font-size: 1.125rem;
-  color: var(--text-secondary);
-  margin: 1rem 0;
-}
-
-/* ========================================
-   BANNERS & NOTIFICATIONS
-======================================== */
-.info-banner {
-  background: linear-gradient(135deg, var(--accent-blue), var(--accent-green));
-  border-radius: 1rem;
-  padding: 1.5rem;
-  margin: 1rem 0;
-  box-shadow: var(--shadow-md);
-}
-
-.info-content {
-  color: white;
-  text-align: center;
-}
-
-.info-primary {
-  font-size: 1.125rem;
-  font-weight: 600;
-  margin: 0 0 0.5rem 0;
-}
-
-.info-secondary {
-  margin: 0.25rem 0;
-  opacity: 0.9;
-}
-
-.error-banner {
-  background: var(--accent-red);
-  color: white;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  margin: 1rem 0;
-  box-shadow: var(--shadow-md);
-}
-
-/* ========================================
-   STATISTICS BAR
-======================================== */
-.stats-bar {
-  display: flex;
-  justify-content: center;
-  gap: 2rem;
-  margin: 1.5rem 0;
-  flex-wrap: wrap;
-}
-
-.stat-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 1rem;
-  background: var(--bg-primary);
-  border-radius: 0.75rem;
-  box-shadow: var(--shadow-sm);
-  min-width: 100px;
-}
-
-.stat-item.warning {
-  background: var(--accent-orange);
-  color: white;
-}
-
-.stat-number {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--text-accent);
-}
-
-.stat-item.warning .stat-number {
-  color: white;
-}
-
-.stat-label {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  margin-top: 0.25rem;
-}
-
-.stat-item.warning .stat-label {
-  color: white;
-  opacity: 0.9;
-}
-
-/* ========================================
-   GAMES GRID & GAME CARDS
-======================================== */
-.games-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-  gap: 1.5rem;
-  margin-top: 2rem;
-}
-
-.game-card {
-  background: var(--bg-primary);
-  border-radius: 1rem;
-  box-shadow: var(--shadow-lg);
-  overflow: hidden;
-  transition: all 0.3s ease;
-  border: 1px solid var(--border-primary);
-}
-
-.game-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg), 0 20px 25px -5px rgb(0 0 0 / 0.1);
-}
-
-/* ========================================
-   GAME HEADER
-======================================== */
-.game-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 1.5rem;
-  background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border-primary);
-}
-
-.game-meta {
-  display: flex;
-  gap: 0.75rem;
-  align-items: center;
-}
-
-.week-badge {
-  background: var(--accent-blue);
-  color: white;
-  padding: 0.25rem 0.75rem;
-  border-radius: 1rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
-.season-type {
-  color: var(--text-secondary);
-  font-size: 0.875rem;
-  font-weight: 500;
-}
-
-.status-badge {
-  padding: 0.375rem 0.75rem;
-  border-radius: 1rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.status-badge.final {
-  background: var(--accent-green);
-  color: white;
-}
-
-.status-badge.scheduled {
-  background: var(--accent-orange);
-  color: white;
-}
-
-/* ========================================
-   MOBILE MATCHUP LAYOUT (DEFAULT)
-======================================== */
-.matchup {
-  padding: 1rem;
-}
-
-.mobile-matchup {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  width: 100%;
-}
-
-.desktop-matchup {
-  display: none;
-}
-
-.mobile-team {
-  background: var(--bg-secondary);
-  border-radius: 0.5rem;
-  padding: 0.75rem;
-  border: 1px solid var(--border-primary);
-}
-
-.mobile-team-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.5rem;
-}
-
-.mobile-team-name {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0;
-  flex: 1;
-  min-width: 0;
-  overflow-wrap: break-word;
-  hyphens: auto;
-  line-height: 1.2;
-}
-
-.mobile-score {
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: var(--text-accent);
-  min-width: 50px;
-  text-align: right;
-  flex-shrink: 0;
-}
-
-.mobile-team-meta {
-  display: flex;
-  gap: 0.5rem;
-  font-size: 0.7rem;
-  color: var(--text-secondary);
-  flex-wrap: wrap;
-}
-
-.mobile-location {
-  background: var(--bg-tertiary);
-  padding: 0.125rem 0.375rem;
-  border-radius: 0.25rem;
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-.mobile-conference {
-  background: var(--accent-blue);
-  color: white;
-  padding: 0.125rem 0.375rem;
-  border-radius: 0.25rem;
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-.mobile-vs-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 0.5rem 0;
-  border-top: 1px solid var(--border-primary);
-  border-bottom: 1px solid var(--border-primary);
-}
-
-.mobile-vs-text {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  margin-bottom: 0.25rem;
-}
-
-.mobile-game-result {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.125rem;
-}
-
-.mobile-result-text {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--text-accent);
-  text-align: center;
-}
-
-.mobile-margin {
-  font-size: 0.65rem;
-  color: var(--text-secondary);
-}
-
-/* ========================================
-   GAME DETAILS
-======================================== */
-.game-details {
-  padding: 1.5rem;
-  background: var(--bg-secondary);
-  border-top: 1px solid var(--border-primary);
-}
-
-.detail-row {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid var(--border-primary);
-}
-
-.detail-row:last-child {
-  border-bottom: none;
-}
-
-.detail-label {
-  font-size: 1rem;
-  width: 1.5rem;
-  text-align: center;
-}
-
-.detail-value {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  flex: 1;
-}
-
-/* ========================================
-   ERROR & EMPTY STATES
-======================================== */
-.error-card,
-.no-games-card {
-  background: var(--bg-primary);
-  border-radius: 1rem;
-  box-shadow: var(--shadow-md);
-  overflow: hidden;
-  border: 1px solid var(--border-primary);
-}
-
-.error-card {
-  border-color: var(--accent-red);
-}
-
-.error-header {
-  background: var(--accent-red);
-  color: white;
-  padding: 1rem 1.5rem;
-}
-
-.error-header h3 {
-  margin: 0;
-  font-size: 1.125rem;
-  font-weight: 600;
-}
-
-.error-message {
-  padding: 1.5rem;
-  color: var(--text-secondary);
-  margin: 0;
-}
-
-.no-games-content {
-  padding: 2rem 1.5rem;
-  text-align: center;
-}
-
-.no-games-content h3 {
-  color: var(--text-primary);
-  margin: 0 0 0.5rem 0;
-  font-size: 1.125rem;
-}
-
-.no-games-content p {
-  color: var(--text-secondary);
-  margin: 0 0 0.5rem 0;
-}
-
-.no-games-content small {
-  color: var(--text-secondary);
-  opacity: 0.8;
-  font-size: 0.75rem;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 4rem 2rem;
-}
-
-.empty-content h3 {
-  color: var(--text-primary);
-  margin: 0 0 1rem 0;
-  font-size: 1.5rem;
-}
-
-.empty-content p {
-  color: var(--text-secondary);
-  font-size: 1.125rem;
-  margin: 0;
-}
-
-.search-section {
-  margin-top: 3rem;
-}
-
-/* ========================================
-   EXTRA SMALL PHONES (≤360px)
-======================================== */
-@media (max-width: 360px) {
-  .matchup {
-    padding: 0.75rem;
-  }
-
-  .mobile-team {
-    padding: 0.5rem;
-  }
-
-  .mobile-team-name {
-    font-size: 0.8rem;
-  }
-
-  .mobile-score {
-    font-size: 1.25rem;
-    min-width: 45px;
-  }
-
-  .mobile-team-meta {
-    font-size: 0.65rem;
-  }
-
-  .mobile-vs-text {
-    font-size: 0.75rem;
-  }
-
-  .mobile-result-text {
-    font-size: 0.7rem;
-  }
-
-  .mobile-margin {
-    font-size: 0.6rem;
-  }
-}
-
-/* ========================================
-   MOBILE PHONES (≤768px)
-======================================== */
-@media (max-width: 768px) {
-  .results-container {
-    padding: 1rem 0.5rem;
-  }
-
-  .page-title {
-    font-size: 1.75rem;
-  }
-
-  .team-subtitle {
-    font-size: 1.125rem;
-  }
-
-  .header-icon {
-    width: 48px;
-    height: 48px;
-  }
-
-  .games-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-
-  .game-card {
-    border-radius: 0.75rem;
-  }
-
-  .matchup {
-    gap: 0.75rem;
-  }
-
-  .game-details {
-    padding: 1rem;
-  }
-
-  .detail-row {
-    padding: 0.375rem 0;
-  }
-}
-
-/* ========================================
-   TABLET & DESKTOP (≥769px)
-======================================== */
-@media (min-width: 769px) {
-  .mobile-matchup {
-    display: none;
-  }
-
-  .desktop-matchup {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    gap: 1rem;
-    align-items: center;
-  }
-
-  .matchup {
-    padding: 2rem 1.5rem;
-  }
-
-  .team-section {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  .team-section.away {
-    justify-content: flex-end;
-    text-align: right;
-  }
-
-  .team-section.home {
-    justify-content: flex-start;
-    text-align: left;
-  }
-
-  .team-info {
-    flex: 1;
-  }
-
-  .team-name {
-    font-size: 1.875rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin: 0 0 0.25rem 0;
-    line-height: 1.2;
-    word-wrap: break-word;
-    hyphens: auto;
-  }
-
-  .team-meta {
-    display: flex;
-    gap: 0.5rem;
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-    flex-wrap: wrap;
-  }
-
-  .team-section.away .team-meta {
-    justify-content: flex-end;
-  }
-
-  .conference {
-    background: var(--bg-tertiary);
-    padding: 0.125rem 0.5rem;
-    border-radius: 0.25rem;
-    font-weight: 500;
-  }
-
-  .location {
-    font-weight: 500;
-    opacity: 0.8;
-  }
-
-  .score {
-    font-size: 2.875rem;
-    font-weight: 800;
-    color: var(--text-accent);
-    min-width: 80px;
-    text-align: center;
-  }
-
-  .vs-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    padding: 0 1rem;
-  }
-
-  .vs-text {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: var(--text-secondary);
-    margin-bottom: 0.5rem;
-  }
-
-  .game-summary {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.25rem;
-  }
-
-  .result-text {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--text-accent);
-  }
-
-  .margin {
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-  }
-}
+	.light {
+		--bg-primary: #ffffff;
+		--bg-secondary: #f8fafc;
+		--bg-tertiary: #f1f5f9;
+		--text-primary: #1e293b;
+		--text-secondary: #64748b;
+		--text-accent: #dc2626;
+		--border-primary: #e2e8f0;
+		--border-secondary: #cbd5e1;
+		--shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+		--shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+		--shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+		--accent-blue: #3b82f6;
+		--accent-green: #10b981;
+		--accent-orange: #f59e0b;
+		--accent-red: #ef4444;
+	}
+
+	.dark {
+		--bg-primary: #1e293b;
+		--bg-secondary: #334155;
+		--bg-tertiary: #475569;
+		--text-primary: #f1f5f9;
+		--text-secondary: #cbd5e1;
+		--text-accent: #f87171;
+		--border-primary: #475569;
+		--border-secondary: #64748b;
+		--shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+		--shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+		--shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+		--accent-blue: #60a5fa;
+		--accent-green: #34d399;
+		--accent-orange: #fbbf24;
+		--accent-red: #f87171;
+	}
+
+	.wrapper {
+		min-height: 100vh;
+		background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+	}
+
+	.container {
+		max-width: 1400px;
+		margin: 0 auto;
+		padding: 2rem 1rem;
+	}
+
+	/* Header Styles */
+	.header-section {
+		text-align: center;
+		margin-bottom: 3rem;
+	}
+
+	.header-content {
+		max-width: 600px;
+		margin: 0 auto;
+	}
+
+	.header-icon {
+		width: 64px;
+		height: 64px;
+		margin-bottom: 1rem;
+		opacity: 0.9;
+	}
+
+	.page-title {
+		font-size: 2.5rem;
+		font-weight: 800;
+		color: var(--text-primary);
+		margin: 0 0 0.5rem 0;
+		line-height: 1.2;
+	}
+
+	.page-subtitle {
+		font-size: 1.125rem;
+		color: var(--text-secondary);
+		margin: 0;
+		line-height: 1.5;
+	}
+
+	/* Search Section */
+	.search-section {
+		margin-bottom: 3rem;
+	}
+
+	.search-card {
+		background: var(--bg-primary);
+		border-radius: 1rem;
+		box-shadow: var(--shadow-lg);
+		overflow: hidden;
+		border: 1px solid var(--border-primary);
+	}
+
+	.search-header {
+		background: linear-gradient(135deg, var(--accent-blue), var(--accent-green));
+		color: white;
+		padding: 2rem;
+		text-align: center;
+	}
+
+	.search-title {
+		font-size: 1.5rem;
+		font-weight: 700;
+		margin: 0 0 0.5rem 0;
+	}
+
+	.search-subtitle {
+		margin: 0;
+		opacity: 0.9;
+		font-size: 1rem;
+	}
+
+	.search-form {
+		padding: 2rem;
+	}
+
+	.form-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+		gap: 1.5rem;
+		margin-bottom: 2rem;
+	}
+
+	.form-actions {
+		grid-column: 1 / -1;
+		display: flex;
+		gap: 1rem;
+		justify-content: center;
+		flex-wrap: wrap;
+	}
+
+	/* Button Styles */
+	.btn {
+		padding: 0.75rem 1.5rem;
+		border: none;
+		border-radius: 0.5rem;
+		font-size: 0.875rem;
+		font-weight: 600;
+		cursor: pointer;
+		transition: all 0.2s ease;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		text-decoration: none;
+	}
+
+	.btn:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+		transform: none;
+	}
+
+	.btn-primary {
+		background: var(--accent-blue);
+		color: white;
+	}
+
+	.btn-primary:hover:not(:disabled) {
+		background: var(--accent-blue);
+		transform: translateY(-2px);
+		box-shadow: var(--shadow-md);
+	}
+  
+	.btn-outline {
+		background: transparent;
+		color: var(--accent-blue);
+		border: 2px solid var(--accent-blue);
+	}
+
+	.btn-outline:hover {
+		background: var(--accent-blue);
+		color: white;
+		transform: translateY(-2px);
+	}
+
+	.btn-spinner {
+		width: 1rem;
+		height: 1rem;
+		border: 2px solid currentColor;
+		border-right-color: transparent;
+		border-radius: 50%;
+		animation: spin 0.8s linear infinite;
+	}
+
+	@keyframes spin {
+		to {
+			transform: rotate(360deg);
+		}
+	}
+
+	/* Validation Styles */
+	.validation-summary {
+		background: var(--accent-red);
+		color: white;
+		border-radius: 0.75rem;
+		padding: 1.5rem;
+		margin-top: 1.5rem;
+	}
+
+	.validation-header {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		margin-bottom: 1rem;
+	}
+
+	.validation-icon {
+		font-size: 1.25rem;
+	}
+
+	.validation-text {
+		font-weight: 600;
+	}
+
+	.validation-list {
+		margin: 0;
+		padding-left: 1.5rem;
+	}
+
+	.validation-list li {
+		margin: 0.25rem 0;
+	}
+
+	/* Results Section */
+	.results-section {
+		margin-bottom: 3rem;
+	}
+
+	.results-card {
+		background: var(--bg-primary);
+		border-radius: 1rem;
+		box-shadow: var(--shadow-lg);
+		overflow: hidden;
+		border: 1px solid var(--border-primary);
+	}
+
+	.results-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-start;
+		padding: 2rem;
+		background: var(--bg-secondary);
+		border-bottom: 1px solid var(--border-primary);
+	}
+
+	.results-title-section {
+		flex: 1;
+	}
+
+	.results-title {
+		font-size: 1.5rem;
+		font-weight: 700;
+		color: var(--text-primary);
+		margin: 0 0 0.5rem 0;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.results-count {
+		font-size: 1rem;
+		font-weight: 500;
+		color: var(--text-secondary);
+	}
+
+	.results-subtitle {
+		color: var(--text-secondary);
+		margin: 0;
+		font-size: 0.875rem;
+	}
+
+	.results-actions {
+		flex-shrink: 0;
+	}
+
+	.results-content {
+		padding: 2rem;
+	}
+
+	/* State Styles */
+	.loading-state,
+	.empty-state,
+	.error-state {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding: 4rem 2rem;
+		text-align: center;
+	}
+
+	.empty-icon,
+	.error-icon {
+		font-size: 4rem;
+		margin-bottom: 1rem;
+		opacity: 0.6;
+	}
+
+	.empty-content h3,
+	.error-content h3 {
+		color: var(--text-primary);
+		margin: 0 0 0.5rem 0;
+		font-size: 1.5rem;
+		font-weight: 600;
+	}
+
+	.empty-content p,
+	.error-content p {
+		color: var(--text-secondary);
+		margin: 0 0 1rem 0;
+		font-size: 1.125rem;
+		line-height: 1.5;
+	}
+
+	.empty-content small {
+		color: var(--text-secondary);
+		opacity: 0.8;
+		font-size: 0.875rem;
+		display: block;
+		margin-top: 0.5rem;
+	}
+
+	.table-section {
+		margin-bottom: 2rem;
+	}
+
+	/* Responsive Design */
+	@media (max-width: 768px) {
+		.container {
+			padding: 1rem 0.5rem;
+		}
+
+		.page-title {
+			font-size: 2rem;
+		}
+
+		.page-subtitle {
+			font-size: 1rem;
+		}
+
+		.header-icon {
+			width: 48px;
+			height: 48px;
+		}
+
+		.form-grid {
+			grid-template-columns: 1fr;
+			gap: 1rem;
+		}
+
+		.search-header,
+		.search-form {
+			padding: 1.5rem;
+		}
+
+		.results-header {
+			padding: 1.5rem;
+			flex-direction: column;
+			gap: 1rem;
+			align-items: stretch;
+		}
+
+		.results-content {
+			padding: 1.5rem;
+		}
+
+		.form-actions {
+			flex-direction: column;
+			align-items: stretch;
+		}
+
+		.btn {
+			justify-content: center;
+		}
+	}
+
+	@media (max-width: 480px) {
+		.search-title {
+			font-size: 1.25rem;
+		}
+
+		.results-title {
+			font-size: 1.25rem;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 0.25rem;
+		}
+
+		.loading-state,
+		.empty-state,
+		.error-state {
+			padding: 3rem 1rem;
+		}
+	}
 </style>

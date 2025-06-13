@@ -125,6 +125,23 @@ export interface MatchupGame {
 	awayTeam: string;
 	awayScore: number;
 	winner: string;
+	id?: number;
+	startDate?: string; 
+	conferenceGame?: boolean;
+	attendance?: number;
+	highlights?: string;
+	notes?: string;
+}
+
+export interface TeamMatchup {
+	team1: string;
+	team2: string;
+	startYear: number;
+	endYear: number;
+	team1Wins: number;
+	team2Wins: number;
+	ties: number;
+	games: MatchupGame[];
 }
 
 export interface TeamMatchup {
@@ -231,6 +248,7 @@ export function isTeamStat(obj: any): obj is TeamStat {
 	);
 }
 
+// Enhanced type guard for MatchupGame
 export function isMatchupGame(obj: any): obj is MatchupGame {
 	return (
 		typeof obj === 'object' &&
@@ -239,7 +257,9 @@ export function isMatchupGame(obj: any): obj is MatchupGame {
 		typeof obj.homeTeam === 'string' &&
 		typeof obj.awayTeam === 'string' &&
 		typeof obj.homeScore === 'number' &&
-		typeof obj.awayScore === 'number'
+		typeof obj.awayScore === 'number' &&
+		typeof obj.winner === 'string' &&
+		typeof obj.venue === 'string'
 	);
 }
 

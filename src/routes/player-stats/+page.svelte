@@ -1,4 +1,3 @@
-<!-- src/routes/player-stats/+page.svelte -->
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import { page } from '$app/stores';
@@ -9,6 +8,7 @@
 	import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
 	import ErrorMessage from '$lib/components/ErrorMessage.svelte';
 	import FormField from '$lib/components/FormField.svelte';
+	import ExportButton from '$lib/components/ExportButton.svelte';
 	import type { PlayerStat } from '$lib/types/api';
 
 	export let data: { searchParams?: Record<string, string> } = {};
@@ -51,6 +51,25 @@
 
 	// Pagination constants
 	const pageSize = 16;
+
+	// Reactive variables for export functionality
+	$: hasResults = playerStats.length > 0;
+	$: exportData = playerStats; // The data we want to export
+	$: exportFilename = (() => {
+		let filename = `player-stats-${searchParams.year}`;
+		if (searchParams.team) filename += `-${searchParams.team.replace(/\s+/g, '-')}`;
+		if (searchParams.conference) filename += `-${searchParams.conference}`;
+		if (searchParams.category) filename += `-${searchParams.category}`;
+		if (searchParams.seasonType && searchParams.seasonType !== 'regular') filename += `-${searchParams.seasonType}`;
+		if (searchParams.startWeek && searchParams.endWeek) {
+			filename += `-weeks-${searchParams.startWeek}-${searchParams.endWeek}`;
+		} else if (searchParams.startWeek) {
+			filename += `-week-${searchParams.startWeek}+`;
+		} else if (searchParams.endWeek) {
+			filename += `-week-1-${searchParams.endWeek}`;
+		}
+		return filename;
+	})();
 
 	// Get current page from URL
 	function getCurrentPage(): number {
@@ -230,39 +249,6 @@
 		fetchPlayerStats();
 	}
 
-	// CSV Export
-	function exportToCSV(): void {
-		if (playerStats.length === 0) {
-			alert('No data to export');
-			return;
-		}
-
-		const headers = ['Player', 'Team', 'Conference', 'Category', 'Stat Type', 'Value'];
-		const csvContent = [
-			headers.join(','),
-			...playerStats.map((stat) =>
-				[
-					`"${stat.player}"`,
-					`"${stat.team}"`,
-					`"${stat.conference}"`,
-					`"${stat.category}"`,
-					`"${stat.statType}"`,
-					stat.stat
-				].join(',')
-			)
-		].join('\n');
-
-		const blob = new Blob([csvContent], { type: 'text/csv' });
-		const url = window.URL.createObjectURL(blob);
-		const a = document.createElement('a');
-		a.href = url;
-		a.download = `player-stats-${searchParams.year}-${Date.now()}.csv`;
-		document.body.appendChild(a);
-		a.click();
-		window.URL.revokeObjectURL(url);
-		document.body.removeChild(a);
-	}
-
 	// Initialize on mount
 	onMount(() => {
 		initializeFromURL();
@@ -388,7 +374,7 @@
 							on:change={(e) => handleFieldChange(e, 'seasonType')}
 						/>
 
-						<!-- Search Button -->
+						<!-- Form Actions -->
 						<div class="form-actions">
 							<button
 								type="submit"
@@ -403,14 +389,19 @@
 								{/if}
 							</button>
 
-							<button
-								type="button"
-								on:click={exportToCSV}
-								disabled={playerStats.length === 0}
-								class="btn btn-secondary"
-							>
-								📊 Export CSV
-							</button>
+							<!-- New ExportButton -->
+							{#if hasResults}
+								<div class="export-container">
+									<ExportButton 
+										data={exportData} 
+										type="player-stats" 
+										variant="outline"
+										size="medium"
+										filename={exportFilename}
+										showCount={true}
+									/>
+								</div>
+							{/if}
 						</div>
 					</div>
 
@@ -456,9 +447,17 @@
 
 					{#if playerStats.length > 0}
 						<div class="results-actions">
-							<button on:click={exportToCSV} class="btn btn-outline" title="Export data to CSV">
-								📊 Export
-							</button>
+							<!-- New ExportButton in results header -->
+							<div class="export-container">
+								<ExportButton 
+									data={exportData} 
+									type="player-stats" 
+									variant="primary"
+									size="small"
+									filename={exportFilename}
+									showCount={false}
+								/>
+							</div>
 						</div>
 					{/if}
 				</div>
@@ -677,17 +676,6 @@
 
 	.btn-primary:hover:not(:disabled) {
 		background: var(--accent-blue);
-		transform: translateY(-2px);
-		box-shadow: var(--shadow-md);
-	}
-
-	.btn-secondary {
-		background: var(--accent-green);
-		color: white;
-	}
-
-	.btn-secondary:hover:not(:disabled) {
-		background: var(--accent-green);
 		transform: translateY(-2px);
 		box-shadow: var(--shadow-md);
 	}

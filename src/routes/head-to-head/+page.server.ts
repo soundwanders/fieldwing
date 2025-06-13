@@ -85,7 +85,7 @@ export const load: PageServerLoad = async ({ url }): Promise<LoadResult> => {
 
 		console.log(`📡 Fetching head-to-head matchup: ${team1} vs ${team2}`);
 
-		// Use our secure API client
+		// Fetch matchup data with year parameters
 		const matchupData = await cfbdApi.getTeamMatchup({
 			team1,
 			team2,
@@ -101,13 +101,40 @@ export const load: PageServerLoad = async ({ url }): Promise<LoadResult> => {
 			);
 		}
 
-		console.log(`✅ Successfully fetched matchup data with ${matchupData || 0} games`);
+		// Filter games by year range if the API didn't already do it
+		if (matchupData.games && (minYear || maxYear)) {
+			const minYearNum = minYear ? parseInt(minYear) : 0;
+			const maxYearNum = maxYear ? parseInt(maxYear) : 9999;
+			
+			matchupData.games = matchupData.games.filter((game: any) => {
+				const gameYear = game.season;
+				return gameYear >= minYearNum && gameYear <= maxYearNum;
+			});
+
+			// Update the matchup metadata to reflect filtered data
+			if (matchupData.games.length > 0) {
+				const years = matchupData.games.map((game: any) => game.season);
+				matchupData.startYear = Math.min(...years);
+				matchupData.endYear = Math.max(...years);
+				
+				// Recalculate win counts for filtered games
+				const team1Wins = matchupData.games.filter((game: any) => game.winner === matchupData.team1).length;
+				const team2Wins = matchupData.games.filter((game: any) => game.winner === matchupData.team2).length;
+				const ties = matchupData.games.filter((game: any) => game.winner === 'Tie').length;
+				
+				matchupData.team1Wins = team1Wins;
+				matchupData.team2Wins = team2Wins;
+				matchupData.ties = ties;
+			}
+		}
+
+		console.log(`✅ Successfully fetched matchup data with ${matchupData.games?.length || 0} games`);
 		console.log(`🔢 Total API requests made: ${cfbdApi.getRequestCount()}`);
 
 		const result: LoadResult = {
 			matchupData,
 			searchParams: {
-				team1: team1Raw,
+				team1: team1Raw, // Keep original names for display
 				team2: team2Raw,
 				minYear: minYear || undefined,
 				maxYear: maxYear || undefined,

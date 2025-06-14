@@ -5,6 +5,7 @@
 	import { goto } from '$app/navigation';
 	import { statsNameTrim } from '$lib/utils/statsNameTrim';
 	import { onMount } from 'svelte';
+	import { theme } from '$lib/stores/theme';
 
 	// Form state
 	let year: string = '';
@@ -65,16 +66,14 @@
 	];
 
 	// Filtered categories based on search
-	$: filteredCategories = statCategories.filter(
-		(category) =>
-			category.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-			category.description.toLowerCase().includes(searchQuery.toLowerCase())
+	$: filteredCategories = statCategories.filter(category =>
+		category.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+		category.description.toLowerCase().includes(searchQuery.toLowerCase())
 	);
 
 	// Form validation
-	$: isYearValid =
-		year !== '' && Number(year) >= 1900 && Number(year) <= new Date().getFullYear() + 1;
-	$: isWeekRangeValid =
+	$: isYearValid = year !== '' && Number(year) >= 1900 && Number(year) <= new Date().getFullYear() + 1;
+	$: isWeekRangeValid = 
 		(startWeek === '' || (startWeek >= 1 && startWeek <= 14)) &&
 		(endWeek === '' || (endWeek >= 1 && endWeek <= 14)) &&
 		(startWeek === '' || endWeek === '' || startWeek <= endWeek);
@@ -85,14 +84,9 @@
 		year: year || 'Not specified',
 		team: team || 'All teams',
 		conference: conference || 'All conferences',
-		weekRange:
-			startWeek && endWeek
-				? `Week ${startWeek}-${endWeek}`
-				: startWeek
-				? `From week ${startWeek}`
-				: endWeek
-				? `Through week ${endWeek}`
-				: 'Full season',
+		weekRange: startWeek && endWeek ? `Week ${startWeek}-${endWeek}` : 
+				  startWeek ? `From week ${startWeek}` :
+				  endWeek ? `Through week ${endWeek}` : 'Full season',
 		seasonType: seasonType.charAt(0).toUpperCase() + seasonType.slice(1),
 		categories: selectedCategories.length > 0 ? selectedCategories.join(', ') : 'All categories'
 	};
@@ -103,7 +97,7 @@
 		weekType: 'startWeek' | 'endWeek'
 	) {
 		const inputValue = Number(event.currentTarget.value);
-
+		
 		if (inputValue < 1 || inputValue > 14 || isNaN(inputValue)) {
 			event.currentTarget.value = '';
 		}
@@ -112,24 +106,29 @@
 	// Handle category selection
 	function toggleCategory(categoryId: string) {
 		if (selectedCategories.includes(categoryId)) {
-			selectedCategories = selectedCategories.filter((id) => id !== categoryId);
+			selectedCategories = selectedCategories.filter(id => id !== categoryId);
 		} else {
 			selectedCategories = [...selectedCategories, categoryId];
 		}
 	}
 
+	// Clear all selected categories
+	function clearAllCategories() {
+		selectedCategories = [];
+	}
+
 	// Handle form submission
 	async function handleSubmit() {
 		if (!isFormValid) return;
-
+		
 		isLoading = true;
-
+		
 		// Simulate brief loading for better UX
-		await new Promise((resolve) => setTimeout(resolve, 300));
-
+		await new Promise(resolve => setTimeout(resolve, 300));
+		
 		// Trim school mascot name if present
 		let schoolName = statsNameTrim(team);
-
+		
 		// Construct query parameters
 		const queryParams = [
 			year && `year=${encodeURIComponent(year)}`,
@@ -144,9 +143,9 @@
 		]
 			.filter(Boolean)
 			.join('&');
-
+		
 		const apiUrl = `/team-stats?${queryParams}`;
-
+		
 		try {
 			await goto(apiUrl);
 		} catch (error) {
@@ -158,7 +157,7 @@
 
 	onMount(() => {
 		mounted = true;
-
+		
 		// Auto-populate current year
 		if (!year) {
 			year = new Date().getFullYear().toString();
@@ -168,20 +167,17 @@
 
 <svelte:head>
 	<title>Team Statistics Search - FIELDWING</title>
-	<meta
-		name="description"
-		content="Search and analyze comprehensive team statistics across seasons, conferences, and game weeks."
-	/>
+	<meta name="description" content="Search and analyze comprehensive team statistics across seasons, conferences, and game weeks." />
 </svelte:head>
 
-<div class="team-search-container" class:mounted>
+<div class="team-search-container" class:light={!$theme} class:dark={$theme} class:mounted>
 	<!-- Hero Section -->
 	<section class="hero-section">
 		<div class="hero-content">
-			<div class="hero-icon">🏆</div>
-			<h1 class="hero-title">
-				<span class="gradient-text">Team Statistics</span>
-			</h1>
+			<div class="hero-icon-wrapper">
+				<img class="hero-icon" src="/teamstats.png" alt="Team Statistics" />
+				<h1 class="hero-title">Team Statistics</h1>
+			</div>
 			<p class="hero-subtitle">
 				Discover comprehensive team performance data across seasons, conferences, and game weeks
 			</p>
@@ -193,261 +189,331 @@
 		<div class="search-grid">
 			<!-- Left Panel: Search Controls -->
 			<div class="search-panel">
-				<div class="panel-header">
-					<h2>Search Parameters</h2>
-					<p>Configure your team statistics search</p>
-				</div>
+				<div class="panel-card">
+					<!-- Panel Header -->
+					<div class="panel-header">
+						<h2 class="panel-title">
+							🎯 Team Configuration
+							{#if selectedCategories.length > 0}
+								<span class="panel-count">({selectedCategories.length} categories)</span>
+							{/if}
+						</h2>
+						<p class="panel-subtitle">Configure your team statistics search parameters</p>
+					</div>
 
-				<form on:submit|preventDefault={handleSubmit} class="search-form">
-					<!-- Required Fields Section -->
-					<div class="field-group">
-						<h3 class="section-title required-section">
-							<span class="section-icon">⭐</span>
-							Required Information
-						</h3>
+					<!-- Controls Section -->
+					<div class="controls-section">
+						<!-- Required Fields Section -->
+						<div class="field-group">
+							<h3 class="section-title required-section">
+								<span class="section-icon">⭐</span>
+								Required Information
+							</h3>
+							
+							<div class="form-field required">
+								<label for="year" class="field-label">
+									Season Year
+									<span class="required-indicator">*</span>
+								</label>
+								<input
+									id="year"
+									type="number"
+									bind:value={year}
+									min="1900"
+									max={new Date().getFullYear() + 1}
+									class="form-input"
+									class:error={year !== '' && !isYearValid}
+									placeholder="e.g., 2024"
+									required
+								/>
+								{#if year !== '' && !isYearValid}
+									<span class="error-message">Please enter a valid year (1900-{new Date().getFullYear() + 1})</span>
+								{/if}
+							</div>
+						</div>
 
-						<div class="form-field required">
-							<label for="year" class="field-label">
-								Season Year
-								<span class="required-indicator">*</span>
-							</label>
-							<input
-								id="year"
-								type="number"
-								bind:value={year}
-								min="1900"
-								max={new Date().getFullYear() + 1}
-								class="form-input"
-								class:error={year !== '' && !isYearValid}
-								placeholder="e.g., 2024"
-								required
-							/>
-							{#if year !== '' && !isYearValid}
-								<span class="error-message"
-									>Please enter a valid year (1900-{new Date().getFullYear() + 1})</span
-								>
+						<!-- Optional Filters Section -->
+						<div class="field-group">
+							<h3 class="section-title">
+								<span class="section-icon">🎯</span>
+								Filters (Optional)
+							</h3>
+							
+							<div class="form-row">
+								<div class="form-field">
+									<label for="team" class="field-label">Team Name</label>
+									<input
+										id="team"
+										type="text"
+										bind:value={team}
+										class="form-input"
+										placeholder="e.g., Alabama, Ohio State"
+									/>
+								</div>
+								
+								<div class="form-field">
+									<label for="conference" class="field-label">Conference</label>
+									<input
+										id="conference"
+										type="text"
+										bind:value={conference}
+										class="form-input"
+										placeholder="e.g., SEC, Big Ten"
+									/>
+								</div>
+							</div>
+
+							<div class="form-row">
+								<div class="form-field">
+									<label for="start-week" class="field-label">Start Week</label>
+									<input
+										id="start-week"
+										type="number"
+										bind:value={startWeek}
+										on:input={(e) => handleWeekInput(e, 'startWeek')}
+										min="1"
+										max="14"
+										class="form-input"
+										placeholder="1-14"
+									/>
+								</div>
+								
+								<div class="form-field">
+									<label for="end-week" class="field-label">End Week</label>
+									<input
+										id="end-week"
+										type="number"
+										bind:value={endWeek}
+										on:input={(e) => handleWeekInput(e, 'endWeek')}
+										min="1"
+										max="14"
+										class="form-input"
+										placeholder="1-14"
+									/>
+								</div>
+							</div>
+
+							{#if !isWeekRangeValid}
+								<span class="error-message">Please ensure start week is less than or equal to end week</span>
+							{/if}
+
+							<div class="form-field">
+								<label for="season-type" class="field-label">Season Type</label>
+								<select id="season-type" bind:value={seasonType} class="form-input">
+									<option value="regular">Regular Season</option>
+									<option value="postseason">Postseason Only</option>
+									<option value="both">Both Regular & Postseason</option>
+								</select>
+							</div>
+						</div>
+
+						<!-- Category Selection -->
+						<div class="field-group">
+							<h3 class="section-title">
+								<span class="section-icon">📋</span>
+								Statistic Categories
+							</h3>
+							
+							<div class="category-search">
+								<input
+									type="text"
+									bind:value={searchQuery}
+									placeholder="Search categories..."
+									class="form-input category-search-input"
+								/>
+								{#if searchQuery}
+									<button 
+										class="clear-search-btn"
+										on:click={() => searchQuery = ''}
+										type="button"
+										aria-label="Clear search"
+									>
+										✕
+									</button>
+								{/if}
+							</div>
+
+							<div class="category-grid">
+								{#each filteredCategories as category (category.id)}
+									<div
+										class="category-card"
+										class:selected={selectedCategories.includes(category.id)}
+										on:click={() => toggleCategory(category.id)}
+										on:keydown={(e) => e.key === 'Enter' && toggleCategory(category.id)}
+										role="button"
+										tabindex="0"
+										aria-pressed={selectedCategories.includes(category.id)}
+									>
+										<div class="category-icon">{category.icon}</div>
+										<div class="category-content">
+											<h4 class="category-name">{category.name}</h4>
+											<p class="category-description">{category.description}</p>
+										</div>
+										<div class="category-selector">
+											{#if selectedCategories.includes(category.id)}
+												<div class="check-icon">✓</div>
+											{/if}
+										</div>
+									</div>
+								{/each}
+							</div>
+
+							{#if selectedCategories.length > 0}
+								<div class="selected-summary">
+									<span class="summary-text">
+										{selectedCategories.length} category{selectedCategories.length !== 1 ? 'ies' : ''} selected
+									</span>
+									<button
+										type="button"
+										on:click={clearAllCategories}
+										class="clear-button"
+									>
+										Clear All
+									</button>
+								</div>
 							{/if}
 						</div>
 					</div>
-
-					<!-- Optional Filters Section -->
-					<div class="field-group">
-						<h3 class="section-title">
-							<span class="section-icon">🎯</span>
-							Filters (Optional)
-						</h3>
-
-						<div class="form-row">
-							<div class="form-field">
-								<label for="team" class="field-label">Team Name</label>
-								<input
-									id="team"
-									type="text"
-									bind:value={team}
-									class="form-input"
-									placeholder="e.g., Alabama, Ohio State"
-								/>
-							</div>
-
-							<div class="form-field">
-								<label for="conference" class="field-label">Conference</label>
-								<input
-									id="conference"
-									type="text"
-									bind:value={conference}
-									class="form-input"
-									placeholder="e.g., SEC, Big Ten"
-								/>
-							</div>
-						</div>
-
-						<div class="form-row">
-							<div class="form-field">
-								<label for="start-week" class="field-label">Start Week</label>
-								<input
-									id="start-week"
-									type="number"
-									bind:value={startWeek}
-									on:input={(e) => handleWeekInput(e, 'startWeek')}
-									min="1"
-									max="14"
-									class="form-input"
-									placeholder="1-14"
-								/>
-							</div>
-
-							<div class="form-field">
-								<label for="end-week" class="field-label">End Week</label>
-								<input
-									id="end-week"
-									type="number"
-									bind:value={endWeek}
-									on:input={(e) => handleWeekInput(e, 'endWeek')}
-									min="1"
-									max="14"
-									class="form-input"
-									placeholder="1-14"
-								/>
-							</div>
-						</div>
-
-						{#if !isWeekRangeValid}
-							<span class="error-message"
-								>Please ensure start week is less than or equal to end week</span
-							>
-						{/if}
-
-						<div class="form-field">
-							<label for="season-type" class="field-label">Season Type</label>
-							<select id="season-type" bind:value={seasonType} class="form-input">
-								<option value="regular">Regular Season</option>
-								<option value="postseason">Postseason Only</option>
-								<option value="both">Both Regular & Postseason</option>
-							</select>
-						</div>
-					</div>
-
-					<!-- Category Selection -->
-					<div class="field-group">
-						<h3 class="section-title">
-							<span class="section-icon">📋</span>
-							Statistic Categories
-						</h3>
-
-						<div class="category-search">
-							<input
-								type="text"
-								bind:value={searchQuery}
-								placeholder="Search categories..."
-								class="form-input category-search-input"
-							/>
-						</div>
-
-						<div class="category-grid">
-							{#each filteredCategories as category (category.id)}
-								<div
-									class="category-card"
-									class:selected={selectedCategories.includes(category.id)}
-									on:click={() => toggleCategory(category.id)}
-									on:keydown={(e) => e.key === 'Enter' && toggleCategory(category.id)}
-									role="button"
-									tabindex="0"
-									aria-pressed={selectedCategories.includes(category.id)}
-								>
-									<div class="category-icon">{category.icon}</div>
-									<div class="category-content">
-										<h4 class="category-name">{category.name}</h4>
-										<p class="category-description">{category.description}</p>
-									</div>
-									<div class="category-selector">
-										{#if selectedCategories.includes(category.id)}
-											<div class="check-icon">✓</div>
-										{/if}
-									</div>
-								</div>
-							{/each}
-						</div>
-
-						{#if selectedCategories.length > 0}
-							<div class="selected-summary">
-								<span class="summary-text">
-									{selectedCategories.length} category{selectedCategories.length !== 1 ? 'ies' : ''}
-									selected
-								</span>
-								<button
-									type="button"
-									on:click={() => (selectedCategories = [])}
-									class="clear-button"
-								>
-									Clear All
-								</button>
-							</div>
-						{/if}
-					</div>
-				</form>
+				</div>
 			</div>
 
-			<!-- Right Panel: Search Summary -->
-			<div class="summary-panel">
-				<div class="panel-header">
-					<h2>Search Summary</h2>
-					<p>Review your search parameters</p>
-				</div>
-
-				<div class="summary-content">
-					<div class="summary-section">
-						<h4 class="summary-title">Season Information</h4>
-						<div class="summary-item">
-							<span class="summary-label">Year:</span>
-							<span class="summary-value" class:missing={!year}>{searchSummary.year}</span>
-						</div>
-						<div class="summary-item">
-							<span class="summary-label">Season Type:</span>
-							<span class="summary-value">{searchSummary.seasonType}</span>
-						</div>
-						<div class="summary-item">
-							<span class="summary-label">Week Range:</span>
-							<span class="summary-value">{searchSummary.weekRange}</span>
-						</div>
-					</div>
-
-					<div class="summary-section">
-						<h4 class="summary-title">Team Filters</h4>
-						<div class="summary-item">
-							<span class="summary-label">Team:</span>
-							<span class="summary-value" class:missing={!team}>{searchSummary.team}</span>
-						</div>
-						<div class="summary-item">
-							<span class="summary-label">Conference:</span>
-							<span class="summary-value" class:missing={!conference}
-								>{searchSummary.conference}</span
+			<!-- Right Panel: Search Summary & Submit -->
+			<div class="selected-panel">
+				<!-- Search Summary Card -->
+				<div class="panel-card summary-card">
+					<!-- Summary Header -->
+					<div class="panel-header">
+						<h2 class="panel-title">
+							📋 Search Summary
+						</h2>
+						{#if selectedCategories.length > 0 || team || conference}
+							<button 
+								class="clear-all-btn"
+								on:click={() => {
+									selectedCategories = [];
+									team = '';
+									conference = '';
+									startWeek = '';
+									endWeek = '';
+									seasonType = 'regular';
+								}}
+								type="button"
 							>
-						</div>
+								Clear All
+							</button>
+						{/if}
 					</div>
 
-					<div class="summary-section">
-						<h4 class="summary-title">Statistics</h4>
-						<div class="summary-item">
-							<span class="summary-label">Categories:</span>
-							<span class="summary-value" class:missing={selectedCategories.length === 0}>
-								{searchSummary.categories}
-							</span>
-						</div>
+					<!-- Summary Content -->
+					<div class="summary-container">
+						{#if year || selectedCategories.length > 0 || team || conference || startWeek || endWeek}
+							<div class="summary-content">
+								<div class="summary-section">
+									<h4 class="summary-title">Season Information</h4>
+									<div class="summary-item">
+										<span class="summary-label">Year:</span>
+										<span class="summary-value" class:missing={!year}>{searchSummary.year}</span>
+									</div>
+									<div class="summary-item">
+										<span class="summary-label">Season Type:</span>
+										<span class="summary-value">{searchSummary.seasonType}</span>
+									</div>
+									<div class="summary-item">
+										<span class="summary-label">Week Range:</span>
+										<span class="summary-value">{searchSummary.weekRange}</span>
+									</div>
+								</div>
+
+								<div class="summary-section">
+									<h4 class="summary-title">Team Filters</h4>
+									<div class="summary-item">
+										<span class="summary-label">Team:</span>
+										<span class="summary-value" class:missing={!team}>{searchSummary.team}</span>
+									</div>
+									<div class="summary-item">
+										<span class="summary-label">Conference:</span>
+										<span class="summary-value" class:missing={!conference}>{searchSummary.conference}</span>
+									</div>
+								</div>
+
+								<div class="summary-section">
+									<h4 class="summary-title">Statistics</h4>
+									<div class="summary-item">
+										<span class="summary-label">Categories:</span>
+										<span class="summary-value" class:missing={selectedCategories.length === 0}>
+											{searchSummary.categories}
+										</span>
+									</div>
+								</div>
+							</div>
+						{:else}
+							<div class="empty-summary">
+								<div class="empty-icon">📊</div>
+								<h3 class="empty-title">Configure Your Search</h3>
+								<p class="empty-message">Fill in the search parameters to analyze team statistics</p>
+							</div>
+						{/if}
 					</div>
 				</div>
 
-				<!-- Submit Section -->
-				<div class="submit-section">
-					{#if !isFormValid}
-						<div class="validation-message">
-							{#if !isYearValid}
-								<p class="error-text">📅 Please enter a valid year</p>
-							{/if}
-							{#if !isWeekRangeValid}
-								<p class="error-text">📊 Please check your week range</p>
-							{/if}
-						</div>
-					{:else}
-						<div class="ready-message">
-							<p class="success-text">✅ Ready to search team statistics</p>
-						</div>
-					{/if}
-
-					<button
-						type="submit"
-						class="submit-button"
-						class:loading={isLoading}
-						disabled={!isFormValid || isLoading}
-						on:click={handleSubmit}
-					>
-						{#if isLoading}
-							<div class="loading-spinner" />
-							<span>Searching...</span>
+				<!-- Submit Card -->
+				<div class="panel-card submit-card">
+					<div class="submit-content">
+						{#if isFormValid}
+							<div class="submit-info">
+								<h3 class="submit-title">🚀 Ready to Search</h3>
+								<p class="submit-description">
+									Search team statistics for {year}
+									{#if team}
+										for {team}
+									{/if}
+									{#if conference}
+										in the {conference}
+									{/if}
+									{#if selectedCategories.length > 0}
+										({selectedCategories.length} categories selected)
+									{/if}
+								</p>
+							</div>
 						{:else}
-							<span>Search Team Stats</span>
-							<span class="button-icon">🔍</span>
+							<div class="submit-info">
+								<h3 class="submit-title">⚠️ Configuration Needed</h3>
+								<p class="submit-description">
+									{#if !year}
+										Please enter a year to search for team statistics
+									{:else if !isYearValid}
+										Please enter a valid year (1900-{new Date().getFullYear() + 1})
+									{:else if !isWeekRangeValid}
+										Please fix the week range issue
+									{:else}
+										Please check your search configuration
+									{/if}
+								</p>
+							</div>
 						{/if}
-					</button>
+
+						<div class="submit-actions">
+							<button
+								type="button"
+								class="submit-button"
+								class:loading={isLoading}
+								disabled={!isFormValid || isLoading}
+								on:click={handleSubmit}
+							>
+								{#if isLoading}
+									<div class="loading-spinner"></div>
+									<span>Searching...</span>
+								{:else if isFormValid}
+									<span>Search Team Stats</span>
+									<span class="button-icon">🔍</span>
+								{:else if !year}
+									<span>Enter Year</span>
+								{:else}
+									<span>Fix Configuration</span>
+								{/if}
+							</button>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -455,56 +521,51 @@
 </div>
 
 <style>
-	/* CSS Custom Properties for Theme */
+	/* CSS Custom Properties for Green/Blue Team Theme */
 	:root {
-		/* Green/Blue Team Theme */
 		--accent-green: #10b981;
 		--accent-blue: #3b82f6;
 		--accent-teal: #06b6d4;
-
+		
 		/* Gradients */
 		--gradient-primary: linear-gradient(135deg, var(--accent-green) 0%, var(--accent-blue) 100%);
 		--gradient-secondary: linear-gradient(135deg, var(--accent-teal) 0%, var(--accent-green) 100%);
-		--gradient-subtle: linear-gradient(
-			135deg,
-			rgba(16, 185, 129, 0.1) 0%,
-			rgba(59, 130, 246, 0.1) 100%
-		);
-
+		--gradient-subtle: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+		
 		/* Base Colors */
 		--background-primary: #ffffff;
 		--background-secondary: #f8fafc;
 		--background-tertiary: #f1f5f9;
 		--surface-primary: #ffffff;
 		--surface-secondary: #f8fafc;
-
+		
 		/* Text Colors */
 		--text-primary: #1e293b;
 		--text-secondary: #64748b;
 		--text-tertiary: #94a3b8;
 		--text-inverse: #ffffff;
-
+		
 		/* Border Colors */
 		--border-primary: #e2e8f0;
 		--border-secondary: #cbd5e1;
 		--border-focus: var(--accent-blue);
-
+		
 		/* Status Colors */
 		--success-color: #059669;
 		--error-color: #dc2626;
 		--warning-color: #d97706;
-
+		
 		/* Shadows */
 		--shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 		--shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 		--shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 		--shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-
+		
 		/* Transitions */
 		--transition-fast: 0.15s ease-out;
 		--transition-medium: 0.3s ease-out;
 		--transition-slow: 0.5s ease-out;
-
+		
 		/* Spacing */
 		--spacing-xs: 0.25rem;
 		--spacing-sm: 0.5rem;
@@ -512,7 +573,7 @@
 		--spacing-lg: 1.5rem;
 		--spacing-xl: 2rem;
 		--spacing-2xl: 3rem;
-
+		
 		/* Border Radius */
 		--radius-sm: 0.375rem;
 		--radius-md: 0.5rem;
@@ -521,21 +582,19 @@
 	}
 
 	/* Dark theme support */
-	@media (prefers-color-scheme: dark) {
-		:root {
-			--background-primary: #0f172a;
-			--background-secondary: #1e293b;
-			--background-tertiary: #334155;
-			--surface-primary: #1e293b;
-			--surface-secondary: #334155;
-
-			--text-primary: #f1f5f9;
-			--text-secondary: #cbd5e1;
-			--text-tertiary: #94a3b8;
-
-			--border-primary: #334155;
-			--border-secondary: #475569;
-		}
+	.dark {
+		--background-primary: #0f172a;
+		--background-secondary: #1e293b;
+		--background-tertiary: #334155;
+		--surface-primary: #1e293b;
+		--surface-secondary: #334155;
+		
+		--text-primary: #f1f5f9;
+		--text-secondary: #cbd5e1;
+		--text-tertiary: #94a3b8;
+		
+		--border-primary: #334155;
+		--border-secondary: #475569;
 	}
 
 	/* Base Styles */
@@ -545,10 +604,11 @@
 
 	.team-search-container {
 		min-height: 100vh;
-		background: var(--background-primary);
+		background: linear-gradient(135deg, var(--background-secondary) 0%, var(--background-tertiary) 100%);
 		opacity: 0;
 		transform: translateY(20px);
 		transition: all var(--transition-slow);
+		padding: 1rem;
 	}
 
 	.team-search-container.mounted {
@@ -556,77 +616,60 @@
 		transform: translateY(0);
 	}
 
-	/* Hero Section */
+	/* ========================================
+	   HERO SECTION
+	======================================== */
 	.hero-section {
-		background: var(--gradient-primary);
-		padding: var(--spacing-2xl) var(--spacing-md);
 		text-align: center;
-		position: relative;
-		overflow: hidden;
-	}
-
-	.hero-section::before {
-		content: '';
-		position: absolute;
-		top: 0;
-		left: 0;
-		right: 0;
-		bottom: 0;
-		background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")
-			repeat;
-		pointer-events: none;
+		padding: 1rem 1rem 3rem 1rem;
+		max-width: 800px;
+		margin: 0 auto;
 	}
 
 	.hero-content {
-		max-width: 800px;
-		margin: 0 auto;
-		position: relative;
-		z-index: 1;
+		animation: fadeInUp 0.6s ease-out;
+	}
+
+	.hero-icon-wrapper {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 1rem;
 	}
 
 	.hero-icon {
-		font-size: 4rem;
-		margin-bottom: var(--spacing-md);
-		animation: float 3s ease-in-out infinite;
-	}
-
-	@keyframes float {
-		0%,
-		100% {
-			transform: translateY(0px);
-		}
-		50% {
-			transform: translateY(-10px);
-		}
+		display: inline-block;
+		width: clamp(36px, 6vw, 64px);
+		height: clamp(36px, 6vw, 64px);
+		opacity: 0.9;
+		filter: drop-shadow(0 4px 6px rgb(0 0 0 / 0.1));
 	}
 
 	.hero-title {
-		font-size: clamp(2.5rem, 5vw, 4rem);
+		font-size: clamp(2rem, 5vw, 3rem);
 		font-weight: 800;
-		margin: 0 0 var(--spacing-md) 0;
-		line-height: 1.1;
-	}
-
-	.gradient-text {
-		background: linear-gradient(135deg, #ffffff 0%, rgba(255, 255, 255, 0.8) 100%);
+		color: var(--text-primary);
+		margin: 0;
+		line-height: 1.2;
+		background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
+		background-clip: text;
 		-webkit-background-clip: text;
 		-webkit-text-fill-color: transparent;
-		background-clip: text;
 	}
 
 	.hero-subtitle {
-		font-size: 1.25rem;
-		color: rgba(255, 255, 255, 0.9);
-		margin: 0;
+		font-size: clamp(1rem, 2.5vw, 1.25rem);
+		color: var(--text-secondary);
+		margin: 1rem auto 0 auto;
+		line-height: 1.5;
 		max-width: 600px;
-		margin: 0 auto;
-		line-height: 1.6;
 	}
 
-	/* Search Section */
+	/* ========================================
+	   SELECTION INTERFACE
+	======================================== */
 	.search-section {
-		padding: var(--spacing-2xl) var(--spacing-md);
-		background: var(--background-secondary);
+		padding: 0 var(--spacing-md) var(--spacing-2xl) var(--spacing-md);
 	}
 
 	.search-grid {
@@ -638,38 +681,80 @@
 		align-items: start;
 	}
 
-	/* Panel Styles */
-	.search-panel,
-	.summary-panel {
+	.selected-panel {
+		display: flex;
+		flex-direction: column;
+		gap: 1.5rem;
+		height: min-content;
+	}
+
+	.panel-card {
 		background: var(--surface-primary);
 		border-radius: var(--radius-xl);
-		padding: var(--spacing-xl);
 		box-shadow: var(--shadow-lg);
 		border: 1px solid var(--border-primary);
+		overflow: hidden;
 	}
 
 	.panel-header {
-		margin-bottom: var(--spacing-xl);
-		text-align: center;
+		background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
+		color: white;
+		padding: 2rem;
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-start;
+		flex-wrap: wrap;
+		gap: 1rem;
 	}
 
-	.panel-header h2 {
+	.panel-title {
 		font-size: 1.5rem;
 		font-weight: 700;
-		margin: 0 0 var(--spacing-sm) 0;
-		color: var(--text-primary);
-	}
-
-	.panel-header p {
-		color: var(--text-secondary);
 		margin: 0;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		flex-wrap: wrap;
 	}
 
-	/* Form Styles */
-	.search-form {
+	.panel-count {
+		font-size: 1rem;
+		font-weight: 500;
+		opacity: 0.9;
+	}
+
+	.panel-subtitle {
+		margin: 0.5rem 0 0 0;
+		opacity: 0.9;
+		font-size: 0.875rem;
+		grid-column: 1 / -1;
+	}
+
+	.clear-all-btn {
+		background: rgba(255, 255, 255, 0.2);
+		color: white;
+		border: 1px solid rgba(255, 255, 255, 0.3);
+		padding: 0.5rem 1rem;
+		border-radius: 0.5rem;
+		font-size: 0.875rem;
+		font-weight: 500;
+		cursor: pointer;
+		transition: all 0.2s ease;
+	}
+
+	.clear-all-btn:hover {
+		background: rgba(255, 255, 255, 0.3);
+		transform: translateY(-1px);
+	}
+
+	/* ========================================
+	   CONTROLS SECTION
+	======================================== */
+	.controls-section {
+		padding: 2rem;
 		display: flex;
 		flex-direction: column;
-		gap: var(--spacing-xl);
+		gap: 1.5rem;
 	}
 
 	.field-group {
@@ -759,18 +844,35 @@
 	/* Category Selection */
 	.category-search {
 		margin-bottom: var(--spacing-md);
-	}
-
-	.category-search-input {
 		position: relative;
 	}
 
-	.category-search-input::before {
-		content: '🔍';
+	.category-search-input {
+		padding-right: 3rem;
+	}
+
+	.clear-search-btn {
 		position: absolute;
-		left: 0.75rem;
+		right: 0.75rem;
 		top: 50%;
 		transform: translateY(-50%);
+		background: var(--text-secondary);
+		color: white;
+		border: none;
+		border-radius: 50%;
+		width: 1.5rem;
+		height: 1.5rem;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		font-size: 0.75rem;
+		transition: all 0.2s ease;
+	}
+
+	.clear-search-btn:hover {
+		background: var(--accent-red);
+		transform: translateY(-50%) scale(1.1);
 	}
 
 	.category-grid {
@@ -817,12 +919,8 @@
 	}
 
 	@keyframes shimmer {
-		0% {
-			left: -100%;
-		}
-		100% {
-			left: 100%;
-		}
+		0% { left: -100%; }
+		100% { left: 100%; }
 	}
 
 	.category-icon {
@@ -903,7 +1001,14 @@
 		color: white;
 	}
 
-	/* Summary Panel */
+	/* ========================================
+	   SUMMARY PANEL
+	======================================== */
+	.summary-container {
+		padding: 2rem;
+		min-height: auto;
+	}
+
 	.summary-content {
 		display: flex;
 		flex-direction: column;
@@ -959,30 +1064,81 @@
 		font-style: italic;
 	}
 
-	/* Submit Section */
-	.submit-section {
-		border-top: 1px solid var(--border-primary);
-		padding-top: var(--spacing-lg);
-	}
-
-	.validation-message,
-	.ready-message {
-		margin-bottom: var(--spacing-md);
+	.empty-summary {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding: 2rem 1rem;
 		text-align: center;
 	}
 
-	.error-text {
-		color: var(--error-color);
-		font-size: 0.875rem;
-		margin: var(--spacing-xs) 0;
-		font-weight: 500;
+	.empty-icon {
+		font-size: 3rem;
+		margin-bottom: 1rem;
+		opacity: 0.6;
 	}
 
-	.success-text {
-		color: var(--success-color);
-		font-size: 0.875rem;
+	.empty-title {
+		color: var(--text-primary);
+		margin: 0 0 0.5rem 0;
+		font-size: 1.125rem;
+		font-weight: 600;
+	}
+
+	.empty-message {
+		color: var(--text-secondary);
 		margin: 0;
-		font-weight: 500;
+		font-size: 0.875rem;
+	}
+
+	.summary-card {
+		flex: 1;
+	}
+
+	/* ========================================
+	   SUBMIT CARD
+	======================================== */
+	.submit-card {
+		background: var(--surface-primary);
+		border-radius: var(--radius-xl);
+		box-shadow: var(--shadow-lg);
+		border: 1px solid var(--border-primary);
+		overflow: hidden;
+	}
+
+	.submit-content {
+		padding: 1.5rem;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		gap: 1.5rem;
+		flex-wrap: wrap;
+	}
+
+	.submit-info {
+		flex: 1;
+		min-width: 200px;
+	}
+
+	.submit-title {
+		font-size: 1.25rem;
+		font-weight: 700;
+		color: var(--text-primary);
+		margin: 0 0 0.5rem 0;
+	}
+
+	.submit-description {
+		color: var(--text-secondary);
+		margin: 0;
+		line-height: 1.5;
+		font-size: 0.875rem;
+	}
+
+	.submit-actions {
+		flex-shrink: 0;
+		width: 100%;
+		margin-top: 1rem;
 	}
 
 	.submit-button {
@@ -995,28 +1151,42 @@
 		font-size: 1rem;
 		font-weight: 600;
 		cursor: pointer;
-		transition: all var(--transition-fast);
+		transition: all 0.3s ease;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		gap: var(--spacing-sm);
+		box-shadow: var(--shadow-md);
 		position: relative;
 		overflow: hidden;
+		white-space: nowrap;
+	}
+
+	.submit-button::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: -100%;
+		width: 100%;
+		height: 100%;
+		background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+		transition: left 0.5s ease;
+	}
+
+	.submit-button:hover:not(:disabled)::before {
+		left: 100%;
 	}
 
 	.submit-button:hover:not(:disabled) {
-		transform: translateY(-2px);
-		box-shadow: var(--shadow-xl);
-	}
-
-	.submit-button:active:not(:disabled) {
-		transform: translateY(0);
+		transform: translateY(-3px);
+		box-shadow: var(--shadow-lg), 0 10px 20px rgba(16, 185, 129, 0.3);
 	}
 
 	.submit-button:disabled {
-		opacity: 0.6;
+		background: var(--text-secondary);
 		cursor: not-allowed;
 		transform: none;
+		box-shadow: var(--shadow-sm);
 	}
 
 	.submit-button.loading {
@@ -1037,46 +1207,78 @@
 	}
 
 	@keyframes spin {
-		0% {
-			transform: rotate(0deg);
+		0% { transform: rotate(0deg); }
+		100% { transform: rotate(360deg); }
+	}
+
+	/* ========================================
+	   ANIMATIONS
+	======================================== */
+	@keyframes fadeInUp {
+		from {
+			opacity: 0;
+			transform: translateY(30px);
 		}
-		100% {
-			transform: rotate(360deg);
+		to {
+			opacity: 1;
+			transform: translateY(0);
 		}
 	}
 
-	/* Responsive Design */
+	/* ========================================
+	   RESPONSIVE DESIGN
+	======================================== */
+
+	/* Tablets */
 	@media (max-width: 1024px) {
 		.search-grid {
 			grid-template-columns: 1fr;
 			gap: var(--spacing-xl);
 		}
 
-		.summary-panel {
+		.selected-panel {
+			height: 100%;
 			order: -1;
 		}
 
-		.hero-section {
-			padding: var(--spacing-xl) var(--spacing-md);
-		}
-
-		.hero-title {
-			font-size: clamp(2rem, 4vw, 3rem);
-		}
-
-		.hero-subtitle {
-			font-size: 1.125rem;
+		.selected-panel {
+			gap: 1rem;
 		}
 	}
 
+	/* Mobile Phones */
 	@media (max-width: 768px) {
-		.search-section {
-			padding: var(--spacing-xl) var(--spacing-sm);
+		.team-search-container {
+			padding: 0.75rem;
 		}
 
-		.search-panel,
-		.summary-panel {
-			padding: var(--spacing-lg);
+		.search-grid {
+			gap: 1.5rem;
+			padding: 0;
+		}
+
+		.panel-card {
+			margin: 0;
+			border-radius: 1rem;
+		}
+
+		.hero-section {
+			padding: 1.5rem 0.5rem 2rem 0.5rem;
+		}
+
+		.panel-header {
+			padding: 1.25rem;
+			flex-direction: column;
+			align-items: stretch;
+			gap: 0.75rem;
+		}
+
+		.panel-title {
+			font-size: 1.25rem;
+		}
+
+		.controls-section {
+			padding: 1.25rem;
 		}
 
 		.form-row {
@@ -1087,8 +1289,24 @@
 			grid-template-columns: 1fr;
 		}
 
-		.hero-icon {
-			font-size: 3rem;
+		.summary-container {
+			padding: 1.25rem;
+		}
+
+		.submit-content {
+			padding: 1.25rem;
+			flex-direction: column;
+			text-align: center;
+			align-items: center;
+		}
+
+		.submit-actions {
+			width: 100%;
+		}
+
+		.submit-button {
+			width: 100%;
+			justify-content: center;
 		}
 
 		.category-card {
@@ -1098,43 +1316,81 @@
 		.category-icon {
 			font-size: 1.5rem;
 		}
-
-		.summary-item {
-			flex-direction: column;
-			align-items: flex-start;
-			gap: var(--spacing-xs);
-		}
-
-		.summary-value {
-			text-align: left;
-			margin-left: 0;
-		}
 	}
 
+	/* Small Mobile */
 	@media (max-width: 480px) {
+		.team-search-container {
+			padding: 0.5rem;
+		}
+
+		.search-grid {
+			gap: 1rem;
+			padding: 0;
+		}
+
 		.hero-section {
-			padding: var(--spacing-lg) var(--spacing-sm);
+			padding: 1rem 0.25rem 1.5rem 0.25rem;
 		}
 
-		.search-section {
-			padding: var(--spacing-lg) var(--spacing-sm);
-		}
-
-		.search-panel,
-		.summary-panel {
-			padding: var(--spacing-md);
+		.hero-title {
+			font-size: 1.75rem;
 		}
 
 		.hero-subtitle {
-			font-size: 1rem;
+			font-size: 0.875rem;
 		}
 
-		.panel-header h2 {
-			font-size: 1.25rem;
+		.panel-header {
+			padding: 1rem;
+		}
+
+		.controls-section {
+			padding: 1rem;
+		}
+
+		.summary-container {
+			padding: 1rem;
+		}
+
+		.submit-content {
+			padding: 1rem;
+			align-items: center;
+		}
+
+		.submit-button {
+			padding: 0.875rem 1.5rem;
+			font-size: 0.875rem;
+		}
+
+		.panel-card {
+			border-radius: 0.75rem;
+		}
+
+		.category-button {
+			padding: 0.75rem;
+			gap: 0.75rem;
+		}
+
+		.category-icon {
+			font-size: 1rem;
 		}
 	}
 
-	/* Accessibility */
+	/* ========================================
+	   ACCESSIBILITY & FOCUS STATES
+	======================================== */
+	.category-card:focus,
+	.form-input:focus,
+	.submit-button:focus,
+	.clear-all-btn:focus,
+	.clear-search-btn:focus,
+	.clear-button:focus {
+		outline: 2px solid var(--accent-blue);
+		outline-offset: 2px;
+	}
+
+	/* Reduced motion preferences */
 	@media (prefers-reduced-motion: reduce) {
 		*,
 		*::before,
@@ -1153,23 +1409,13 @@
 		}
 	}
 
+	/* High contrast mode support */
 	@media (prefers-contrast: high) {
 		:root {
 			--border-primary: #000000;
 			--border-secondary: #000000;
 			--text-secondary: #000000;
 		}
-	}
-
-	/* Focus styles for keyboard navigation */
-	.category-card:focus {
-		outline: 2px solid var(--accent-blue);
-		outline-offset: 2px;
-	}
-
-	.submit-button:focus {
-		outline: 2px solid var(--accent-blue);
-		outline-offset: 2px;
 	}
 
 	/* Print styles */
@@ -1183,7 +1429,7 @@
 			color: black;
 		}
 
-		.gradient-text {
+		.hero-title {
 			-webkit-text-fill-color: initial;
 			background: none;
 			color: black;

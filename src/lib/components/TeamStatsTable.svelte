@@ -50,7 +50,7 @@
 	// Group stats by team for better display
 	$: groupedStats = (() => {
 		const grouped = new Map<string, TeamStat[]>();
-		sortedStats.forEach(stat => {
+		sortedStats.forEach((stat) => {
 			const key = `${stat.team}-${stat.conference}`;
 			if (!grouped.has(key)) {
 				grouped.set(key, []);

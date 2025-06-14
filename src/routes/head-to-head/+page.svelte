@@ -12,8 +12,8 @@
 	import { convertMatchupGamesToExportFormat } from '$lib/utils/matchupExport';
 	import '../../styles/main.css';
 
-	export let data: { 
-		matchupData?: any; 
+	export let data: {
+		matchupData?: any;
 		searchParams?: any;
 		error?: string;
 	};
@@ -33,7 +33,7 @@
 	$: maxYear = searchParams?.maxYear;
 	$: team1 = searchParams?.team1 || matchupData?.team1;
 	$: team2 = searchParams?.team2 || matchupData?.team2;
-	
+
 	// Set selectedDivision reactively to avoid SSR issues
 	$: if (searchParams?.division) {
 		selectedDivision = searchParams.division;
@@ -47,29 +47,33 @@
 	// Helper function to check if two team names match (with fuzzy matching)
 	function teamsMatch(teamA: string, teamB: string): boolean {
 		if (!teamA || !teamB) return false;
-		
+
 		const normalA = normalizeTeamName(teamA);
 		const normalB = normalizeTeamName(teamB);
-		
+
 		// Exact match
 		if (normalA === normalB) return true;
-		
+
 		// Check if one contains the other (for cases like "Alabama" vs "Alabama Crimson Tide")
 		if (normalA.includes(normalB) || normalB.includes(normalA)) return true;
-		
+
 		return false;
 	}
 
 	// Centralized winner calculation function
-	function getGameWinner(game: MatchupGame): { winner: string; margin: number; isDominant: boolean } {
+	function getGameWinner(game: MatchupGame): {
+		winner: string;
+		margin: number;
+		isDominant: boolean;
+	} {
 		const homeScore = game.homeScore || 0;
 		const awayScore = game.awayScore || 0;
 		const margin = Math.abs(homeScore - awayScore);
-		
+
 		let winner = 'Tie';
 		if (homeScore > awayScore) winner = game.homeTeam;
 		else if (awayScore > homeScore) winner = game.awayTeam;
-		
+
 		return {
 			winner,
 			margin,
@@ -80,27 +84,27 @@
 	// Filter games by year range if specified
 	$: filteredGames = (() => {
 		if (!matchupData?.games) return [];
-		
+
 		let games = matchupData.games;
-		
+
 		// Filter by year range if provided
 		if (minYear || maxYear) {
 			games = games.filter((game: MatchupGame) => {
 				const gameYear = game.season;
 				const minYearNum = minYear ? parseInt(minYear) : 0;
 				const maxYearNum = maxYear ? parseInt(maxYear) : 9999;
-				
+
 				return gameYear >= minYearNum && gameYear <= maxYearNum;
 			});
 		}
-		
+
 		// Sort by most recent first
 		return games.sort((a: MatchupGame, b: MatchupGame) => b.season - a.season);
 	})();
 
 	// USING CALCULATED WINNERS FOR CONSISTENCY
 	$: totalGames = filteredGames.length;
-	
+
 	$: team1Wins = filteredGames.filter((game: MatchupGame) => {
 		const result = getGameWinner(game);
 		return teamsMatch(result.winner, team1);
@@ -117,26 +121,26 @@
 	// Years covered
 	$: yearsRange = (() => {
 		if (filteredGames.length === 0) return { start: 'Unknown', end: 'Unknown' };
-		
+
 		const years = filteredGames.map((game: MatchupGame) => game.season);
 		const startYear = Math.min(...years);
 		const endYear = Math.max(...years);
-		
-		return { 
-			start: startYear.toString(), 
+
+		return {
+			start: startYear.toString(),
 			end: startYear === endYear ? startYear.toString() : endYear.toString()
 		};
 	})();
 
 	// Export data - convert MatchupGame format to standard Game format for export
 	$: exportData = convertMatchupGamesToExportFormat(filteredGames);
-	
+
 	// Export filename
 	$: exportFilename = (() => {
 		const t1 = team1?.replace(/\s+/g, '-') || 'team1';
 		const t2 = team2?.replace(/\s+/g, '-') || 'team2';
 		let filename = `${t1}-vs-${t2}-matchup`;
-		
+
 		if (minYear && maxYear) {
 			filename += `-${minYear}-${maxYear}`;
 		} else if (minYear) {
@@ -144,7 +148,7 @@
 		} else if (maxYear) {
 			filename += `-through-${maxYear}`;
 		}
-		
+
 		return filename;
 	})();
 
@@ -169,12 +173,12 @@
 
 	onMount(() => {
 		checkNavigation();
-		
+
 		// Set selectedDivision after mount to avoid SSR issues
 		if (searchParams?.division) {
 			selectedDivision = searchParams.division;
 		}
-		
+
 		const timer = setTimeout(() => {
 			isLoading = false;
 		}, 300);
@@ -185,17 +189,16 @@
 
 <svelte:head>
 	<title>Head-to-Head: {team1} vs {team2} - Fieldwing</title>
-	<meta name="description" content="View historical head-to-head matchup results between {team1} and {team2}." />
+	<meta
+		name="description"
+		content="View historical head-to-head matchup results between {team1} and {team2}."
+	/>
 </svelte:head>
 
 <ErrorBoundary bind:error={pageError} on:retry={handleRetry}>
 	<div class="wrapper">
 		{#if isLoading}
-			<LoadingSpinner 
-				size="large" 
-				text="Loading matchup data..." 
-				fullScreen={true}
-			/>
+			<LoadingSpinner size="large" text="Loading matchup data..." fullScreen={true} />
 		{:else}
 			<div class="results-container" class:light={!$theme} class:dark={$theme}>
 				<section class="results-section">
@@ -204,11 +207,11 @@
 						<div class="header-section">
 							<div class="header-content">
 								<img class="header-icon" src="/h2h.png" alt="Head to Head Matchups" />
-								
+
 								<h1 class="page-title">
 									{team1} vs {team2}
 								</h1>
-								
+
 								<h2 class="matchup-subtitle">
 									{#if minYear && maxYear && minYear !== maxYear}
 										📅 {minYear} - {maxYear} ({totalGames} games)
@@ -225,7 +228,7 @@
 										<div class="stat-number">{team1Wins}</div>
 										<div class="stat-label">{team1} Wins</div>
 									</div>
-									
+
 									<div class="stat-card series-card">
 										<div class="series-record">
 											{team1Wins}-{team2Wins}{ties > 0 ? `-${ties}` : ''}
@@ -235,7 +238,7 @@
 											<div class="ties-note">{ties} tie{ties !== 1 ? 's' : ''}</div>
 										{/if}
 									</div>
-									
+
 									<div class="stat-card team2-card">
 										<div class="stat-number">{team2Wins}</div>
 										<div class="stat-label">{team2} Wins</div>
@@ -245,9 +248,9 @@
 								<!-- Export Button -->
 								{#if totalGames > 0}
 									<div class="export-section">
-										<ExportButton 
-											data={exportData} 
-											type="games" 
+										<ExportButton
+											data={exportData}
+											type="games"
 											variant="outline"
 											size="medium"
 											filename={exportFilename}
@@ -263,8 +266,13 @@
 							{#each filteredGames as game, index (game.season + '-' + game.week + '-' + index)}
 								{@const gameResult = getGameWinner(game)}
 								{@const isRecent = game.season >= new Date().getFullYear() - 5}
-								
-								<article class="game-card" class:light={!$theme} class:dark={$theme} class:recent={isRecent}>
+
+								<article
+									class="game-card"
+									class:light={!$theme}
+									class:dark={$theme}
+									class:recent={isRecent}
+								>
 									<!-- Game Header -->
 									<div class="game-header">
 										<div class="game-meta">
@@ -274,7 +282,7 @@
 											{/if}
 											<span class="season-type">{game.seasonType || 'Regular'}</span>
 										</div>
-										
+
 										<div class="game-era">
 											{getGameEra(game.season)}
 										</div>
@@ -334,7 +342,7 @@
 												{formatStartDate(game.date)}
 											</span>
 										</div>
-										
+
 										<div class="detail-row">
 											<span class="detail-label">🏟️</span>
 											<span class="detail-value">
@@ -348,14 +356,15 @@
 										{#if gameResult.isDominant}
 											<div class="detail-row highlight">
 												<span class="detail-label">💥</span>
-												<span class="detail-value">Dominant Victory ({gameResult.margin}+ point margin)</span>
+												<span class="detail-value"
+													>Dominant Victory ({gameResult.margin}+ point margin)</span
+												>
 											</div>
 										{/if}
 									</div>
 								</article>
 							{/each}
 						</div>
-
 					{:else}
 						<!-- No Data State -->
 						<div class="no-data-section">
@@ -369,7 +378,8 @@
 											for the specified time period
 										{/if}.
 									{:else}
-										Sorry, it seems like there is no head-to-head matchup data available for those two teams.
+										Sorry, it seems like there is no head-to-head matchup data available for those
+										two teams.
 									{/if}
 								</p>
 								<p class="no-data-suggestion">

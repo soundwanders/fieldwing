@@ -13,15 +13,15 @@ function escapeCsvField(value: any): string {
 	if (value === null || value === undefined) {
 		return '';
 	}
-	
+
 	const stringValue = String(value);
-	
+
 	// If the value contains quotes, commas, or newlines, wrap it in quotes
 	if (stringValue.includes('"') || stringValue.includes(',') || stringValue.includes('\n')) {
 		// Escape internal quotes by doubling them
 		return `"${stringValue.replace(/"/g, '""')}"`;
 	}
-	
+
 	return stringValue;
 }
 
@@ -34,12 +34,14 @@ function arrayToCsv<T extends Record<string, any>>(data: T[], headers: string[])
 	}
 
 	const csvHeaders = headers.map(escapeCsvField).join(',');
-	
-	const csvRows = data.map(item => 
-		headers.map(header => {
-			const value = item[header] || item[header.toLowerCase()] || '';
-			return escapeCsvField(value);
-		}).join(',')
+
+	const csvRows = data.map((item) =>
+		headers
+			.map((header) => {
+				const value = item[header] || item[header.toLowerCase()] || '';
+				return escapeCsvField(value);
+			})
+			.join(',')
 	);
 
 	return [csvHeaders, ...csvRows].join('\n');
@@ -51,16 +53,16 @@ function arrayToCsv<T extends Record<string, any>>(data: T[], headers: string[])
 function downloadCsv(csvContent: string, filename: string): void {
 	const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
 	const url = window.URL.createObjectURL(blob);
-	
+
 	const link = document.createElement('a');
 	link.href = url;
 	link.download = filename;
 	link.style.display = 'none';
-	
+
 	document.body.appendChild(link);
 	link.click();
 	document.body.removeChild(link);
-	
+
 	// Clean up the URL object
 	window.URL.revokeObjectURL(url);
 }
@@ -75,7 +77,7 @@ function getTimestamp(): string {
 	const day = String(now.getDate()).padStart(2, '0');
 	const hours = String(now.getHours()).padStart(2, '0');
 	const minutes = String(now.getMinutes()).padStart(2, '0');
-	
+
 	return `${year}${month}${day}-${hours}${minutes}`;
 }
 
@@ -87,9 +89,18 @@ export function exportPlayerStats(stats: PlayerStat[], options: ExportOptions = 
 		throw new Error('No player statistics to export');
 	}
 
-	const headers = ['Player', 'Team', 'Conference', 'Category', 'Stat Type', 'Value', 'Season', 'Season Type'];
-	
-	const csvData = stats.map(stat => ({
+	const headers = [
+		'Player',
+		'Team',
+		'Conference',
+		'Category',
+		'Stat Type',
+		'Value',
+		'Season',
+		'Season Type'
+	];
+
+	const csvData = stats.map((stat) => ({
 		Player: stat.player,
 		Team: stat.team,
 		Conference: stat.conference,
@@ -101,10 +112,10 @@ export function exportPlayerStats(stats: PlayerStat[], options: ExportOptions = 
 	}));
 
 	const csvContent = arrayToCsv(csvData, headers);
-	
+
 	const timestamp = options.timestamp !== false ? `-${getTimestamp()}` : '';
 	const filename = options.filename || `player-stats${timestamp}.csv`;
-	
+
 	downloadCsv(csvContent, filename);
 }
 
@@ -117,8 +128,8 @@ export function exportTeamStats(stats: TeamStat[], options: ExportOptions = {}):
 	}
 
 	const headers = ['Team', 'Conference', 'Stat Name', 'Stat Value', 'Season', 'Season Type'];
-	
-	const csvData = stats.map(stat => ({
+
+	const csvData = stats.map((stat) => ({
 		Team: stat.team,
 		Conference: stat.conference,
 		'Stat Name': stat.statName,
@@ -128,10 +139,10 @@ export function exportTeamStats(stats: TeamStat[], options: ExportOptions = {}):
 	}));
 
 	const csvContent = arrayToCsv(csvData, headers);
-	
+
 	const timestamp = options.timestamp !== false ? `-${getTimestamp()}` : '';
 	const filename = options.filename || `team-stats${timestamp}.csv`;
-	
+
 	downloadCsv(csvContent, filename);
 }
 
@@ -144,20 +155,20 @@ export function exportGameResults(games: Game[], options: ExportOptions = {}): v
 	}
 
 	const headers = [
-		'Season', 
-		'Week', 
-		'Season Type', 
-		'Home Team', 
-		'Away Team', 
-		'Home Score', 
+		'Season',
+		'Week',
+		'Season Type',
+		'Home Team',
+		'Away Team',
+		'Home Score',
 		'Away Score',
 		'Date',
 		'Venue',
 		'Conference Game',
 		'Completed'
 	];
-	
-	const csvData = games.map(game => ({
+
+	const csvData = games.map((game) => ({
 		Season: game.season,
 		Week: game.week,
 		'Season Type': game.season_type,
@@ -172,10 +183,10 @@ export function exportGameResults(games: Game[], options: ExportOptions = {}): v
 	}));
 
 	const csvContent = arrayToCsv(csvData, headers);
-	
+
 	const timestamp = options.timestamp !== false ? `-${getTimestamp()}` : '';
 	const filename = options.filename || `game-results${timestamp}.csv`;
-	
+
 	downloadCsv(csvContent, filename);
 }
 
@@ -183,8 +194,8 @@ export function exportGameResults(games: Game[], options: ExportOptions = {}): v
  * Export any generic data to CSV
  */
 export function exportGenericData<T extends Record<string, any>>(
-	data: T[], 
-	headers: string[], 
+	data: T[],
+	headers: string[],
 	filename: string,
 	options: ExportOptions = {}
 ): void {
@@ -193,10 +204,10 @@ export function exportGenericData<T extends Record<string, any>>(
 	}
 
 	const csvContent = arrayToCsv(data, headers);
-	
+
 	const timestamp = options.timestamp !== false ? `-${getTimestamp()}` : '';
 	const finalFilename = `${filename}${timestamp}.csv`;
-	
+
 	downloadCsv(csvContent, finalFilename);
 }
 
@@ -210,10 +221,14 @@ export function canExport(data: any[]): boolean {
 /**
  * Get export summary information
  */
-export function getExportSummary(data: any[]): { canExport: boolean; count: number; message: string } {
+export function getExportSummary(data: any[]): {
+	canExport: boolean;
+	count: number;
+	message: string;
+} {
 	const count = Array.isArray(data) ? data.length : 0;
 	const canExport = count > 0;
-	
+
 	if (!canExport) {
 		return {
 			canExport: false,
@@ -221,7 +236,7 @@ export function getExportSummary(data: any[]): { canExport: boolean; count: numb
 			message: 'No data available to export'
 		};
 	}
-	
+
 	return {
 		canExport: true,
 		count,

@@ -40,19 +40,20 @@
 	};
 
 	// Filter teams based on search query
-	$: filteredTeams = searchQuery.trim() 
-		? teams.filter(team => 
-			team.toLowerCase().includes(searchQuery.toLowerCase().trim())
-		).slice(0, 50) // Limit for performance
+	$: filteredTeams = searchQuery.trim()
+		? teams
+				.filter((team) => team.toLowerCase().includes(searchQuery.toLowerCase().trim()))
+				.slice(0, 50) // Limit for performance
 		: teams;
 
 	// Form validation
-	$: isValidForm = selectedTeamsArray.length === 2 && selectedTeamsArray[0] && selectedTeamsArray[1];
+	$: isValidForm =
+		selectedTeamsArray.length === 2 && selectedTeamsArray[0] && selectedTeamsArray[1];
 	$: isValidYearRange = (() => {
 		if (!minYear && !maxYear) return true;
 		if (minYear && !maxYear) return true;
 		if (!minYear && maxYear) return true;
-		
+
 		const min = parseInt(minYear);
 		const max = parseInt(maxYear);
 		return !isNaN(min) && !isNaN(max) && min <= max;
@@ -142,7 +143,7 @@
 		params.set('team1', selectedTeamsArray[0]);
 		params.set('team2', selectedTeamsArray[1]);
 		params.set('division', selectedDivision);
-		
+
 		if (minYear) params.set('minYear', minYear);
 		if (maxYear) params.set('maxYear', maxYear);
 
@@ -199,16 +200,16 @@
 								<span class="panel-count">({teamStats.showing} teams)</span>
 							{/if}
 						</h2>
-						<p class="panel-subtitle">Select exactly two teams to compare their head-to-head record</p>
+						<p class="panel-subtitle">
+							Select exactly two teams to compare their head-to-head record
+						</p>
 					</div>
 
 					<!-- Controls Section -->
 					<div class="controls-section">
 						<!-- Division Selector -->
 						<div class="control-group">
-							<label for="division-select" class="control-label">
-								🏟️ Division
-							</label>
+							<label for="division-select" class="control-label"> 🏟️ Division </label>
 							<select
 								class="control-select"
 								id="division-select"
@@ -226,9 +227,7 @@
 						<!-- Year Range Controls -->
 						<div class="control-row">
 							<div class="control-group">
-								<label for="min-year" class="control-label">
-									📅 Min Year
-								</label>
+								<label for="min-year" class="control-label"> 📅 Min Year </label>
 								<input
 									type="number"
 									class="control-input"
@@ -241,9 +240,7 @@
 							</div>
 
 							<div class="control-group">
-								<label for="max-year" class="control-label">
-									📅 Max Year
-								</label>
+								<label for="max-year" class="control-label"> 📅 Max Year </label>
 								<input
 									type="number"
 									class="control-input"
@@ -259,9 +256,7 @@
 						<!-- Search Input -->
 						{#if teams.length > 0}
 							<div class="control-group">
-								<label for="team-search" class="control-label">
-									🔍 Search Teams
-								</label>
+								<label for="team-search" class="control-label"> 🔍 Search Teams </label>
 								<input
 									type="text"
 									class="control-input search-input"
@@ -272,9 +267,9 @@
 									autocomplete="off"
 								/>
 								{#if searchQuery}
-									<button 
+									<button
 										class="clear-search-btn"
-										on:click={() => searchQuery = ''}
+										on:click={() => (searchQuery = '')}
 										type="button"
 										aria-label="Clear search"
 									>
@@ -293,7 +288,9 @@
 								{#if selectedTeamsArray.length === 2}
 									<span class="selection-complete">✓ 2/2 teams selected</span>
 								{:else}
-									<span class="selection-incomplete">{selectedTeamsArray.length}/2 teams selected</span>
+									<span class="selection-incomplete"
+										>{selectedTeamsArray.length}/2 teams selected</span
+									>
 								{/if}
 							</div>
 						</div>
@@ -309,7 +306,8 @@
 										<button
 											class="team-button"
 											class:selected={selectedTeamsArray.includes(team)}
-											class:disabled={selectedTeamsArray.length === 2 && !selectedTeamsArray.includes(team)}
+											class:disabled={selectedTeamsArray.length === 2 &&
+												!selectedTeamsArray.includes(team)}
 											on:click={(event) => toggleSelection(event, team)}
 											type="button"
 										>
@@ -322,7 +320,7 @@
 										</button>
 									{/each}
 								</div>
-								
+
 								{#if searchQuery && teams.length > filteredTeams.length}
 									<div class="search-info">
 										<p class="search-results-text">
@@ -334,9 +332,9 @@
 								<div class="empty-search">
 									<div class="empty-icon">🔍</div>
 									<p class="empty-message">No teams found for "{searchQuery}"</p>
-									<button 
+									<button
 										class="clear-search-btn-alt"
-										on:click={() => searchQuery = ''}
+										on:click={() => (searchQuery = '')}
 										type="button"
 									>
 										Clear Search
@@ -368,7 +366,7 @@
 						{#if selectedTeamsArray.length > 0}
 							<div class="header-actions">
 								{#if selectedTeamsArray.length === 2}
-									<button 
+									<button
 										class="swap-btn"
 										on:click={swapTeams}
 										type="button"
@@ -377,11 +375,7 @@
 										🔄
 									</button>
 								{/if}
-								<button 
-									class="clear-all-btn"
-									on:click={clearAllTeams}
-									type="button"
-								>
+								<button class="clear-all-btn" on:click={clearAllTeams} type="button">
 									Clear All
 								</button>
 							</div>
@@ -412,11 +406,11 @@
 										</button>
 									</div>
 								</div>
-								
+
 								<div class="vs-divider">
 									<span class="vs-text">VS</span>
 								</div>
-								
+
 								<div class="team-slot empty">
 									<div class="team-number">2</div>
 									<div class="team-placeholder">
@@ -440,12 +434,12 @@
 										</button>
 									</div>
 								</div>
-								
+
 								<div class="vs-divider active">
 									<span class="vs-text">VS</span>
 									<div class="rivalry-indicator">🔥</div>
 								</div>
-								
+
 								<div class="team-slot filled">
 									<div class="team-number">2</div>
 									<div class="team-info">
@@ -516,16 +510,12 @@
 						{:else if !isValidYearRange}
 							<div class="submit-info">
 								<h3 class="submit-title">⚠️ Invalid Year Range</h3>
-								<p class="submit-description">
-									Min year cannot be greater than max year
-								</p>
+								<p class="submit-description">Min year cannot be greater than max year</p>
 							</div>
 						{:else}
 							<div class="submit-info">
 								<h3 class="submit-title">⚔️ Select Two Teams</h3>
-								<p class="submit-description">
-									Choose two teams to compare matchup history
-								</p>
+								<p class="submit-description">Choose two teams to compare matchup history</p>
 							</div>
 						{/if}
 
@@ -542,7 +532,7 @@
 									disabled={!isValidForm || !isValidYearRange || $isTeamDataLoading}
 								>
 									{#if $isTeamDataLoading}
-										<span class="btn-spinner"></span>
+										<span class="btn-spinner" />
 										Loading...
 									{:else if isValidForm && isValidYearRange}
 										⚔️ View Head-to-Head
@@ -724,7 +714,8 @@
 		align-items: center;
 	}
 
-	.clear-all-btn, .swap-btn {
+	.clear-all-btn,
+	.swap-btn {
 		background: rgba(255, 255, 255, 0.2);
 		color: white;
 		border: 1px solid rgba(255, 255, 255, 0.3);
@@ -746,7 +737,8 @@
 		justify-content: center;
 	}
 
-	.clear-all-btn:hover, .swap-btn:hover {
+	.clear-all-btn:hover,
+	.swap-btn:hover {
 		background: rgba(255, 255, 255, 0.3);
 		transform: translateY(-1px);
 	}
@@ -939,13 +931,22 @@
 		left: 0;
 		right: 0;
 		bottom: 0;
-		background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+		background: linear-gradient(
+			45deg,
+			transparent 30%,
+			rgba(255, 255, 255, 0.1) 50%,
+			transparent 70%
+		);
 		animation: shimmer 2s infinite;
 	}
 
 	@keyframes shimmer {
-		0% { transform: translateX(-100%); }
-		100% { transform: translateX(100%); }
+		0% {
+			transform: translateX(-100%);
+		}
+		100% {
+			transform: translateX(100%);
+		}
 	}
 
 	.team-name {
@@ -968,9 +969,15 @@
 	}
 
 	@keyframes checkmark {
-		0% { transform: scale(0); }
-		50% { transform: scale(1.2); }
-		100% { transform: scale(1); }
+		0% {
+			transform: scale(0);
+		}
+		50% {
+			transform: scale(1.2);
+		}
+		100% {
+			transform: scale(1);
+		}
 	}
 
 	/* ========================================
@@ -1184,9 +1191,19 @@
 	}
 
 	@keyframes bounce {
-		0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-		40% { transform: translateY(-10px); }
-		60% { transform: translateY(-5px); }
+		0%,
+		20%,
+		50%,
+		80%,
+		100% {
+			transform: translateY(0);
+		}
+		40% {
+			transform: translateY(-10px);
+		}
+		60% {
+			transform: translateY(-5px);
+		}
 	}
 
 	/* ========================================
@@ -1341,7 +1358,9 @@
 	}
 
 	@keyframes spin {
-		to { transform: rotate(360deg); }
+		to {
+			transform: rotate(360deg);
+		}
 	}
 
 	/* ========================================

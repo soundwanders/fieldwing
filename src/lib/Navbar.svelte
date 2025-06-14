@@ -39,72 +39,72 @@
 		<MobileNavbar />
 	</div>
 {:else}
-  <div class="nav-container" role="navigation">
-    <nav class="navbar" class:light={!$theme} class:dark={$theme}>
-      <a
-        id="home-shortcut"
-        class="link"
-        class:light={!$theme}
-        class:dark={$theme}
-        class:active={currentPath === '/'}
-        href="/"
-        aria-label="Go to Home"
-        data-sveltekit-preload-data="hover"
+	<div class="nav-container" role="navigation">
+		<nav class="navbar" class:light={!$theme} class:dark={$theme}>
+			<a
+				id="home-shortcut"
+				class="link"
+				class:light={!$theme}
+				class:dark={$theme}
+				class:active={currentPath === '/'}
+				href="/"
+				aria-label="Go to Home"
+				data-sveltekit-preload-data="hover"
 			>
-        <img class="fieldwing-logo" src="/fieldwing.png" alt="Fieldwing Logo" />
-      </a>
+				<img class="fieldwing-logo" src="/fieldwing.png" alt="Fieldwing Logo" />
+			</a>
 
-      <a
-        id="games-shortcut"
-        class="link"
-        class:light={!$theme}
-        class:dark={$theme}
-        class:active={currentPath === '/game-results'}
-        href="/game-results"
-        aria-label="Go to Game Results page"
-        data-sveltekit-preload-data="hover"
-      >
-        Games
-      </a>
+			<a
+				id="games-shortcut"
+				class="link"
+				class:light={!$theme}
+				class:dark={$theme}
+				class:active={currentPath === '/game-results'}
+				href="/game-results"
+				aria-label="Go to Game Results page"
+				data-sveltekit-preload-data="hover"
+			>
+				Games
+			</a>
 
-      <a
-        id="matchup-shortcut"
-        class="link"
-        class:light={!$theme}
-        class:dark={$theme}
-        class:active={currentPath === '/matchups'}
-        href="/matchups"
-        aria-label="Go to Head-to-Head Matchups page"
-        data-sveltekit-preload-data="hover"
-      >
-        Matchups
-      </a>
+			<a
+				id="matchup-shortcut"
+				class="link"
+				class:light={!$theme}
+				class:dark={$theme}
+				class:active={currentPath === '/matchups'}
+				href="/matchups"
+				aria-label="Go to Head-to-Head Matchups page"
+				data-sveltekit-preload-data="hover"
+			>
+				Matchups
+			</a>
 
-      <a
-        id="player-stats-shortcut"
-        class="link"
-        class:light={!$theme}
-        class:dark={$theme}
-        class:active={currentPath === '/players'}
-        href="/players"
-        aria-label="Go to Player Statistics page"
-        data-sveltekit-preload-data="hover"
-      >
-        Player Stats
-      </a>
+			<a
+				id="player-stats-shortcut"
+				class="link"
+				class:light={!$theme}
+				class:dark={$theme}
+				class:active={currentPath === '/players'}
+				href="/players"
+				aria-label="Go to Player Statistics page"
+				data-sveltekit-preload-data="hover"
+			>
+				Player Stats
+			</a>
 
-      <a
-        id="team-stats-shortcut"
-        class="link"
-        class:light={!$theme}
-        class:dark={$theme}
-        class:active={currentPath === '/teams'}
-        href="/teams"
-        aria-label="Go to Team Statistics page"
-        data-sveltekit-preload-data="hover"
-       >
-        Team Stats
-      </a>
+			<a
+				id="team-stats-shortcut"
+				class="link"
+				class:light={!$theme}
+				class:dark={$theme}
+				class:active={currentPath === '/teams'}
+				href="/teams"
+				aria-label="Go to Team Statistics page"
+				data-sveltekit-preload-data="hover"
+			>
+				Team Stats
+			</a>
 
 			<span id="button-wrapper">
 				<button
@@ -217,7 +217,7 @@
 		max-width: 100%;
 		box-sizing: border-box;
 	}
-	
+
 	button {
 		width: 1.5rem;
 		height: auto;
@@ -236,13 +236,13 @@
 		translate: 0 1px;
 	}
 
-/* Focus styles for mobile accessibility */
-@media (max-width: 768px) {
-	*:focus {
-		outline: 2px solid #3b82f6;
-		outline-offset: 2px;
+	/* Focus styles for mobile accessibility */
+	@media (max-width: 768px) {
+		*:focus {
+			outline: 2px solid #3b82f6;
+			outline-offset: 2px;
+		}
 	}
-}
 
 	/* Focus styles for accessibility */
 	.link:focus,

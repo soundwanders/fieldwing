@@ -126,7 +126,7 @@ export interface MatchupGame {
 	awayScore: number;
 	winner: string;
 	id?: number;
-	startDate?: string; 
+	startDate?: string;
 	conferenceGame?: boolean;
 	attendance?: number;
 	highlights?: string;

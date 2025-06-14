@@ -41,9 +41,24 @@
 		{ value: 'defense', label: 'Defense', icon: '🛡️', description: 'Defensive statistics' },
 		{ value: 'kicking', label: 'Kicking', icon: '🦵', description: 'Kicker statistics' },
 		{ value: 'punting', label: 'Punting', icon: '🦶', description: 'Punter statistics' },
-		{ value: 'kickReturns', label: 'Kick Returns', icon: '⚡', description: 'Return specialist stats' },
-		{ value: 'puntReturns', label: 'Punt Returns', icon: '🔄', description: 'Punt return statistics' },
-		{ value: 'interceptions', label: 'Interceptions', icon: '🤲', description: 'Interception statistics' },
+		{
+			value: 'kickReturns',
+			label: 'Kick Returns',
+			icon: '⚡',
+			description: 'Return specialist stats'
+		},
+		{
+			value: 'puntReturns',
+			label: 'Punt Returns',
+			icon: '🔄',
+			description: 'Punt return statistics'
+		},
+		{
+			value: 'interceptions',
+			label: 'Interceptions',
+			icon: '🤲',
+			description: 'Interception statistics'
+		},
 		{ value: 'fumbles', label: 'Fumbles', icon: '💫', description: 'Fumble statistics' }
 	];
 
@@ -54,11 +69,14 @@
 	];
 
 	// Filter categories based on search query
-	$: filteredCategories = searchQuery.trim() 
-		? categoryOptions.filter(category => 
-			category.label.toLowerCase().includes(searchQuery.toLowerCase().trim()) ||
-			category.description.toLowerCase().includes(searchQuery.toLowerCase().trim())
-		).slice(0, 20) // Limit for performance
+	$: filteredCategories = searchQuery.trim()
+		? categoryOptions
+				.filter(
+					(category) =>
+						category.label.toLowerCase().includes(searchQuery.toLowerCase().trim()) ||
+						category.description.toLowerCase().includes(searchQuery.toLowerCase().trim())
+				)
+				.slice(0, 20) // Limit for performance
 		: categoryOptions;
 
 	// Form validation
@@ -69,12 +87,12 @@
 			if (!startWeek && !endWeek) return true;
 			if (startWeek && !endWeek) return Number(startWeek) >= 1 && Number(startWeek) <= 14;
 			if (!startWeek && endWeek) return Number(endWeek) >= 1 && Number(endWeek) <= 14;
-			
+
 			const start = Number(startWeek);
 			const end = Number(endWeek);
 			return start >= 1 && start <= 14 && end >= 1 && end <= 14 && start <= end;
 		})();
-		
+
 		return hasValidYear && hasValidWeekRange;
 	})();
 
@@ -155,7 +173,9 @@
 			...(conference ? [`conference=${encodeURIComponent(conference)}`] : []),
 			...(startWeek ? [`startWeek=${startWeek}`] : []),
 			...(endWeek ? [`endWeek=${endWeek}`] : []),
-			...(seasonType && seasonType !== 'regular' ? [`seasonType=${encodeURIComponent(seasonType)}`] : []),
+			...(seasonType && seasonType !== 'regular'
+				? [`seasonType=${encodeURIComponent(seasonType)}`]
+				: []),
 			...(selectedCategory ? [`category=${encodeURIComponent(selectedCategory)}`] : []),
 			`limit=${pageSize}`,
 			`skip=${currentPage * pageSize}`
@@ -192,7 +212,9 @@
 					<img class="hero-icon" src="/playerstats.png" alt="Player Statistics" />
 					<h1 class="hero-title">Player Statistics</h1>
 				</div>
-				<p class="hero-subtitle">Discover standout performances and analyze individual player statistics</p>
+				<p class="hero-subtitle">
+					Discover standout performances and analyze individual player statistics
+				</p>
 			</div>
 		</div>
 
@@ -209,7 +231,9 @@
 								<span class="panel-count">(Category Selected)</span>
 							{/if}
 						</h2>
-						<p class="panel-subtitle">Configure your search criteria to find specific player statistics</p>
+						<p class="panel-subtitle">
+							Configure your search criteria to find specific player statistics
+						</p>
 					</div>
 
 					<!-- Controls Section -->
@@ -217,9 +241,7 @@
 						<!-- Year and Season Type -->
 						<div class="control-row">
 							<div class="control-group">
-								<label for="year-input" class="control-label">
-									📅 Year (Required)
-								</label>
+								<label for="year-input" class="control-label"> 📅 Year (Required) </label>
 								<input
 									type="number"
 									class="control-input"
@@ -236,14 +258,8 @@
 							</div>
 
 							<div class="control-group">
-								<label for="season-type" class="control-label">
-									🏆 Season Type
-								</label>
-								<select
-									class="control-select"
-									id="season-type"
-									bind:value={seasonType}
-								>
+								<label for="season-type" class="control-label"> 🏆 Season Type </label>
+								<select class="control-select" id="season-type" bind:value={seasonType}>
 									{#each seasonTypeOptions as option}
 										<option value={option.value}>{option.label}</option>
 									{/each}
@@ -254,9 +270,7 @@
 						<!-- Team and Conference -->
 						<div class="control-row">
 							<div class="control-group">
-								<label for="team-input" class="control-label">
-									🏈 Team (Optional)
-								</label>
+								<label for="team-input" class="control-label"> 🏈 Team (Optional) </label>
 								<input
 									type="text"
 									class="control-input"
@@ -283,9 +297,7 @@
 						<!-- Week Range -->
 						<div class="control-row">
 							<div class="control-group">
-								<label for="start-week" class="control-label">
-									📊 Start Week
-								</label>
+								<label for="start-week" class="control-label"> 📊 Start Week </label>
 								<input
 									type="number"
 									class="control-input"
@@ -302,9 +314,7 @@
 							</div>
 
 							<div class="control-group">
-								<label for="end-week" class="control-label">
-									📊 End Week
-								</label>
+								<label for="end-week" class="control-label"> 📊 End Week </label>
 								<input
 									type="number"
 									class="control-input"
@@ -329,9 +339,7 @@
 
 						<!-- Category Search -->
 						<div class="control-group">
-							<label for="category-search" class="control-label">
-								🔍 Search Categories
-							</label>
+							<label for="category-search" class="control-label"> 🔍 Search Categories </label>
 							<input
 								type="text"
 								class="control-input search-input"
@@ -342,9 +350,9 @@
 								autocomplete="off"
 							/>
 							{#if searchQuery}
-								<button 
+								<button
 									class="clear-search-btn"
-									on:click={() => searchQuery = ''}
+									on:click={() => (searchQuery = '')}
 									type="button"
 									aria-label="Clear search"
 								>
@@ -392,7 +400,7 @@
 										</button>
 									{/each}
 								</div>
-								
+
 								{#if searchQuery && categoryOptions.length > filteredCategories.length}
 									<div class="search-info">
 										<p class="search-results-text">
@@ -404,9 +412,9 @@
 								<div class="empty-search">
 									<div class="empty-icon">🔍</div>
 									<p class="empty-message">No categories found for "{searchQuery}"</p>
-									<button 
+									<button
 										class="clear-search-btn-alt"
-										on:click={() => searchQuery = ''}
+										on:click={() => (searchQuery = '')}
 										type="button"
 									>
 										Clear Search
@@ -429,15 +437,9 @@
 				<div class="panel-card summary-card">
 					<!-- Summary Header -->
 					<div class="panel-header">
-						<h2 class="panel-title">
-							📋 Search Summary
-						</h2>
+						<h2 class="panel-title">📋 Search Summary</h2>
 						{#if selectedCategory || team || conference}
-							<button 
-								class="clear-all-btn"
-								on:click={clearAllSelections}
-								type="button"
-							>
+							<button class="clear-all-btn" on:click={clearAllSelections} type="button">
 								Clear All
 							</button>
 						{/if}
@@ -465,7 +467,8 @@
 										<span class="summary-label">📊 Category:</span>
 										<span class="summary-value" class:missing={!selectedCategory}>
 											{#if selectedCategory}
-												{categoryOptions.find(cat => cat.value === selectedCategory)?.label || selectedCategory}
+												{categoryOptions.find((cat) => cat.value === selectedCategory)?.label ||
+													selectedCategory}
 											{:else}
 												All categories
 											{/if}
@@ -500,7 +503,8 @@
 									<div class="summary-item">
 										<span class="summary-label">🏆 Season:</span>
 										<span class="summary-value">
-											{seasonTypeOptions.find(opt => opt.value === seasonType)?.label || 'Regular Season'}
+											{seasonTypeOptions.find((opt) => opt.value === seasonType)?.label ||
+												'Regular Season'}
 										</span>
 									</div>
 								</div>
@@ -509,7 +513,9 @@
 							<div class="empty-summary">
 								<div class="empty-icon">📊</div>
 								<h3 class="empty-title">Configure Your Search</h3>
-								<p class="empty-message">Fill in the search parameters to analyze player statistics</p>
+								<p class="empty-message">
+									Fill in the search parameters to analyze player statistics
+								</p>
 							</div>
 						{/if}
 					</div>
@@ -524,7 +530,8 @@
 								<p class="submit-description">
 									Search player statistics for {year}
 									{#if selectedCategory}
-										in the {categoryOptions.find(cat => cat.value === selectedCategory)?.label || selectedCategory} category
+										in the {categoryOptions.find((cat) => cat.value === selectedCategory)?.label ||
+											selectedCategory} category
 									{/if}
 									{#if team}
 										for {team}
@@ -562,7 +569,7 @@
 									on:click={handleSubmit}
 								>
 									{#if isLoading}
-										<span class="btn-spinner"></span>
+										<span class="btn-spinner" />
 										Searching...
 									{:else if isValidForm}
 										📊 Search Player Stats
@@ -955,13 +962,22 @@
 		left: 0;
 		right: 0;
 		bottom: 0;
-		background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+		background: linear-gradient(
+			45deg,
+			transparent 30%,
+			rgba(255, 255, 255, 0.1) 50%,
+			transparent 70%
+		);
 		animation: shimmer 2s infinite;
 	}
 
 	@keyframes shimmer {
-		0% { transform: translateX(-100%); }
-		100% { transform: translateX(100%); }
+		0% {
+			transform: translateX(-100%);
+		}
+		100% {
+			transform: translateX(100%);
+		}
 	}
 
 	.category-icon {
@@ -1013,9 +1029,15 @@
 	}
 
 	@keyframes checkmark {
-		0% { transform: scale(0); }
-		50% { transform: scale(1.2); }
-		100% { transform: scale(1); }
+		0% {
+			transform: scale(0);
+		}
+		50% {
+			transform: scale(1.2);
+		}
+		100% {
+			transform: scale(1);
+		}
 	}
 
 	/* ========================================
@@ -1264,7 +1286,9 @@
 	}
 
 	@keyframes spin {
-		to { transform: rotate(360deg); }
+		to {
+			transform: rotate(360deg);
+		}
 	}
 
 	/* ========================================

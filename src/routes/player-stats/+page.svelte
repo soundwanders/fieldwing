@@ -60,7 +60,8 @@
 		if (searchParams.team) filename += `-${searchParams.team.replace(/\s+/g, '-')}`;
 		if (searchParams.conference) filename += `-${searchParams.conference}`;
 		if (searchParams.category) filename += `-${searchParams.category}`;
-		if (searchParams.seasonType && searchParams.seasonType !== 'regular') filename += `-${searchParams.seasonType}`;
+		if (searchParams.seasonType && searchParams.seasonType !== 'regular')
+			filename += `-${searchParams.seasonType}`;
 		if (searchParams.startWeek && searchParams.endWeek) {
 			filename += `-weeks-${searchParams.startWeek}-${searchParams.endWeek}`;
 		} else if (searchParams.startWeek) {
@@ -392,9 +393,9 @@
 							<!-- New ExportButton -->
 							{#if hasResults}
 								<div class="export-container">
-									<ExportButton 
-										data={exportData} 
-										type="player-stats" 
+									<ExportButton
+										data={exportData}
+										type="player-stats"
 										variant="outline"
 										size="medium"
 										filename={exportFilename}
@@ -449,9 +450,9 @@
 						<div class="results-actions">
 							<!-- New ExportButton in results header -->
 							<div class="export-container">
-								<ExportButton 
-									data={exportData} 
-									type="player-stats" 
+								<ExportButton
+									data={exportData}
+									type="player-stats"
 									variant="primary"
 									size="small"
 									filename={exportFilename}

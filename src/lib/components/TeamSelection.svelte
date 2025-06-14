@@ -1,5 +1,5 @@
 <!-- TeamSelection.svelte -->
- 
+
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import { selectedTeams, selectedWeek } from '$lib/stores/store';
@@ -39,10 +39,10 @@
 	};
 
 	// Filter teams based on search query
-	$: filteredTeams = searchQuery.trim() 
-		? teams.filter(team => 
-			team.toLowerCase().includes(searchQuery.toLowerCase().trim())
-		).slice(0, 50) // Limit for performance
+	$: filteredTeams = searchQuery.trim()
+		? teams
+				.filter((team) => team.toLowerCase().includes(searchQuery.toLowerCase().trim()))
+				.slice(0, 50) // Limit for performance
 		: teams;
 
 	async function loadTeams() {
@@ -79,7 +79,9 @@
 
 	// Select all filtered teams (up to 10 for performance)
 	const selectAllFiltered = () => {
-		const teamsToAdd = filteredTeams.slice(0, 10).filter(team => !selectedTeamsArray.includes(team));
+		const teamsToAdd = filteredTeams
+			.slice(0, 10)
+			.filter((team) => !selectedTeamsArray.includes(team));
 		selectedTeams.update((teams) => [...teams, ...teamsToAdd]);
 	};
 
@@ -125,7 +127,7 @@
 					<img class="hero-icon" src="/selection.png" alt="Team Selection" />
 					<h1 class="hero-title">Select Your Teams</h1>
 				</div>
-				<p class="hero-subtitle">Choose your favorite teams to view their game results and statistics</p>
+				<p class="hero-subtitle">Choose your favorite teams to view game results and stats</p>
 			</div>
 		</div>
 
@@ -142,16 +144,14 @@
 								<span class="panel-count">({teamStats.showing} teams)</span>
 							{/if}
 						</h2>
-						<p class="panel-subtitle">Select teams and configure your search parameters</p>
+						<p class="panel-subtitle">Select teams and set your search parameters</p>
 					</div>
 
 					<!-- Controls Section -->
 					<div class="controls-section">
 						<!-- Division Selector -->
 						<div class="control-group">
-							<label for="division-select" class="control-label">
-								🏟️ Division
-							</label>
+							<label for="division-select" class="control-label"> 🏟️ Division </label>
 							<select
 								class="control-select"
 								id="division-select"
@@ -169,9 +169,7 @@
 						<!-- Year and Week Controls -->
 						<div class="control-row">
 							<div class="control-group">
-								<label for="select-year" class="control-label">
-									📅 Year
-								</label>
+								<label for="select-year" class="control-label"> 📅 Year </label>
 								<input
 									type="number"
 									class="control-input"
@@ -184,14 +182,8 @@
 							</div>
 
 							<div class="control-group">
-								<label for="select-week" class="control-label">
-									📊 Week
-								</label>
-								<select
-									class="control-select"
-									id="select-week"
-									bind:value={$selectedWeek}
-								>
+								<label for="select-week" class="control-label"> 📊 Week </label>
+								<select class="control-select" id="select-week" bind:value={$selectedWeek}>
 									{#each [...Array(14).keys()] as week}
 										<option value={week + 1}>Week {week + 1}</option>
 									{/each}
@@ -202,9 +194,7 @@
 						<!-- Search Input -->
 						{#if teams.length > 0}
 							<div class="control-group">
-								<label for="team-search" class="control-label">
-									🔍 Search Teams
-								</label>
+								<label for="team-search" class="control-label"> 🔍 Search Teams </label>
 								<input
 									type="text"
 									class="control-input search-input"
@@ -215,9 +205,9 @@
 									autocomplete="off"
 								/>
 								{#if searchQuery}
-									<button 
+									<button
 										class="clear-search-btn"
-										on:click={() => searchQuery = ''}
+										on:click={() => (searchQuery = '')}
 										type="button"
 										aria-label="Clear search"
 									>
@@ -234,10 +224,12 @@
 							<h3 class="teams-title">Available Teams</h3>
 							{#if filteredTeams.length > 0}
 								<div class="teams-actions">
-									<button 
+									<button
 										class="action-btn secondary"
 										on:click={selectAllFiltered}
-										disabled={filteredTeams.slice(0, 10).every(team => selectedTeamsArray.includes(team))}
+										disabled={filteredTeams
+											.slice(0, 10)
+											.every((team) => selectedTeamsArray.includes(team))}
 										type="button"
 									>
 										Select All
@@ -267,7 +259,7 @@
 										</button>
 									{/each}
 								</div>
-								
+
 								{#if searchQuery && teams.length > filteredTeams.length}
 									<div class="search-info">
 										<p class="search-results-text">
@@ -279,9 +271,9 @@
 								<div class="empty-search">
 									<div class="empty-icon">🔍</div>
 									<p class="empty-message">No teams found for "{searchQuery}"</p>
-									<button 
+									<button
 										class="clear-search-btn-alt"
-										on:click={() => searchQuery = ''}
+										on:click={() => (searchQuery = '')}
 										type="button"
 									>
 										Clear Search
@@ -311,11 +303,7 @@
 							{/if}
 						</h2>
 						{#if selectedTeamsArray.length > 0}
-							<button 
-								class="clear-all-btn"
-								on:click={clearAllTeams}
-								type="button"
-							>
+							<button class="clear-all-btn" on:click={clearAllTeams} type="button">
 								Clear All
 							</button>
 						{/if}
@@ -339,7 +327,7 @@
 									</div>
 								{/each}
 							</div>
-							
+
 							<!-- Search Summary -->
 							<div class="search-summary">
 								<div class="summary-item">
@@ -372,16 +360,17 @@
 							<div class="submit-info">
 								<h3 class="submit-title">🚀 Ready to View Results</h3>
 								<p class="submit-description">
-									View game results for {selectedTeamsArray.length} team{selectedTeamsArray.length !== 1 ? 's' : ''} 
+									View game results for {selectedTeamsArray.length} team{selectedTeamsArray.length !==
+									1
+										? 's'
+										: ''}
 									in Week {$selectedWeek} of {selectedYear}
 								</p>
 							</div>
 						{:else}
 							<div class="submit-info">
 								<h3 class="submit-title">🎯 Select Teams</h3>
-								<p class="submit-description">
-									Choose teams to view game results
-								</p>
+								<p class="submit-description">Choose teams to view game results</p>
 							</div>
 						{/if}
 
@@ -402,7 +391,7 @@
 									disabled={selectedTeamsArray.length === 0 || $isTeamDataLoading}
 								>
 									{#if $isTeamDataLoading}
-										<span class="btn-spinner"></span>
+										<span class="btn-spinner" />
 										Loading...
 									{:else if selectedTeamsArray.length > 0}
 										🏈 View Game Results
@@ -783,13 +772,22 @@
 		left: 0;
 		right: 0;
 		bottom: 0;
-		background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+		background: linear-gradient(
+			45deg,
+			transparent 30%,
+			rgba(255, 255, 255, 0.1) 50%,
+			transparent 70%
+		);
 		animation: shimmer 2s infinite;
 	}
 
 	@keyframes shimmer {
-		0% { transform: translateX(-100%); }
-		100% { transform: translateX(100%); }
+		0% {
+			transform: translateX(-100%);
+		}
+		100% {
+			transform: translateX(100%);
+		}
 	}
 
 	.team-name {
@@ -805,9 +803,15 @@
 	}
 
 	@keyframes checkmark {
-		0% { transform: scale(0); }
-		50% { transform: scale(1.2); }
-		100% { transform: scale(1); }
+		0% {
+			transform: scale(0);
+		}
+		50% {
+			transform: scale(1.2);
+		}
+		100% {
+			transform: scale(1);
+		}
 	}
 
 	/* ========================================
@@ -1080,7 +1084,9 @@
 	}
 
 	@keyframes spin {
-		to { transform: rotate(360deg); }
+		to {
+			transform: rotate(360deg);
+		}
 	}
 
 	/* ========================================
@@ -1134,54 +1140,54 @@
 		}
 
 		.panel-card {
-   		margin: 0;
-   		border-radius: 1rem;
-   	}
+			margin: 0;
+			border-radius: 1rem;
+		}
 
-   	.hero-section {
-   		padding: 1.5rem 0.5rem 2rem 0.5rem;
-   	}
+		.hero-section {
+			padding: 1.5rem 0.5rem 2rem 0.5rem;
+		}
 
-   	.panel-header {
-   		padding: 1.25rem;
-   		flex-direction: column;
-   		align-items: stretch;
-   		gap: 0.75rem;
-   	}
+		.panel-header {
+			padding: 1.25rem;
+			flex-direction: column;
+			align-items: stretch;
+			gap: 0.75rem;
+		}
 
-   	.panel-title {
-   		font-size: 1.25rem;
-   	}
+		.panel-title {
+			font-size: 1.25rem;
+		}
 
-   	.controls-section {
-   		padding: 1.25rem;
-   	}
+		.controls-section {
+			padding: 1.25rem;
+		}
 
-   	.control-row {
-   		grid-template-columns: 1fr;
-   	}
+		.control-row {
+			grid-template-columns: 1fr;
+		}
 
-   	.teams-header {
-   		padding: 1rem 1.25rem;
-   		flex-direction: column;
-   		gap: 0.75rem;
-   		align-items: stretch;
-   	}
+		.teams-header {
+			padding: 1rem 1.25rem;
+			flex-direction: column;
+			gap: 0.75rem;
+			align-items: stretch;
+		}
 
-   	.teams-container {
-   		padding: 1rem 1.25rem 1.25rem 1.25rem;
-   		min-height: 300px;
-   		max-height: 350px;
-   	}
+		.teams-container {
+			padding: 1rem 1.25rem 1.25rem 1.25rem;
+			min-height: 300px;
+			max-height: 350px;
+		}
 
-   	.teams-grid {
-   		grid-template-columns: 1fr;
-   	}
+		.teams-grid {
+			grid-template-columns: 1fr;
+		}
 
-   	.selected-teams-container {
-   		padding: 1.25rem;
-   		min-height: 300px;
-   	}
+		.selected-teams-container {
+			padding: 1.25rem;
+			min-height: 300px;
+		}
 
 		.submit-content {
 			padding: 1.25rem;
@@ -1195,50 +1201,50 @@
 			justify-content: center;
 			max-width: 250px;
 		}
-   }
+	}
 
-   /* Small Mobile */
-   @media (max-width: 480px) {
-   	.team-select-wrapper {
-   		padding: 0.5rem;
-   	}
+	/* Small Mobile */
+	@media (max-width: 480px) {
+		.team-select-wrapper {
+			padding: 0.5rem;
+		}
 
-   	.selection-interface {
-   		gap: 1rem;
-   		padding: 0;
-   	}
+		.selection-interface {
+			gap: 1rem;
+			padding: 0;
+		}
 
-   	.hero-section {
-   		padding: 1rem 0.25rem 1.5rem 0.25rem;
-   	}
+		.hero-section {
+			padding: 1rem 0.25rem 1.5rem 0.25rem;
+		}
 
-   	.hero-title {
-   		font-size: 1.75rem;
-   	}
+		.hero-title {
+			font-size: 1.75rem;
+		}
 
-   	.hero-subtitle {
-   		font-size: 0.875rem;
-   	}
+		.hero-subtitle {
+			font-size: 0.875rem;
+		}
 
-   	.panel-header {
-   		padding: 1rem;
-   	}
+		.panel-header {
+			padding: 1rem;
+		}
 
-   	.controls-section {
-   		padding: 1rem;
-   	}
+		.controls-section {
+			padding: 1rem;
+		}
 
-   	.teams-header {
-   		padding: 0.75rem 1rem;
-   	}
+		.teams-header {
+			padding: 0.75rem 1rem;
+		}
 
-   	.teams-container {
-   		padding: 0.75rem 1rem 1rem 1rem;
-   	}
+		.teams-container {
+			padding: 0.75rem 1rem 1rem 1rem;
+		}
 
-   	.selected-teams-container {
-   		padding: 1rem;
-   	}
+		.selected-teams-container {
+			padding: 1rem;
+		}
 
 		.submit-content {
 			padding: 1rem;
@@ -1253,45 +1259,45 @@
 			font-size: 0.875rem;
 		}
 
-   	.panel-card {
-   		border-radius: 0.75rem;
-   	}
-   }
+		.panel-card {
+			border-radius: 0.75rem;
+		}
+	}
 
-   /* ========================================
+	/* ========================================
       ACCESSIBILITY & FOCUS STATES
    ======================================== */
-   .team-button:focus,
-   .control-select:focus,
-   .control-input:focus,
-   .submit-button:focus,
-   .action-btn:focus,
-   .clear-all-btn:focus,
-   .remove-team-btn:focus,
-   .clear-search-btn:focus,
-   .clear-search-btn-alt:focus {
-   	outline: 2px solid var(--accent-blue);
-   	outline-offset: 2px;
-   }
+	.team-button:focus,
+	.control-select:focus,
+	.control-input:focus,
+	.submit-button:focus,
+	.action-btn:focus,
+	.clear-all-btn:focus,
+	.remove-team-btn:focus,
+	.clear-search-btn:focus,
+	.clear-search-btn-alt:focus {
+		outline: 2px solid var(--accent-blue);
+		outline-offset: 2px;
+	}
 
-   /* Reduced motion preferences */
-   @media (prefers-reduced-motion: reduce) {
-   	*,
-   	*::before,
-   	*::after {
-   		animation-duration: 0.01ms !important;
-   		animation-iteration-count: 1 !important;
-   		transition-duration: 0.01ms !important;
-   	}
-   }
+	/* Reduced motion preferences */
+	@media (prefers-reduced-motion: reduce) {
+		*,
+		*::before,
+		*::after {
+			animation-duration: 0.01ms !important;
+			animation-iteration-count: 1 !important;
+			transition-duration: 0.01ms !important;
+		}
+	}
 
-   /* High contrast mode support */
-   @media (prefers-contrast: high) {
-   	.team-button,
-   	.control-select,
-   	.control-input,
-   	.submit-button {
-   		border-width: 2px;
-   	}
-   }
+	/* High contrast mode support */
+	@media (prefers-contrast: high) {
+		.team-button,
+		.control-select,
+		.control-input,
+		.submit-button {
+			border-width: 2px;
+		}
+	}
 </style>

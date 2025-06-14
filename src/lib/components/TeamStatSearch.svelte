@@ -65,14 +65,16 @@
 	];
 
 	// Filtered categories based on search
-	$: filteredCategories = statCategories.filter(category =>
-		category.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-		category.description.toLowerCase().includes(searchQuery.toLowerCase())
+	$: filteredCategories = statCategories.filter(
+		(category) =>
+			category.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+			category.description.toLowerCase().includes(searchQuery.toLowerCase())
 	);
 
 	// Form validation
-	$: isYearValid = year !== '' && Number(year) >= 1900 && Number(year) <= new Date().getFullYear() + 1;
-	$: isWeekRangeValid = 
+	$: isYearValid =
+		year !== '' && Number(year) >= 1900 && Number(year) <= new Date().getFullYear() + 1;
+	$: isWeekRangeValid =
 		(startWeek === '' || (startWeek >= 1 && startWeek <= 14)) &&
 		(endWeek === '' || (endWeek >= 1 && endWeek <= 14)) &&
 		(startWeek === '' || endWeek === '' || startWeek <= endWeek);
@@ -83,9 +85,14 @@
 		year: year || 'Not specified',
 		team: team || 'All teams',
 		conference: conference || 'All conferences',
-		weekRange: startWeek && endWeek ? `Week ${startWeek}-${endWeek}` : 
-				  startWeek ? `From week ${startWeek}` :
-				  endWeek ? `Through week ${endWeek}` : 'Full season',
+		weekRange:
+			startWeek && endWeek
+				? `Week ${startWeek}-${endWeek}`
+				: startWeek
+				? `From week ${startWeek}`
+				: endWeek
+				? `Through week ${endWeek}`
+				: 'Full season',
 		seasonType: seasonType.charAt(0).toUpperCase() + seasonType.slice(1),
 		categories: selectedCategories.length > 0 ? selectedCategories.join(', ') : 'All categories'
 	};
@@ -96,7 +103,7 @@
 		weekType: 'startWeek' | 'endWeek'
 	) {
 		const inputValue = Number(event.currentTarget.value);
-		
+
 		if (inputValue < 1 || inputValue > 14 || isNaN(inputValue)) {
 			event.currentTarget.value = '';
 		}
@@ -105,7 +112,7 @@
 	// Handle category selection
 	function toggleCategory(categoryId: string) {
 		if (selectedCategories.includes(categoryId)) {
-			selectedCategories = selectedCategories.filter(id => id !== categoryId);
+			selectedCategories = selectedCategories.filter((id) => id !== categoryId);
 		} else {
 			selectedCategories = [...selectedCategories, categoryId];
 		}
@@ -114,15 +121,15 @@
 	// Handle form submission
 	async function handleSubmit() {
 		if (!isFormValid) return;
-		
+
 		isLoading = true;
-		
+
 		// Simulate brief loading for better UX
-		await new Promise(resolve => setTimeout(resolve, 300));
-		
+		await new Promise((resolve) => setTimeout(resolve, 300));
+
 		// Trim school mascot name if present
 		let schoolName = statsNameTrim(team);
-		
+
 		// Construct query parameters
 		const queryParams = [
 			year && `year=${encodeURIComponent(year)}`,
@@ -137,9 +144,9 @@
 		]
 			.filter(Boolean)
 			.join('&');
-		
+
 		const apiUrl = `/team-stats?${queryParams}`;
-		
+
 		try {
 			await goto(apiUrl);
 		} catch (error) {
@@ -151,7 +158,7 @@
 
 	onMount(() => {
 		mounted = true;
-		
+
 		// Auto-populate current year
 		if (!year) {
 			year = new Date().getFullYear().toString();
@@ -161,16 +168,17 @@
 
 <svelte:head>
 	<title>Team Statistics Search - FIELDWING</title>
-	<meta name="description" content="Search and analyze comprehensive team statistics across seasons, conferences, and game weeks." />
+	<meta
+		name="description"
+		content="Search and analyze comprehensive team statistics across seasons, conferences, and game weeks."
+	/>
 </svelte:head>
 
 <div class="team-search-container" class:mounted>
 	<!-- Hero Section -->
 	<section class="hero-section">
 		<div class="hero-content">
-			<div class="hero-icon">
-				🏆
-			</div>
+			<div class="hero-icon">🏆</div>
 			<h1 class="hero-title">
 				<span class="gradient-text">Team Statistics</span>
 			</h1>
@@ -197,7 +205,7 @@
 							<span class="section-icon">⭐</span>
 							Required Information
 						</h3>
-						
+
 						<div class="form-field required">
 							<label for="year" class="field-label">
 								Season Year
@@ -215,7 +223,9 @@
 								required
 							/>
 							{#if year !== '' && !isYearValid}
-								<span class="error-message">Please enter a valid year (1900-{new Date().getFullYear() + 1})</span>
+								<span class="error-message"
+									>Please enter a valid year (1900-{new Date().getFullYear() + 1})</span
+								>
 							{/if}
 						</div>
 					</div>
@@ -226,7 +236,7 @@
 							<span class="section-icon">🎯</span>
 							Filters (Optional)
 						</h3>
-						
+
 						<div class="form-row">
 							<div class="form-field">
 								<label for="team" class="field-label">Team Name</label>
@@ -238,7 +248,7 @@
 									placeholder="e.g., Alabama, Ohio State"
 								/>
 							</div>
-							
+
 							<div class="form-field">
 								<label for="conference" class="field-label">Conference</label>
 								<input
@@ -265,7 +275,7 @@
 									placeholder="1-14"
 								/>
 							</div>
-							
+
 							<div class="form-field">
 								<label for="end-week" class="field-label">End Week</label>
 								<input
@@ -282,7 +292,9 @@
 						</div>
 
 						{#if !isWeekRangeValid}
-							<span class="error-message">Please ensure start week is less than or equal to end week</span>
+							<span class="error-message"
+								>Please ensure start week is less than or equal to end week</span
+							>
 						{/if}
 
 						<div class="form-field">
@@ -301,7 +313,7 @@
 							<span class="section-icon">📋</span>
 							Statistic Categories
 						</h3>
-						
+
 						<div class="category-search">
 							<input
 								type="text"
@@ -339,11 +351,12 @@
 						{#if selectedCategories.length > 0}
 							<div class="selected-summary">
 								<span class="summary-text">
-									{selectedCategories.length} category{selectedCategories.length !== 1 ? 'ies' : ''} selected
+									{selectedCategories.length} category{selectedCategories.length !== 1 ? 'ies' : ''}
+									selected
 								</span>
 								<button
 									type="button"
-									on:click={() => selectedCategories = []}
+									on:click={() => (selectedCategories = [])}
 									class="clear-button"
 								>
 									Clear All
@@ -386,7 +399,9 @@
 						</div>
 						<div class="summary-item">
 							<span class="summary-label">Conference:</span>
-							<span class="summary-value" class:missing={!conference}>{searchSummary.conference}</span>
+							<span class="summary-value" class:missing={!conference}
+								>{searchSummary.conference}</span
+							>
 						</div>
 					</div>
 
@@ -426,7 +441,7 @@
 						on:click={handleSubmit}
 					>
 						{#if isLoading}
-							<div class="loading-spinner"></div>
+							<div class="loading-spinner" />
 							<span>Searching...</span>
 						{:else}
 							<span>Search Team Stats</span>
@@ -446,46 +461,50 @@
 		--accent-green: #10b981;
 		--accent-blue: #3b82f6;
 		--accent-teal: #06b6d4;
-		
+
 		/* Gradients */
 		--gradient-primary: linear-gradient(135deg, var(--accent-green) 0%, var(--accent-blue) 100%);
 		--gradient-secondary: linear-gradient(135deg, var(--accent-teal) 0%, var(--accent-green) 100%);
-		--gradient-subtle: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
-		
+		--gradient-subtle: linear-gradient(
+			135deg,
+			rgba(16, 185, 129, 0.1) 0%,
+			rgba(59, 130, 246, 0.1) 100%
+		);
+
 		/* Base Colors */
 		--background-primary: #ffffff;
 		--background-secondary: #f8fafc;
 		--background-tertiary: #f1f5f9;
 		--surface-primary: #ffffff;
 		--surface-secondary: #f8fafc;
-		
+
 		/* Text Colors */
 		--text-primary: #1e293b;
 		--text-secondary: #64748b;
 		--text-tertiary: #94a3b8;
 		--text-inverse: #ffffff;
-		
+
 		/* Border Colors */
 		--border-primary: #e2e8f0;
 		--border-secondary: #cbd5e1;
 		--border-focus: var(--accent-blue);
-		
+
 		/* Status Colors */
 		--success-color: #059669;
 		--error-color: #dc2626;
 		--warning-color: #d97706;
-		
+
 		/* Shadows */
 		--shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 		--shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 		--shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 		--shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-		
+
 		/* Transitions */
 		--transition-fast: 0.15s ease-out;
 		--transition-medium: 0.3s ease-out;
 		--transition-slow: 0.5s ease-out;
-		
+
 		/* Spacing */
 		--spacing-xs: 0.25rem;
 		--spacing-sm: 0.5rem;
@@ -493,7 +512,7 @@
 		--spacing-lg: 1.5rem;
 		--spacing-xl: 2rem;
 		--spacing-2xl: 3rem;
-		
+
 		/* Border Radius */
 		--radius-sm: 0.375rem;
 		--radius-md: 0.5rem;
@@ -509,11 +528,11 @@
 			--background-tertiary: #334155;
 			--surface-primary: #1e293b;
 			--surface-secondary: #334155;
-			
+
 			--text-primary: #f1f5f9;
 			--text-secondary: #cbd5e1;
 			--text-tertiary: #94a3b8;
-			
+
 			--border-primary: #334155;
 			--border-secondary: #475569;
 		}
@@ -553,7 +572,8 @@
 		left: 0;
 		right: 0;
 		bottom: 0;
-		background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+		background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")
+			repeat;
 		pointer-events: none;
 	}
 
@@ -571,8 +591,13 @@
 	}
 
 	@keyframes float {
-		0%, 100% { transform: translateY(0px); }
-		50% { transform: translateY(-10px); }
+		0%,
+		100% {
+			transform: translateY(0px);
+		}
+		50% {
+			transform: translateY(-10px);
+		}
 	}
 
 	.hero-title {
@@ -792,8 +817,12 @@
 	}
 
 	@keyframes shimmer {
-		0% { left: -100%; }
-		100% { left: 100%; }
+		0% {
+			left: -100%;
+		}
+		100% {
+			left: 100%;
+		}
 	}
 
 	.category-icon {
@@ -1008,8 +1037,12 @@
 	}
 
 	@keyframes spin {
-		0% { transform: rotate(0deg); }
-		100% { transform: rotate(360deg); }
+		0% {
+			transform: rotate(0deg);
+		}
+		100% {
+			transform: rotate(360deg);
+		}
 	}
 
 	/* Responsive Design */

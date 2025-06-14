@@ -1,4 +1,3 @@
-<!-- src/lib/components/ErrorMessage.svelte -->
 <script lang="ts">
 	import { theme } from '$lib/stores/theme';
 

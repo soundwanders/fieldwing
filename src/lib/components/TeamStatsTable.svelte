@@ -290,10 +290,18 @@
 	}
 
 	/* Column width definitions for desktop */
-	.team-col { width: 25%; }
-	.conference-col { width: 20%; }
-	.stat-name-col { width: 35%; }
-	.value-col { width: 20%; }
+	.team-col {
+		width: 25%;
+	}
+	.conference-col {
+		width: 20%;
+	}
+	.stat-name-col {
+		width: 35%;
+	}
+	.value-col {
+		width: 20%;
+	}
 
 	/* Mobile responsive fixes */
 	@media (max-width: 768px) {
@@ -328,20 +336,20 @@
 		}
 
 		/* Optimize column widths for mobile */
-		.team-col { 
-			width: 25%; 
+		.team-col {
+			width: 25%;
 			min-width: 80px;
 		}
-		.conference-col { 
-			width: 15%; 
+		.conference-col {
+			width: 15%;
 			min-width: 50px;
 		}
-		.stat-name-col { 
-			width: 40%; 
+		.stat-name-col {
+			width: 40%;
 			min-width: 100px;
 		}
-		.value-col { 
-			width: 20%; 
+		.value-col {
+			width: 20%;
 			min-width: 60px;
 			text-align: right;
 		}

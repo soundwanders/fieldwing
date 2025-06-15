@@ -595,18 +595,6 @@
 		box-shadow: var(--shadow-md);
 	}
 
-	.btn-outline {
-		background: transparent;
-		color: var(--accent-blue);
-		border: 2px solid var(--accent-blue);
-	}
-
-	.btn-outline:hover {
-		background: var(--accent-blue);
-		color: white;
-		transform: translateY(-2px);
-	}
-
 	.btn-spinner {
 		width: 1rem;
 		height: 1rem;

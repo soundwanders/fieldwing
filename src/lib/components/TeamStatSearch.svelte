@@ -65,14 +65,16 @@
 	];
 
 	// Filtered categories based on search
-	$: filteredCategories = statCategories.filter(category =>
-		category.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-		category.description.toLowerCase().includes(searchQuery.toLowerCase())
+	$: filteredCategories = statCategories.filter(
+		(category) =>
+			category.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+			category.description.toLowerCase().includes(searchQuery.toLowerCase())
 	);
 
 	// Form validation
-	$: isYearValid = year !== '' && Number(year) >= 1900 && Number(year) <= new Date().getFullYear() + 1;
-	$: isWeekRangeValid = 
+	$: isYearValid =
+		year !== '' && Number(year) >= 1900 && Number(year) <= new Date().getFullYear() + 1;
+	$: isWeekRangeValid =
 		(startWeek === '' || (startWeek >= 1 && startWeek <= 14)) &&
 		(endWeek === '' || (endWeek >= 1 && endWeek <= 14)) &&
 		(startWeek === '' || endWeek === '' || startWeek <= endWeek);
@@ -83,9 +85,14 @@
 		year: year || 'Not specified',
 		team: team || 'All teams',
 		conference: conference || 'All conferences',
-		weekRange: startWeek && endWeek ? `Week ${startWeek}-${endWeek}` : 
-				  startWeek ? `From week ${startWeek}` :
-				  endWeek ? `Through week ${endWeek}` : 'Full season',
+		weekRange:
+			startWeek && endWeek
+				? `Week ${startWeek}-${endWeek}`
+				: startWeek
+				? `From week ${startWeek}`
+				: endWeek
+				? `Through week ${endWeek}`
+				: 'Full season',
 		seasonType: seasonType.charAt(0).toUpperCase() + seasonType.slice(1),
 		categories: selectedCategories.length > 0 ? selectedCategories.join(', ') : 'All categories'
 	};
@@ -96,7 +103,7 @@
 		weekType: 'startWeek' | 'endWeek'
 	) {
 		const inputValue = Number(event.currentTarget.value);
-		
+
 		if (inputValue < 1 || inputValue > 14 || isNaN(inputValue)) {
 			event.currentTarget.value = '';
 		}
@@ -105,7 +112,7 @@
 	// Handle category selection
 	function toggleCategory(categoryId: string) {
 		if (selectedCategories.includes(categoryId)) {
-			selectedCategories = selectedCategories.filter(id => id !== categoryId);
+			selectedCategories = selectedCategories.filter((id) => id !== categoryId);
 		} else {
 			selectedCategories = [...selectedCategories, categoryId];
 		}
@@ -124,15 +131,15 @@
 	// Handle form submission
 	async function handleSubmit() {
 		if (!isFormValid) return;
-		
+
 		isLoading = true;
-		
+
 		// Simulate brief loading for better UX
-		await new Promise(resolve => setTimeout(resolve, 300));
-		
+		await new Promise((resolve) => setTimeout(resolve, 300));
+
 		// Trim school mascot name if present
 		let schoolName = statsNameTrim(team);
-		
+
 		// Construct query parameters
 		const queryParams = [
 			year && `year=${encodeURIComponent(year)}`,
@@ -147,9 +154,9 @@
 		]
 			.filter(Boolean)
 			.join('&');
-		
+
 		const apiUrl = `/team-stats?${queryParams}`;
-		
+
 		try {
 			await goto(apiUrl);
 		} catch (error) {
@@ -161,7 +168,7 @@
 
 	onMount(() => {
 		mounted = true;
-		
+
 		// Auto-populate current year
 		if (!year) {
 			year = new Date().getFullYear().toString();
@@ -171,7 +178,10 @@
 
 <svelte:head>
 	<title>Team Statistics Search - FIELDWING</title>
-	<meta name="description" content="Search and analyze comprehensive team statistics across seasons, conferences, and game weeks." />
+	<meta
+		name="description"
+		content="Search and analyze comprehensive team statistics across seasons, conferences, and game weeks."
+	/>
 </svelte:head>
 
 <div class="team-search-wrapper" class:light={!$theme} class:dark={$theme}>
@@ -182,7 +192,9 @@
 				<img class="hero-icon" src="/teamstats.png" alt="Team Statistics" />
 				<h1 class="hero-title">Team Statistics</h1>
 			</div>
-			<p class="hero-subtitle">Discover comprehensive team performance data across seasons, conferences, and game weeks</p>
+			<p class="hero-subtitle">
+				Discover comprehensive team performance data across seasons, conferences, and game weeks
+			</p>
 		</div>
 	</div>
 
@@ -221,7 +233,9 @@
 							required
 						/>
 						{#if year !== '' && !isYearValid}
-							<span class="error-message">Please enter a valid year (1900-{new Date().getFullYear() + 1})</span>
+							<span class="error-message"
+								>Please enter a valid year (1900-{new Date().getFullYear() + 1})</span
+							>
 						{/if}
 					</div>
 
@@ -237,7 +251,7 @@
 								placeholder="e.g., Alabama, Ohio State"
 							/>
 						</div>
-						
+
 						<div class="control-group">
 							<label for="conference" class="control-label">🏟️ Conference</label>
 							<input
@@ -264,7 +278,7 @@
 								placeholder="1-14"
 							/>
 						</div>
-						
+
 						<div class="control-group">
 							<label for="end-week" class="control-label">📅 End Week</label>
 							<input
@@ -281,7 +295,9 @@
 					</div>
 
 					{#if !isWeekRangeValid}
-						<span class="error-message">Please ensure start week is less than or equal to end week</span>
+						<span class="error-message"
+							>Please ensure start week is less than or equal to end week</span
+						>
 					{/if}
 
 					<div class="control-group">
@@ -390,16 +406,10 @@
 			<div class="panel-card selected-teams-card">
 				<!-- Summary Header -->
 				<div class="panel-header">
-					<h2 class="panel-title">
-						📋 Search Summary
-					</h2>
+					<h2 class="panel-title">📋 Search Summary</h2>
 					{#if selectedCategories.length > 0 || team || conference}
 						<div class="header-actions">
-							<button 
-								class="clear-all-btn"
-								on:click={clearAllCategories}
-								type="button"
-							>
+							<button class="clear-all-btn" on:click={clearAllCategories} type="button">
 								Clear All
 							</button>
 						</div>

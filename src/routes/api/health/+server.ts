@@ -7,7 +7,7 @@ import { CFBD_API_KEY } from '$env/static/private';
 export const GET: RequestHandler = async () => {
 	try {
 		console.log('🔍 Health check requested');
-		
+
 		// Check environment
 		const checks = {
 			environment: process.env.NODE_ENV || 'unknown',
@@ -24,7 +24,12 @@ export const GET: RequestHandler = async () => {
 			try {
 				type HealthResult = { healthy: boolean; message: string } | boolean;
 				const healthResult: HealthResult = await cfbdApi.healthCheck();
-				if (typeof healthResult === 'object' && healthResult !== null && 'healthy' in healthResult && 'message' in healthResult) {
+				if (
+					typeof healthResult === 'object' &&
+					healthResult !== null &&
+					'healthy' in healthResult &&
+					'message' in healthResult
+				) {
 					checks.upstreamApiAccessible = (healthResult as { healthy: boolean }).healthy;
 					checks.upstreamApiMessage = (healthResult as { message: string }).message;
 				} else if (typeof healthResult === 'boolean') {
@@ -45,12 +50,14 @@ export const GET: RequestHandler = async () => {
 			{
 				status: isHealthy ? 'healthy' : 'unhealthy',
 				checks,
-				recommendations: !isHealthy ? [
-					!checks.apiKeyConfigured && 'Set CFBD_API_KEY environment variable',
-					!checks.upstreamApiAccessible && 'Check API key permissions and network connectivity'
-				].filter(Boolean) : []
+				recommendations: !isHealthy
+					? [
+							!checks.apiKeyConfigured && 'Set CFBD_API_KEY environment variable',
+							!checks.upstreamApiAccessible && 'Check API key permissions and network connectivity'
+					  ].filter(Boolean)
+					: []
 			},
-			{ 
+			{
 				status: isHealthy ? 200 : 503,
 				headers: {
 					'Access-Control-Allow-Origin': '*',
@@ -58,17 +65,16 @@ export const GET: RequestHandler = async () => {
 				}
 			}
 		);
-
 	} catch (error) {
 		console.error('❌ Health check failed:', error);
-		
+
 		return json(
 			{
 				status: 'error',
 				error: error instanceof Error ? error.message : 'Unknown error',
 				timestamp: new Date().toISOString()
 			},
-			{ 
+			{
 				status: 500,
 				headers: {
 					'Access-Control-Allow-Origin': '*'

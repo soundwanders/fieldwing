@@ -51,12 +51,7 @@
 </script>
 
 {#if totalPages > 1}
-		<nav
-		class="pagination"
-		class:light={!$theme}
-		class:dark={$theme}
-		aria-label="Pagination"
-	>
+	<nav class="pagination" class:light={!$theme} class:dark={$theme} aria-label="Pagination">
 		<div class="pagination-info">
 			<span class="pagination-text">
 				Showing {currentPage * pageSize + 1}-{Math.min((currentPage + 1) * pageSize, totalItems)} of

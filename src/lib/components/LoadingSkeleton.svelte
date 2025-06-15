@@ -1,3 +1,6 @@
+<!-- LoadingSkeleton.svelte -->
+<!-- LOADING SKELETON IS UNUSED AS OF 6-14-2025 -->
+<!-- PRESERVED FOR FUTURE REFERENCE -->
 <script lang="ts">
 	export let rows: number = 3;
 	export let columns: number = 1;

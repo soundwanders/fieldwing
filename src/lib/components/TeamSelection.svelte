@@ -1,5 +1,4 @@
 <!-- TeamSelection.svelte -->
-
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import { selectedTeams, selectedWeek } from '$lib/stores/store';
@@ -991,10 +990,11 @@
 	.submit-content {
 		padding: 1.5rem;
 		display: flex;
-		justify-content: space-between;
+		justify-content: center;
 		align-items: center;
 		gap: 1.5rem;
 		flex-wrap: wrap;
+		text-align: center;
 	}
 
 	.submit-info {

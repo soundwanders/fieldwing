@@ -1,4 +1,4 @@
-<!-- src/lib/components/FormField.svelte -->
+<!-- FormField.svelte -->
 <script lang="ts">
 	import { theme } from '$lib/stores/theme';
 

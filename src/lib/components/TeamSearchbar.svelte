@@ -1,3 +1,5 @@
+<!-- TeamSearchbar.svelte -->
+
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import { selectedTeams, selectedWeek } from '$lib/stores/store';
@@ -14,7 +16,7 @@
 
 	const minQueryLength: number = 3;
 
-	// Cleanup tracking - DECLARED AT TOP LEVEL
+	// Cleanup tracking
 	let searchTimeout: ReturnType<typeof setTimeout> | null = null;
 	let unsubscribers: (() => void)[] = [];
 
@@ -127,7 +129,7 @@
 		}
 	});
 
-	// Simple reactive statement for selectedTeams (safe because it's read-only)
+	// Reactive statement for selectedTeams is safe because it is read-only
 	$: selectedTeamsArray = $selectedTeams;
 </script>
 

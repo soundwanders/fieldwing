@@ -1,3 +1,4 @@
+<!-- TeamStatsWidget.svelte -->
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { statsNameTrim } from '$lib/utils/statsNameTrim';
@@ -23,7 +24,7 @@
 		const inputValue = Number(event.currentTarget.value);
 
 		if (inputValue < 1 || inputValue > 14 || isNaN(inputValue)) {
-			// If the value is negative, greater than 14, or not a number, we prevent the change
+			// If the value is negative, greater than 14, or not a number prevent the change
 			event.currentTarget.value = '';
 		}
 	}
@@ -295,7 +296,7 @@
 
 		input {
 			padding: 0.625rem;
-			font-size: 16px; /* Prevent iOS zoom */
+			font-size: 16px;
 		}
 
 		label {

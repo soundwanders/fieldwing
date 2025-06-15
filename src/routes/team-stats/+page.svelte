@@ -200,32 +200,6 @@
 		fetchTeamStats();
 	}
 
-	// CSV Export (keep this as backup/legacy)
-	function exportToCSV(): void {
-		if (teamStats.length === 0) {
-			alert('No data to export');
-			return;
-		}
-
-		const headers = ['Team', 'Conference', 'Stat Name', 'Stat Value'];
-		const csvContent = [
-			headers.join(','),
-			...teamStats.map((stat) =>
-				[`"${stat.team}"`, `"${stat.conference}"`, `"${stat.statName}"`, stat.statValue].join(',')
-			)
-		].join('\n');
-
-		const blob = new Blob([csvContent], { type: 'text/csv' });
-		const url = window.URL.createObjectURL(blob);
-		const a = document.createElement('a');
-		a.href = url;
-		a.download = `team-stats-${searchParams.year}-${Date.now()}.csv`;
-		document.body.appendChild(a);
-		a.click();
-		window.URL.revokeObjectURL(url);
-		document.body.removeChild(a);
-	}
-
 	// Initialize on mount
 	onMount(() => {
 		initializeFromData();

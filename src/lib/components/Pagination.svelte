@@ -1,3 +1,4 @@
+<!-- Pagination.svelte -->
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
@@ -50,11 +51,10 @@
 </script>
 
 {#if totalPages > 1}
-	<nav
+		<nav
 		class="pagination"
 		class:light={!$theme}
 		class:dark={$theme}
-		role="navigation"
 		aria-label="Pagination"
 	>
 		<div class="pagination-info">

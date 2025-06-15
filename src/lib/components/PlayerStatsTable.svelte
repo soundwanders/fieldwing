@@ -1,4 +1,4 @@
-<!-- src/lib/components/PlayerStatsTable.svelte -->
+<!-- PlayerStatsTable.svelte -->
 <script lang="ts">
 	import { theme } from '$lib/stores/theme';
 	import type { PlayerStat } from '$lib/types/api';
@@ -54,7 +54,7 @@
 		<table class="stats-table">
 			<thead>
 				<tr>
-					<th>
+					<th class="player-col">
 						{#if sortable}
 							<button
 								class="sort-button"
@@ -67,7 +67,7 @@
 							Player
 						{/if}
 					</th>
-					<th>
+					<th class="team-col">
 						{#if sortable}
 							<button
 								class="sort-button"
@@ -80,46 +80,46 @@
 							Team
 						{/if}
 					</th>
-					<th>
+					<th class="conference-col">
 						{#if sortable}
 							<button
 								class="sort-button"
 								on:click={() => handleSort('conference')}
 								class:active={sortBy === 'conference'}
 							>
-								Conference {sortBy === 'conference' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
+								Conf {sortBy === 'conference' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
 							</button>
 						{:else}
-							Conference
+							Conf
 						{/if}
 					</th>
-					<th>
+					<th class="category-col">
 						{#if sortable}
 							<button
 								class="sort-button"
 								on:click={() => handleSort('category')}
 								class:active={sortBy === 'category'}
 							>
-								Category {sortBy === 'category' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
+								Cat {sortBy === 'category' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
 							</button>
 						{:else}
-							Category
+							Cat
 						{/if}
 					</th>
-					<th>
+					<th class="stat-type-col">
 						{#if sortable}
 							<button
 								class="sort-button"
 								on:click={() => handleSort('statType')}
 								class:active={sortBy === 'statType'}
 							>
-								Stat Type {sortBy === 'statType' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
+								Stat {sortBy === 'statType' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
 							</button>
 						{:else}
-							Stat Type
+							Stat
 						{/if}
 					</th>
-					<th class="text-right">
+					<th class="value-col text-right">
 						{#if sortable}
 							<button
 								class="sort-button"
@@ -137,12 +137,12 @@
 			<tbody>
 				{#each sortedStats as stat (stat.playerId + stat.statType)}
 					<tr class="stat-row">
-						<td class="player-name">{stat.player}</td>
-						<td>{stat.team}</td>
-						<td>{stat.conference}</td>
-						<td class="capitalize">{stat.category}</td>
-						<td>{stat.statType}</td>
-						<td class="stat-value text-right">{formatStatValue(stat.stat)}</td>
+						<td class="player-name player-col">{stat.player}</td>
+						<td class="team-col">{stat.team}</td>
+						<td class="conference-col">{stat.conference}</td>
+						<td class="category-col capitalize">{stat.category}</td>
+						<td class="stat-type-col">{stat.statType}</td>
+						<td class="stat-value value-col text-right">{formatStatValue(stat.stat)}</td>
 					</tr>
 				{/each}
 			</tbody>
@@ -176,34 +176,46 @@
 		border-radius: 0.5rem;
 		overflow: hidden;
 		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+		width: 100%;
+		margin: 0;
+		padding: 0;
 	}
 
 	.table-container {
 		overflow-x: auto;
+		width: 100%;
+		margin: 0;
+		padding: 0;
 	}
 
 	.stats-table {
 		width: 100%;
 		border-collapse: collapse;
 		background: var(--table-bg);
+		table-layout: fixed;
 	}
 
 	.stats-table th {
 		background: var(--header-bg);
-		padding: 0.75rem;
+		padding: 0.75rem 0.5rem;
 		text-align: left;
 		font-weight: 600;
 		font-size: 0.875rem;
 		color: var(--header-text);
 		border-bottom: 1px solid var(--table-border);
 		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 
 	.stats-table td {
-		padding: 0.75rem;
+		padding: 0.75rem 0.5rem;
 		border-bottom: 1px solid var(--table-border);
 		color: var(--text-color);
 		font-size: 0.875rem;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 	}
 
 	.stat-row:hover {
@@ -222,6 +234,8 @@
 		gap: 0.25rem;
 		padding: 0;
 		transition: color 0.2s;
+		width: 100%;
+		text-align: left;
 	}
 
 	.sort-button:hover {
@@ -250,16 +264,121 @@
 		text-transform: capitalize;
 	}
 
-	/* Responsive */
+	/* Column width definitions for desktop */
+	.player-col { width: 20%; }
+	.team-col { width: 15%; }
+	.conference-col { width: 12%; }
+	.category-col { width: 15%; }
+	.stat-type-col { width: 18%; }
+	.value-col { width: 20%; }
+
+	/* Mobile responsive fixes */
 	@media (max-width: 768px) {
-		.stats-table th,
+		.table-wrapper {
+			margin: 0;
+			padding: 0;
+			border-radius: 0.25rem;
+		}
+
+		.table-container {
+			overflow-x: auto;
+			-webkit-overflow-scrolling: touch;
+		}
+
+		.stats-table {
+			min-width: 100%;
+			table-layout: auto;
+		}
+
+		.stats-table th {
+			padding: 0.4rem 0.25rem;
+			font-size: 0.7rem;
+			vertical-align: top;
+		}
+
 		.stats-table td {
-			padding: 0.5rem;
+			padding: 0.4rem 0.25rem;
 			font-size: 0.75rem;
+			vertical-align: top;
+			word-wrap: break-word;
+			white-space: normal;
+		}
+
+		/* Optimize column widths for mobile */
+		.player-col { 
+			width: 25%; 
+			min-width: 80px;
+		}
+		.team-col { 
+			width: 20%; 
+			min-width: 60px;
+		}
+		.conference-col { 
+			width: 15%; 
+			min-width: 45px;
+		}
+		.category-col { 
+			width: 15%; 
+			min-width: 50px;
+		}
+		.stat-type-col { 
+			width: 25%; 
+			min-width: 70px;
+		}
+		.value-col { 
+			width: 20%; 
+			min-width: 60px;
+			text-align: right;
 		}
 
 		.sort-button {
+			font-size: 0.7rem;
+			padding: 0.2rem 0;
+			gap: 0.1rem;
+		}
+
+		.player-name {
+			font-weight: 600;
 			font-size: 0.75rem;
+			line-height: 1.2;
+		}
+
+		.stat-value {
+			font-weight: 700;
+			font-size: 0.8rem;
+			color: var(--primary-color);
+		}
+
+		/* Hide sort arrows on mobile to save space */
+		.sort-button:after {
+			display: none;
+		}
+	}
+
+	/* Extra small mobile */
+	@media (max-width: 480px) {
+		.stats-table th {
+			font-size: 0.65rem;
+			padding: 0.3rem 0.15rem;
+		}
+
+		.stats-table td {
+			font-size: 0.7rem;
+			padding: 0.3rem 0.15rem;
+		}
+
+		.player-name,
+		.stat-value {
+			font-size: 0.7rem;
+		}
+
+		.conference-col {
+			width: 12%;
+			min-width: 35px;
+		}
+
+		.value-col {
+			width: 22%;
 		}
 	}
 </style>

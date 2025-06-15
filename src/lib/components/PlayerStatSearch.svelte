@@ -1,5 +1,4 @@
 <!-- PlayerStatSearch.svelte -->
-
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import { theme } from '$lib/stores/theme';
@@ -1193,7 +1192,7 @@
 	.submit-content {
 		padding: 1.5rem;
 		display: flex;
-		justify-content: space-between;
+		justify-content: center;
 		align-items: center;
 		gap: 1.5rem;
 		flex-wrap: wrap;
@@ -1202,6 +1201,7 @@
 	.submit-info {
 		flex: 1;
 		min-width: 200px;
+		text-align: center;
 	}
 
 	.submit-title {

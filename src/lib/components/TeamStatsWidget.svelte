@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+<!-- TeamStatsWidget.svelte -->
+>>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { statsNameTrim } from '$lib/utils/statsNameTrim';
@@ -23,7 +27,7 @@
 		const inputValue = Number(event.currentTarget.value);
 
 		if (inputValue < 1 || inputValue > 14 || isNaN(inputValue)) {
-			// If the value is negative, greater than 14, or not a number, we prevent the change
+			// If the value is negative, greater than 14, or not a number prevent the change
 			event.currentTarget.value = '';
 		}
 	}
@@ -226,7 +230,7 @@
 			width: 100%;
 			align-items: stretch;
 		}
-		
+
 		label {
 			display: flex;
 			flex-direction: column;
@@ -295,7 +299,7 @@
 
 		input {
 			padding: 0.625rem;
-			font-size: 16px; /* Prevent iOS zoom */
+			font-size: 16px;
 		}
 
 		label {
@@ -305,6 +309,6 @@
 		.submit-button {
 			padding: 0.75rem 1rem;
 			font-size: 0.9rem;
-    }
-  }
+		}
+	}
 </style>

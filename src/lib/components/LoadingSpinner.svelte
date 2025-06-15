@@ -1,3 +1,4 @@
+<!-- LoadingSpinner.svelte -->
 <script lang="ts">
 	export let size: 'small' | 'medium' | 'large' = 'medium';
 	export let text: string = 'Loading...';

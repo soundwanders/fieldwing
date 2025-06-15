@@ -126,7 +126,11 @@ export interface MatchupGame {
 	awayScore: number;
 	winner: string;
 	id?: number;
+<<<<<<< HEAD
 	startDate?: string; 
+=======
+	startDate?: string;
+>>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 	conferenceGame?: boolean;
 	attendance?: number;
 	highlights?: string;

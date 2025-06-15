@@ -29,28 +29,32 @@ export const load: PageServerLoad = async ({ url }): Promise<LoadResult> => {
 		const startWeek = url.searchParams.get('startWeek') || '';
 		const endWeek = url.searchParams.get('endWeek') || '';
 
-    console.log('🏈 Loading team stats with params:', {
-      year, team, conference, startWeek, endWeek
-    });
-    
-    // If no year is provided, return empty data (this allows the page to load)
-    if (!year) {
-      console.log('📝 No year parameter provided, returning empty data');
-      return {
-        teamData: {
-          teamStatsData: [],
-          total: 0
-        },
-        searchParams: {
-          year: '',
-          team: team || undefined,
-          conference: conference || undefined,
-          startWeek: startWeek || undefined,
-          endWeek: endWeek || undefined
-        },
-        requestCount: cfbdApi.getRequestCount()
-      };
-    }
+		console.log('🏈 Loading team stats with params:', {
+			year,
+			team,
+			conference,
+			startWeek,
+			endWeek
+		});
+
+		// If no year is provided, return empty data (this allows the page to load)
+		if (!year) {
+			console.log('📝 No year parameter provided, returning empty data');
+			return {
+				teamData: {
+					teamStatsData: [],
+					total: 0
+				},
+				searchParams: {
+					year: '',
+					team: team || undefined,
+					conference: conference || undefined,
+					startWeek: startWeek || undefined,
+					endWeek: endWeek || undefined
+				},
+				requestCount: cfbdApi.getRequestCount()
+			};
+		}
 
 		const yearNum = parseInt(year);
 		if (isNaN(yearNum) || yearNum < 1900 || yearNum > new Date().getFullYear() + 1) {

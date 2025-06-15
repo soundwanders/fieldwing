@@ -10,8 +10,8 @@
 	import type { TeamStat } from '$lib/types/api';
 	import ExportButton from '$lib/components/ExportButton.svelte';
 
-	export let data: { 
-		teamData?: { teamStatsData: TeamStat[]; total: number }; 
+	export let data: {
+		teamData?: { teamStatsData: TeamStat[]; total: number };
 		searchParams?: Record<string, string>;
 		error?: string;
 	} = {};
@@ -200,37 +200,6 @@
 		fetchTeamStats();
 	}
 
-	// CSV Export (keep this as backup/legacy)
-	function exportToCSV(): void {
-		if (teamStats.length === 0) {
-			alert('No data to export');
-			return;
-		}
-
-		const headers = ['Team', 'Conference', 'Stat Name', 'Stat Value'];
-		const csvContent = [
-			headers.join(','),
-			...teamStats.map((stat) =>
-				[
-					`"${stat.team}"`,
-					`"${stat.conference}"`,
-					`"${stat.statName}"`,
-					stat.statValue
-				].join(',')
-			)
-		].join('\n');
-
-		const blob = new Blob([csvContent], { type: 'text/csv' });
-		const url = window.URL.createObjectURL(blob);
-		const a = document.createElement('a');
-		a.href = url;
-		a.download = `team-stats-${searchParams.year}-${Date.now()}.csv`;
-		document.body.appendChild(a);
-		a.click();
-		window.URL.revokeObjectURL(url);
-		document.body.removeChild(a);
-	}
-
 	// Initialize on mount
 	onMount(() => {
 		initializeFromData();
@@ -344,19 +313,19 @@
 								{/if}
 							</button>
 
-              <!-- Export Button -->
-              {#if hasResults}
-                <div class="export-container">
-                  <ExportButton 
-                    data={exportData} 
-                    type="team-stats" 
-                    variant="outline"
-                    size="medium"
-                    filename={exportFilename}
-                    showCount={true}
-                  />
-                </div>
-              {/if}
+							<!-- Export Button -->
+							{#if hasResults}
+								<div class="export-container">
+									<ExportButton
+										data={exportData}
+										type="team-stats"
+										variant="outline"
+										size="medium"
+										filename={exportFilename}
+										showCount={true}
+									/>
+								</div>
+							{/if}
 						</div>
 					</div>
 
@@ -402,9 +371,9 @@
 					{#if teamStats.length > 0}
 						<div class="results-actions">
 							<div class="export-container">
-								<ExportButton 
-									data={exportData} 
-									type="team-stats" 
+								<ExportButton
+									data={exportData}
+									type="team-stats"
 									variant="primary"
 									size="small"
 									filename={exportFilename}
@@ -444,7 +413,10 @@
 							<div class="empty-content">
 								<h3>No Statistics Found</h3>
 								<p>No team statistics match your search criteria.</p>
-								<small>Try adjusting your search parameters or check if data exists for the selected year.</small>
+								<small
+									>Try adjusting your search parameters or check if data exists for the selected
+									year.</small
+								>
 							</div>
 						</div>
 					{:else if teamStats.length > 0}
@@ -621,18 +593,6 @@
 		background: var(--accent-blue);
 		transform: translateY(-2px);
 		box-shadow: var(--shadow-md);
-	}
-  
-	.btn-outline {
-		background: transparent;
-		color: var(--accent-blue);
-		border: 2px solid var(--accent-blue);
-	}
-
-	.btn-outline:hover {
-		background: var(--accent-blue);
-		color: white;
-		transform: translateY(-2px);
 	}
 
 	.btn-spinner {

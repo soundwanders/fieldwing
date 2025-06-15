@@ -105,7 +105,11 @@ export const load: PageServerLoad = async ({ url }): Promise<LoadResult> => {
 		if (matchupData.games && (minYear || maxYear)) {
 			const minYearNum = minYear ? parseInt(minYear) : 0;
 			const maxYearNum = maxYear ? parseInt(maxYear) : 9999;
+<<<<<<< HEAD
 			
+=======
+
+>>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 			matchupData.games = matchupData.games.filter((game: any) => {
 				const gameYear = game.season;
 				return gameYear >= minYearNum && gameYear <= maxYearNum;
@@ -116,19 +120,38 @@ export const load: PageServerLoad = async ({ url }): Promise<LoadResult> => {
 				const years = matchupData.games.map((game: any) => game.season);
 				matchupData.startYear = Math.min(...years);
 				matchupData.endYear = Math.max(...years);
+<<<<<<< HEAD
 				
 				// Recalculate win counts for filtered games
 				const team1Wins = matchupData.games.filter((game: any) => game.winner === matchupData.team1).length;
 				const team2Wins = matchupData.games.filter((game: any) => game.winner === matchupData.team2).length;
 				const ties = matchupData.games.filter((game: any) => game.winner === 'Tie').length;
 				
+=======
+
+				// Recalculate win counts for filtered games
+				const team1Wins = matchupData.games.filter(
+					(game: any) => game.winner === matchupData.team1
+				).length;
+				const team2Wins = matchupData.games.filter(
+					(game: any) => game.winner === matchupData.team2
+				).length;
+				const ties = matchupData.games.filter((game: any) => game.winner === 'Tie').length;
+
+>>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 				matchupData.team1Wins = team1Wins;
 				matchupData.team2Wins = team2Wins;
 				matchupData.ties = ties;
 			}
 		}
 
+<<<<<<< HEAD
 		console.log(`✅ Successfully fetched matchup data with ${matchupData.games?.length || 0} games`);
+=======
+		console.log(
+			`✅ Successfully fetched matchup data with ${matchupData.games?.length || 0} games`
+		);
+>>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 		console.log(`🔢 Total API requests made: ${cfbdApi.getRequestCount()}`);
 
 		const result: LoadResult = {

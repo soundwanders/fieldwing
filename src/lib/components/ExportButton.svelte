@@ -1,12 +1,13 @@
+<!-- ExportButton.svelte (EXPORTS A CSV FILE) -->
 <script lang="ts">
 	import { theme } from '$lib/stores/theme';
-	import { 
-		exportPlayerStats, 
-		exportTeamStats, 
-		exportGameResults, 
+	import {
+		exportPlayerStats,
+		exportTeamStats,
+		exportGameResults,
 		canExport,
 		getExportSummary,
-		type ExportOptions 
+		type ExportOptions
 	} from '$lib/utils/csvExport';
 	import type { Game, PlayerStat, TeamStat } from '$lib/types/api';
 
@@ -56,11 +57,19 @@
 			}
 
 			// Show success feedback briefly
+<<<<<<< HEAD
 			await new Promise(resolve => setTimeout(resolve, 500));
 		} catch (error) {
 			console.error('Export failed:', error);
 			exportError = error instanceof Error ? error.message : 'Export failed';
 			
+=======
+			await new Promise((resolve) => setTimeout(resolve, 500));
+		} catch (error) {
+			console.error('Export failed:', error);
+			exportError = error instanceof Error ? error.message : 'Export failed';
+
+>>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 			// Clear error after 3 seconds
 			setTimeout(() => {
 				exportError = null;
@@ -85,7 +94,13 @@
 		if (isExporting) return 'Export in progress...';
 		if (exportError) return exportError;
 		if (!exportSummary.canExport) return exportSummary.message;
+<<<<<<< HEAD
 		return `Export ${exportSummary.count} record${exportSummary.count !== 1 ? 's' : ''} to CSV file`;
+=======
+		return `Export ${exportSummary.count} record${
+			exportSummary.count !== 1 ? 's' : ''
+		} to CSV file`;
+>>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 	}
 </script>
 
@@ -117,7 +132,6 @@
 			{/if}
 		</span>
 	{/if}
-	
 	<span class="export-label">
 		{getButtonLabel()}
 	</span>
@@ -293,12 +307,7 @@
 		left: -100%;
 		width: 100%;
 		height: 100%;
-		background: linear-gradient(
-			90deg,
-			transparent,
-			rgba(255, 255, 255, 0.2),
-			transparent
-		);
+		background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
 		animation: shimmer 1.5s infinite;
 	}
 

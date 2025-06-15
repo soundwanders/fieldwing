@@ -1,5 +1,8 @@
 <!-- TeamSelection.svelte -->
+<<<<<<< HEAD
  
+=======
+>>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import { selectedTeams, selectedWeek } from '$lib/stores/store';
@@ -39,10 +42,17 @@
 	};
 
 	// Filter teams based on search query
+<<<<<<< HEAD
 	$: filteredTeams = searchQuery.trim() 
 		? teams.filter(team => 
 			team.toLowerCase().includes(searchQuery.toLowerCase().trim())
 		).slice(0, 50) // Limit for performance
+=======
+	$: filteredTeams = searchQuery.trim()
+		? teams
+				.filter((team) => team.toLowerCase().includes(searchQuery.toLowerCase().trim()))
+				.slice(0, 50) // Limit for performance
+>>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 		: teams;
 
 	async function loadTeams() {
@@ -79,7 +89,13 @@
 
 	// Select all filtered teams (up to 10 for performance)
 	const selectAllFiltered = () => {
+<<<<<<< HEAD
 		const teamsToAdd = filteredTeams.slice(0, 10).filter(team => !selectedTeamsArray.includes(team));
+=======
+		const teamsToAdd = filteredTeams
+			.slice(0, 10)
+			.filter((team) => !selectedTeamsArray.includes(team));
+>>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 		selectedTeams.update((teams) => [...teams, ...teamsToAdd]);
 	};
 
@@ -125,7 +141,11 @@
 					<img class="hero-icon" src="/selection.png" alt="Team Selection" />
 					<h1 class="hero-title">Select Your Teams</h1>
 				</div>
+<<<<<<< HEAD
 				<p class="hero-subtitle">Choose your favorite teams to view their game results and statistics</p>
+=======
+				<p class="hero-subtitle">Choose your favorite teams to view game results and stats</p>
+>>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 			</div>
 		</div>
 
@@ -142,16 +162,24 @@
 								<span class="panel-count">({teamStats.showing} teams)</span>
 							{/if}
 						</h2>
+<<<<<<< HEAD
 						<p class="panel-subtitle">Select teams and configure your search parameters</p>
+=======
+						<p class="panel-subtitle">Select teams and set your search parameters</p>
+>>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 					</div>
 
 					<!-- Controls Section -->
 					<div class="controls-section">
 						<!-- Division Selector -->
 						<div class="control-group">
+<<<<<<< HEAD
 							<label for="division-select" class="control-label">
 								🏟️ Division
 							</label>
+=======
+							<label for="division-select" class="control-label"> 🏟️ Division </label>
+>>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 							<select
 								class="control-select"
 								id="division-select"
@@ -169,9 +197,13 @@
 						<!-- Year and Week Controls -->
 						<div class="control-row">
 							<div class="control-group">
+<<<<<<< HEAD
 								<label for="select-year" class="control-label">
 									📅 Year
 								</label>
+=======
+								<label for="select-year" class="control-label"> 📅 Year </label>
+>>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 								<input
 									type="number"
 									class="control-input"
@@ -184,6 +216,7 @@
 							</div>
 
 							<div class="control-group">
+<<<<<<< HEAD
 								<label for="select-week" class="control-label">
 									📊 Week
 								</label>
@@ -192,6 +225,10 @@
 									id="select-week"
 									bind:value={$selectedWeek}
 								>
+=======
+								<label for="select-week" class="control-label"> 📊 Week </label>
+								<select class="control-select" id="select-week" bind:value={$selectedWeek}>
+>>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 									{#each [...Array(14).keys()] as week}
 										<option value={week + 1}>Week {week + 1}</option>
 									{/each}
@@ -202,9 +239,13 @@
 						<!-- Search Input -->
 						{#if teams.length > 0}
 							<div class="control-group">
+<<<<<<< HEAD
 								<label for="team-search" class="control-label">
 									🔍 Search Teams
 								</label>
+=======
+								<label for="team-search" class="control-label"> 🔍 Search Teams </label>
+>>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 								<input
 									type="text"
 									class="control-input search-input"
@@ -215,9 +256,15 @@
 									autocomplete="off"
 								/>
 								{#if searchQuery}
+<<<<<<< HEAD
 									<button 
 										class="clear-search-btn"
 										on:click={() => searchQuery = ''}
+=======
+									<button
+										class="clear-search-btn"
+										on:click={() => (searchQuery = '')}
+>>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 										type="button"
 										aria-label="Clear search"
 									>
@@ -234,10 +281,19 @@
 							<h3 class="teams-title">Available Teams</h3>
 							{#if filteredTeams.length > 0}
 								<div class="teams-actions">
+<<<<<<< HEAD
 									<button 
 										class="action-btn secondary"
 										on:click={selectAllFiltered}
 										disabled={filteredTeams.slice(0, 10).every(team => selectedTeamsArray.includes(team))}
+=======
+									<button
+										class="action-btn secondary"
+										on:click={selectAllFiltered}
+										disabled={filteredTeams
+											.slice(0, 10)
+											.every((team) => selectedTeamsArray.includes(team))}
+>>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 										type="button"
 									>
 										Select All
@@ -267,7 +323,11 @@
 										</button>
 									{/each}
 								</div>
+<<<<<<< HEAD
 								
+=======
+
+>>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 								{#if searchQuery && teams.length > filteredTeams.length}
 									<div class="search-info">
 										<p class="search-results-text">
@@ -279,9 +339,15 @@
 								<div class="empty-search">
 									<div class="empty-icon">🔍</div>
 									<p class="empty-message">No teams found for "{searchQuery}"</p>
+<<<<<<< HEAD
 									<button 
 										class="clear-search-btn-alt"
 										on:click={() => searchQuery = ''}
+=======
+									<button
+										class="clear-search-btn-alt"
+										on:click={() => (searchQuery = '')}
+>>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 										type="button"
 									>
 										Clear Search
@@ -311,11 +377,15 @@
 							{/if}
 						</h2>
 						{#if selectedTeamsArray.length > 0}
+<<<<<<< HEAD
 							<button 
 								class="clear-all-btn"
 								on:click={clearAllTeams}
 								type="button"
 							>
+=======
+							<button class="clear-all-btn" on:click={clearAllTeams} type="button">
+>>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 								Clear All
 							</button>
 						{/if}
@@ -339,7 +409,11 @@
 									</div>
 								{/each}
 							</div>
+<<<<<<< HEAD
 							
+=======
+
+>>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 							<!-- Search Summary -->
 							<div class="search-summary">
 								<div class="summary-item">
@@ -372,16 +446,27 @@
 							<div class="submit-info">
 								<h3 class="submit-title">🚀 Ready to View Results</h3>
 								<p class="submit-description">
+<<<<<<< HEAD
 									View game results for {selectedTeamsArray.length} team{selectedTeamsArray.length !== 1 ? 's' : ''} 
+=======
+									View game results for {selectedTeamsArray.length} team{selectedTeamsArray.length !==
+									1
+										? 's'
+										: ''}
+>>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 									in Week {$selectedWeek} of {selectedYear}
 								</p>
 							</div>
 						{:else}
 							<div class="submit-info">
 								<h3 class="submit-title">🎯 Select Teams</h3>
+<<<<<<< HEAD
 								<p class="submit-description">
 									Choose teams to view game results
 								</p>
+=======
+								<p class="submit-description">Choose teams to view game results</p>
+>>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 							</div>
 						{/if}
 
@@ -402,7 +487,11 @@
 									disabled={selectedTeamsArray.length === 0 || $isTeamDataLoading}
 								>
 									{#if $isTeamDataLoading}
+<<<<<<< HEAD
 										<span class="btn-spinner"></span>
+=======
+										<span class="btn-spinner" />
+>>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 										Loading...
 									{:else if selectedTeamsArray.length > 0}
 										🏈 View Game Results
@@ -665,8 +754,348 @@
 		border-radius: 50%;
 		width: 1.5rem;
 		height: 1.5rem;
+<<<<<<< HEAD
+=======
 		display: flex;
 		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		font-size: 0.75rem;
+		transition: all 0.2s ease;
+	}
+
+	.clear-search-btn:hover {
+		background: var(--accent-red);
+		transform: translateY(-50%) scale(1.1);
+	}
+
+	/* ========================================
+	   TEAMS SECTION
+	======================================== */
+	.teams-section {
+		border-top: 1px solid var(--border-primary);
+	}
+
+	.teams-header {
+		padding: 1.5rem 2rem 1rem 2rem;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		background: var(--bg-secondary);
+	}
+
+	.teams-title {
+		font-size: 1.125rem;
+		font-weight: 600;
+		color: var(--text-primary);
+		margin: 0;
+	}
+
+	.teams-actions {
+		display: flex;
+		gap: 0.5rem;
+	}
+
+	.action-btn {
+		padding: 0.5rem 1rem;
+		border-radius: 0.5rem;
+		font-size: 0.75rem;
+		font-weight: 500;
+		cursor: pointer;
+		transition: all 0.2s ease;
+		border: none;
+	}
+
+	.action-btn.secondary {
+		background: var(--accent-blue);
+		color: white;
+	}
+
+	.action-btn.secondary:hover:not(:disabled) {
+		background: var(--accent-blue);
+		transform: translateY(-1px);
+	}
+
+	.action-btn:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+		transform: none;
+	}
+
+	.teams-container {
+		min-height: 400px;
+		max-height: 500px;
+		overflow-y: auto;
+		padding: 1rem 2rem 2rem 2rem;
+	}
+
+	.teams-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+		gap: 0.75rem;
+	}
+
+	.team-button {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 1rem;
+		background: var(--bg-secondary);
+		border: 2px solid var(--border-primary);
+		border-radius: 0.75rem;
+		cursor: pointer;
+		transition: all 0.2s ease;
+		color: var(--text-primary);
+		font-size: 0.875rem;
+		text-align: left;
+		position: relative;
+		overflow: hidden;
+	}
+
+	.team-button:hover {
+		border-color: var(--accent-blue);
+		background: var(--bg-primary);
+		transform: translateY(-2px);
+		box-shadow: var(--shadow-md);
+	}
+
+	.team-button.selected {
+		background: linear-gradient(135deg, var(--accent-blue), var(--accent-green));
+		border-color: var(--accent-blue);
+		color: white;
+		transform: translateY(-2px);
+		box-shadow: var(--shadow-lg);
+	}
+
+	.team-button.selected::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background: linear-gradient(
+			45deg,
+			transparent 30%,
+			rgba(255, 255, 255, 0.1) 50%,
+			transparent 70%
+		);
+		animation: shimmer 2s infinite;
+	}
+
+	@keyframes shimmer {
+		0% {
+			transform: translateX(-100%);
+		}
+		100% {
+			transform: translateX(100%);
+		}
+	}
+
+	.team-name {
+		font-weight: 500;
+		flex: 1;
+		line-height: 1.3;
+	}
+
+	.team-selected-icon {
+		font-size: 1.125rem;
+		margin-left: 0.5rem;
+		animation: checkmark 0.3s ease-out;
+	}
+
+	@keyframes checkmark {
+		0% {
+			transform: scale(0);
+		}
+		50% {
+			transform: scale(1.2);
+		}
+		100% {
+			transform: scale(1);
+		}
+	}
+
+	/* ========================================
+	   EMPTY STATES
+	======================================== */
+	.loading-teams,
+	.empty-search,
+	.select-division-placeholder {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding: 3rem 1rem;
+		text-align: center;
+	}
+
+	.empty-icon,
+	.placeholder-icon {
+		font-size: 3rem;
+		margin-bottom: 1rem;
+		opacity: 0.6;
+	}
+
+	.empty-message,
+	.placeholder-message {
+		color: var(--text-secondary);
+		margin: 0 0 1rem 0;
+		font-size: 0.875rem;
+	}
+
+	.search-info {
+		margin-top: 1rem;
+		padding-top: 1rem;
+		border-top: 1px solid var(--border-primary);
+		text-align: center;
+	}
+
+	.search-results-text {
+		color: var(--text-secondary);
+		font-size: 0.75rem;
+		margin: 0;
+	}
+
+	.clear-search-btn-alt {
+		background: var(--accent-blue);
+		color: white;
+		border: none;
+		padding: 0.5rem 1rem;
+		border-radius: 0.5rem;
+		cursor: pointer;
+		font-size: 0.75rem;
+		transition: all 0.2s ease;
+	}
+
+	.clear-search-btn-alt:hover {
+		background: var(--accent-blue);
+		transform: translateY(-1px);
+	}
+
+	/* ========================================
+	   SELECTED TEAMS PANEL
+	======================================== */
+	.selected-teams-container {
+		padding: 2rem;
+		min-height: auto;
+	}
+
+	.selected-teams-list {
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+		margin-bottom: 2rem;
+	}
+
+	.selected-team-item {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 1rem;
+		background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
+		color: white;
+		border-radius: 0.75rem;
+		box-shadow: var(--shadow-sm);
+		transition: all 0.2s ease;
+	}
+
+	.selected-team-item:hover {
+		transform: translateY(-2px);
+		box-shadow: var(--shadow-md);
+	}
+
+	.selected-team-name {
+		font-weight: 500;
+		flex: 1;
+	}
+
+	.remove-team-btn {
+		background: rgba(255, 255, 255, 0.2);
+		color: white;
+		border: none;
+		border-radius: 50%;
+		width: 1.5rem;
+		height: 1.5rem;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		font-size: 0.875rem;
+		transition: all 0.2s ease;
+		margin-left: 0.5rem;
+	}
+
+	.remove-team-btn:hover {
+		background: var(--accent-red);
+		transform: scale(1.1);
+	}
+
+	.search-summary {
+		background: var(--bg-secondary);
+		border-radius: 1rem;
+		padding: 1.5rem;
+		border: 1px solid var(--border-primary);
+	}
+
+	.summary-item {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 0.75rem 0;
+		border-bottom: 1px solid var(--border-primary);
+	}
+
+	.summary-item:last-child {
+		border-bottom: none;
+	}
+
+	.summary-label {
+		font-weight: 500;
+		color: var(--text-secondary);
+		font-size: 0.875rem;
+	}
+
+	.summary-value {
+		font-weight: 600;
+		color: var(--text-primary);
+		font-size: 0.875rem;
+	}
+
+	.empty-selected {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding: 2rem 1rem;
+		text-align: center;
+	}
+
+	.empty-title {
+		color: var(--text-primary);
+		margin: 0 0 0.5rem 0;
+		font-size: 1.125rem;
+		font-weight: 600;
+	}
+
+	.selected-teams-card {
+		flex: 1;
+	}
+
+	.submit-card {
+		background: var(--bg-primary);
+		border-radius: 1.5rem;
+		box-shadow: var(--shadow-lg);
+		border: 1px solid var(--border-primary);
+		overflow: hidden;
+	}
+
+	.submit-content {
+		padding: 1.5rem;
+>>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
+		display: flex;
+		align-items: center;
+<<<<<<< HEAD
 		justify-content: center;
 		cursor: pointer;
 		font-size: 0.75rem;
@@ -1005,6 +1434,25 @@
 		margin: 0 0 0.5rem 0;
 	}
 
+=======
+		gap: 1.5rem;
+		flex-wrap: wrap;
+		text-align: center;
+	}
+
+	.submit-info {
+		flex: 1;
+		min-width: 200px;
+	}
+
+	.submit-title {
+		font-size: 1.25rem;
+		font-weight: 700;
+		color: var(--text-primary);
+		margin: 0 0 0.5rem 0;
+	}
+
+>>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 	.submit-description {
 		color: var(--text-secondary);
 		margin: 0;
@@ -1080,7 +1528,13 @@
 	}
 
 	@keyframes spin {
+<<<<<<< HEAD
 		to { transform: rotate(360deg); }
+=======
+		to {
+			transform: rotate(360deg);
+		}
+>>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 	}
 
 	/* ========================================
@@ -1126,6 +1580,7 @@
 	@media (max-width: 768px) {
 		.team-select-wrapper {
 			padding: 0.75rem;
+<<<<<<< HEAD
 		}
 
 		.selection-interface {
@@ -1295,3 +1750,174 @@
    	}
    }
 </style>
+=======
+		}
+
+		.selection-interface {
+			gap: 1.5rem;
+			padding: 0;
+		}
+
+		.panel-card {
+			margin: 0;
+			border-radius: 1rem;
+		}
+
+		.hero-section {
+			padding: 1.5rem 0.5rem 2rem 0.5rem;
+		}
+
+		.panel-header {
+			padding: 1.25rem;
+			flex-direction: column;
+			align-items: stretch;
+			gap: 0.75rem;
+		}
+
+		.panel-title {
+			font-size: 1.25rem;
+		}
+
+		.controls-section {
+			padding: 1.25rem;
+		}
+
+		.control-row {
+			grid-template-columns: 1fr;
+		}
+
+		.teams-header {
+			padding: 1rem 1.25rem;
+			flex-direction: column;
+			gap: 0.75rem;
+			align-items: stretch;
+		}
+
+		.teams-container {
+			padding: 1rem 1.25rem 1.25rem 1.25rem;
+			min-height: 300px;
+			max-height: 350px;
+		}
+
+		.teams-grid {
+			grid-template-columns: 1fr;
+		}
+
+		.selected-teams-container {
+			padding: 1.25rem;
+			min-height: 300px;
+		}
+
+		.submit-content {
+			padding: 1.25rem;
+			flex-direction: column;
+			text-align: center;
+			align-items: center;
+		}
+
+		.submit-button {
+			width: 100%;
+			justify-content: center;
+			max-width: 250px;
+		}
+	}
+
+	/* Small Mobile */
+	@media (max-width: 480px) {
+		.team-select-wrapper {
+			padding: 0.5rem;
+		}
+
+		.selection-interface {
+			gap: 1rem;
+			padding: 0;
+		}
+
+		.hero-section {
+			padding: 1rem 0.25rem 1.5rem 0.25rem;
+		}
+
+		.hero-title {
+			font-size: 1.75rem;
+		}
+
+		.hero-subtitle {
+			font-size: 0.875rem;
+		}
+
+		.panel-header {
+			padding: 1rem;
+		}
+
+		.controls-section {
+			padding: 1rem;
+		}
+
+		.teams-header {
+			padding: 0.75rem 1rem;
+		}
+
+		.teams-container {
+			padding: 0.75rem 1rem 1rem 1rem;
+		}
+
+		.selected-teams-container {
+			padding: 1rem;
+		}
+
+		.submit-content {
+			padding: 1rem;
+			align-items: center;
+		}
+
+		.submit-button {
+			width: min-content;
+			justify-content: center;
+			max-width: 200px;
+			padding: 0.875rem 1.5rem;
+			font-size: 0.875rem;
+		}
+
+		.panel-card {
+			border-radius: 0.75rem;
+		}
+	}
+
+	/* ========================================
+      ACCESSIBILITY & FOCUS STATES
+   ======================================== */
+	.team-button:focus,
+	.control-select:focus,
+	.control-input:focus,
+	.submit-button:focus,
+	.action-btn:focus,
+	.clear-all-btn:focus,
+	.remove-team-btn:focus,
+	.clear-search-btn:focus,
+	.clear-search-btn-alt:focus {
+		outline: 2px solid var(--accent-blue);
+		outline-offset: 2px;
+	}
+
+	/* Reduced motion preferences */
+	@media (prefers-reduced-motion: reduce) {
+		*,
+		*::before,
+		*::after {
+			animation-duration: 0.01ms !important;
+			animation-iteration-count: 1 !important;
+			transition-duration: 0.01ms !important;
+		}
+	}
+
+	/* High contrast mode support */
+	@media (prefers-contrast: high) {
+		.team-button,
+		.control-select,
+		.control-input,
+		.submit-button {
+			border-width: 2px;
+		}
+	}
+</style>
+>>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a

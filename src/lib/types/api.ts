@@ -148,17 +148,6 @@ export interface TeamMatchup {
 	games: MatchupGame[];
 }
 
-export interface TeamMatchup {
-	team1: string;
-	team2: string;
-	startYear: number;
-	endYear: number;
-	team1Wins: number;
-	team2Wins: number;
-	ties: number;
-	games: MatchupGame[];
-}
-
 export interface MatchupSearchParams {
 	team1: string;
 	team2: string;

@@ -1,7 +1,4 @@
-<<<<<<< HEAD
-=======
 <!-- TeamStatsWidget.svelte -->
->>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { statsNameTrim } from '$lib/utils/statsNameTrim';

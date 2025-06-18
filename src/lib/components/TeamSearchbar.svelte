@@ -1,8 +1,5 @@
-<<<<<<< HEAD
-=======
 <!-- TeamSearchbar.svelte -->
 
->>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import { selectedTeams, selectedWeek } from '$lib/stores/store';

@@ -57,19 +57,11 @@
 			}
 
 			// Show success feedback briefly
-<<<<<<< HEAD
-			await new Promise(resolve => setTimeout(resolve, 500));
-		} catch (error) {
-			console.error('Export failed:', error);
-			exportError = error instanceof Error ? error.message : 'Export failed';
-			
-=======
 			await new Promise((resolve) => setTimeout(resolve, 500));
 		} catch (error) {
 			console.error('Export failed:', error);
 			exportError = error instanceof Error ? error.message : 'Export failed';
 
->>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 			// Clear error after 3 seconds
 			setTimeout(() => {
 				exportError = null;
@@ -94,13 +86,9 @@
 		if (isExporting) return 'Export in progress...';
 		if (exportError) return exportError;
 		if (!exportSummary.canExport) return exportSummary.message;
-<<<<<<< HEAD
-		return `Export ${exportSummary.count} record${exportSummary.count !== 1 ? 's' : ''} to CSV file`;
-=======
 		return `Export ${exportSummary.count} record${
 			exportSummary.count !== 1 ? 's' : ''
 		} to CSV file`;
->>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 	}
 </script>
 

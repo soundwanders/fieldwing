@@ -18,6 +18,7 @@
 
 	let pageSize: number = 16;
 	let componentError: Error | null = null;
+	let mounted = false;
 	let isLoading: boolean = false;
 	let searchQuery: string = '';
 	let filteredCategories: any[] = [];
@@ -40,11 +41,6 @@
 		{ value: 'defense', label: 'Defense', icon: '🛡️', description: 'Defensive statistics' },
 		{ value: 'kicking', label: 'Kicking', icon: '🦵', description: 'Kicker statistics' },
 		{ value: 'punting', label: 'Punting', icon: '🦶', description: 'Punter statistics' },
-<<<<<<< HEAD
-		{ value: 'kickReturns', label: 'Kick Returns', icon: '⚡', description: 'Return specialist stats' },
-		{ value: 'puntReturns', label: 'Punt Returns', icon: '🔄', description: 'Punt return statistics' },
-		{ value: 'interceptions', label: 'Interceptions', icon: '🤲', description: 'Interception statistics' },
-=======
 		{
 			value: 'kickReturns',
 			label: 'Kick Returns',
@@ -63,7 +59,6 @@
 			icon: '🤲',
 			description: 'Interception statistics'
 		},
->>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 		{ value: 'fumbles', label: 'Fumbles', icon: '💫', description: 'Fumble statistics' }
 	];
 
@@ -74,13 +69,6 @@
 	];
 
 	// Filter categories based on search query
-<<<<<<< HEAD
-	$: filteredCategories = searchQuery.trim() 
-		? categoryOptions.filter(category => 
-			category.label.toLowerCase().includes(searchQuery.toLowerCase().trim()) ||
-			category.description.toLowerCase().includes(searchQuery.toLowerCase().trim())
-		).slice(0, 20) // Limit for performance
-=======
 	$: filteredCategories = searchQuery.trim()
 		? categoryOptions
 				.filter(
@@ -89,7 +77,6 @@
 						category.description.toLowerCase().includes(searchQuery.toLowerCase().trim())
 				)
 				.slice(0, 20) // Limit for performance
->>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 		: categoryOptions;
 
 	// Form validation
@@ -100,20 +87,10 @@
 			if (!startWeek && !endWeek) return true;
 			if (startWeek && !endWeek) return Number(startWeek) >= 1 && Number(startWeek) <= 14;
 			if (!startWeek && endWeek) return Number(endWeek) >= 1 && Number(endWeek) <= 14;
-<<<<<<< HEAD
-			
-=======
-
->>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 			const start = Number(startWeek);
 			const end = Number(endWeek);
 			return start >= 1 && start <= 14 && end >= 1 && end <= 14 && start <= end;
 		})();
-<<<<<<< HEAD
-		
-=======
-
->>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 		return hasValidYear && hasValidWeekRange;
 	})();
 
@@ -194,13 +171,9 @@
 			...(conference ? [`conference=${encodeURIComponent(conference)}`] : []),
 			...(startWeek ? [`startWeek=${startWeek}`] : []),
 			...(endWeek ? [`endWeek=${endWeek}`] : []),
-<<<<<<< HEAD
-			...(seasonType && seasonType !== 'regular' ? [`seasonType=${encodeURIComponent(seasonType)}`] : []),
-=======
 			...(seasonType && seasonType !== 'regular'
 				? [`seasonType=${encodeURIComponent(seasonType)}`]
 				: []),
->>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 			...(selectedCategory ? [`category=${encodeURIComponent(selectedCategory)}`] : []),
 			`limit=${pageSize}`,
 			`skip=${currentPage * pageSize}`
@@ -217,8 +190,7 @@
 	}
 
 	onMount(() => {
-		// Initialize with current year
-		year = currentYear.toString();
+			mounted = true;
 	});
 
 	onDestroy(() => {
@@ -237,13 +209,9 @@
 					<img class="hero-icon" src="/playerstats.png" alt="Player Statistics" />
 					<h1 class="hero-title">Player Statistics</h1>
 				</div>
-<<<<<<< HEAD
-				<p class="hero-subtitle">Discover standout performances and analyze individual player statistics</p>
-=======
 				<p class="hero-subtitle">
 					Discover standout performances and analyze individual player statistics
 				</p>
->>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 			</div>
 		</div>
 
@@ -260,13 +228,9 @@
 								<span class="panel-count">(Category Selected)</span>
 							{/if}
 						</h2>
-<<<<<<< HEAD
-						<p class="panel-subtitle">Configure your search criteria to find specific player statistics</p>
-=======
 						<p class="panel-subtitle">
 							Configure your search criteria to find specific player statistics
 						</p>
->>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 					</div>
 
 					<!-- Controls Section -->
@@ -274,13 +238,7 @@
 						<!-- Year and Season Type -->
 						<div class="control-row">
 							<div class="control-group">
-<<<<<<< HEAD
-								<label for="year-input" class="control-label">
-									📅 Year (Required)
-								</label>
-=======
 								<label for="year-input" class="control-label"> 📅 Year (Required) </label>
->>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 								<input
 									type="number"
 									class="control-input"
@@ -297,19 +255,8 @@
 							</div>
 
 							<div class="control-group">
-<<<<<<< HEAD
-								<label for="season-type" class="control-label">
-									🏆 Season Type
-								</label>
-								<select
-									class="control-select"
-									id="season-type"
-									bind:value={seasonType}
-								>
-=======
 								<label for="season-type" class="control-label"> 🏆 Season Type </label>
 								<select class="control-select" id="season-type" bind:value={seasonType}>
->>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 									{#each seasonTypeOptions as option}
 										<option value={option.value}>{option.label}</option>
 									{/each}
@@ -320,13 +267,7 @@
 						<!-- Team and Conference -->
 						<div class="control-row">
 							<div class="control-group">
-<<<<<<< HEAD
-								<label for="team-input" class="control-label">
-									🏈 Team (Optional)
-								</label>
-=======
 								<label for="team-input" class="control-label"> 🏈 Team (Optional) </label>
->>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 								<input
 									type="text"
 									class="control-input"
@@ -353,13 +294,7 @@
 						<!-- Week Range -->
 						<div class="control-row">
 							<div class="control-group">
-<<<<<<< HEAD
-								<label for="start-week" class="control-label">
-									📊 Start Week
-								</label>
-=======
 								<label for="start-week" class="control-label"> 📊 Start Week </label>
->>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 								<input
 									type="number"
 									class="control-input"
@@ -376,13 +311,7 @@
 							</div>
 
 							<div class="control-group">
-<<<<<<< HEAD
-								<label for="end-week" class="control-label">
-									📊 End Week
-								</label>
-=======
 								<label for="end-week" class="control-label"> 📊 End Week </label>
->>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 								<input
 									type="number"
 									class="control-input"
@@ -407,13 +336,7 @@
 
 						<!-- Category Search -->
 						<div class="control-group">
-<<<<<<< HEAD
-							<label for="category-search" class="control-label">
-								🔍 Search Categories
-							</label>
-=======
 							<label for="category-search" class="control-label"> 🔍 Search Categories </label>
->>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 							<input
 								type="text"
 								class="control-input search-input"
@@ -424,15 +347,9 @@
 								autocomplete="off"
 							/>
 							{#if searchQuery}
-<<<<<<< HEAD
-								<button 
-									class="clear-search-btn"
-									on:click={() => searchQuery = ''}
-=======
 								<button
 									class="clear-search-btn"
 									on:click={() => (searchQuery = '')}
->>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 									type="button"
 									aria-label="Clear search"
 								>
@@ -480,11 +397,6 @@
 										</button>
 									{/each}
 								</div>
-<<<<<<< HEAD
-								
-=======
-
->>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 								{#if searchQuery && categoryOptions.length > filteredCategories.length}
 									<div class="search-info">
 										<p class="search-results-text">
@@ -496,15 +408,9 @@
 								<div class="empty-search">
 									<div class="empty-icon">🔍</div>
 									<p class="empty-message">No categories found for "{searchQuery}"</p>
-<<<<<<< HEAD
-									<button 
-										class="clear-search-btn-alt"
-										on:click={() => searchQuery = ''}
-=======
 									<button
 										class="clear-search-btn-alt"
 										on:click={() => (searchQuery = '')}
->>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 										type="button"
 									>
 										Clear Search
@@ -527,21 +433,9 @@
 				<div class="panel-card summary-card">
 					<!-- Summary Header -->
 					<div class="panel-header">
-<<<<<<< HEAD
-						<h2 class="panel-title">
-							📋 Search Summary
-						</h2>
-						{#if selectedCategory || team || conference}
-							<button 
-								class="clear-all-btn"
-								on:click={clearAllSelections}
-								type="button"
-							>
-=======
 						<h2 class="panel-title">📋 Search Summary</h2>
 						{#if selectedCategory || team || conference}
 							<button class="clear-all-btn" on:click={clearAllSelections} type="button">
->>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 								Clear All
 							</button>
 						{/if}
@@ -569,12 +463,8 @@
 										<span class="summary-label">📊 Category:</span>
 										<span class="summary-value" class:missing={!selectedCategory}>
 											{#if selectedCategory}
-<<<<<<< HEAD
-												{categoryOptions.find(cat => cat.value === selectedCategory)?.label || selectedCategory}
-=======
 												{categoryOptions.find((cat) => cat.value === selectedCategory)?.label ||
 													selectedCategory}
->>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 											{:else}
 												All categories
 											{/if}
@@ -609,12 +499,8 @@
 									<div class="summary-item">
 										<span class="summary-label">🏆 Season:</span>
 										<span class="summary-value">
-<<<<<<< HEAD
-											{seasonTypeOptions.find(opt => opt.value === seasonType)?.label || 'Regular Season'}
-=======
 											{seasonTypeOptions.find((opt) => opt.value === seasonType)?.label ||
 												'Regular Season'}
->>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 										</span>
 									</div>
 								</div>
@@ -623,13 +509,9 @@
 							<div class="empty-summary">
 								<div class="empty-icon">📊</div>
 								<h3 class="empty-title">Configure Your Search</h3>
-<<<<<<< HEAD
-								<p class="empty-message">Fill in the search parameters to analyze player statistics</p>
-=======
 								<p class="empty-message">
 									Fill in the search parameters to analyze player statistics
 								</p>
->>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 							</div>
 						{/if}
 					</div>
@@ -644,12 +526,8 @@
 								<p class="submit-description">
 									Search player statistics for {year}
 									{#if selectedCategory}
-<<<<<<< HEAD
-										in the {categoryOptions.find(cat => cat.value === selectedCategory)?.label || selectedCategory} category
-=======
 										in the {categoryOptions.find((cat) => cat.value === selectedCategory)?.label ||
 											selectedCategory} category
->>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 									{/if}
 									{#if team}
 										for {team}
@@ -687,11 +565,7 @@
 									on:click={handleSubmit}
 								>
 									{#if isLoading}
-<<<<<<< HEAD
-										<span class="btn-spinner"></span>
-=======
 										<span class="btn-spinner" />
->>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 										Searching...
 									{:else if isValidForm}
 										📊 Search Player Stats
@@ -1084,337 +958,16 @@
 		left: 0;
 		right: 0;
 		bottom: 0;
-<<<<<<< HEAD
-		background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
-=======
 		background: linear-gradient(
 			45deg,
 			transparent 30%,
 			rgba(255, 255, 255, 0.1) 50%,
 			transparent 70%
 		);
->>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 		animation: shimmer 2s infinite;
 	}
 
 	@keyframes shimmer {
-<<<<<<< HEAD
-		0% { transform: translateX(-100%); }
-		100% { transform: translateX(100%); }
-	}
-
-	.category-icon {
-		font-size: 1.5rem;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		width: 2.5rem;
-		height: 2.5rem;
-		background: rgba(139, 92, 246, 0.1);
-		border-radius: 0.5rem;
-		flex-shrink: 0;
-	}
-
-	.category-button.selected .category-icon {
-		background: rgba(255, 255, 255, 0.2);
-	}
-
-	.category-content {
-		flex: 1;
-		display: flex;
-		flex-direction: column;
-		gap: 0.25rem;
-	}
-
-	.category-name {
-		font-weight: 600;
-		font-size: 0.875rem;
-		line-height: 1.3;
-	}
-
-	.category-description {
-		font-size: 0.75rem;
-		opacity: 0.8;
-		line-height: 1.3;
-	}
-
-	.category-selected-icon {
-		font-size: 1.125rem;
-		animation: checkmark 0.3s ease-out;
-		background: rgba(255, 255, 255, 0.2);
-		border-radius: 50%;
-		width: 1.5rem;
-		height: 1.5rem;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		flex-shrink: 0;
-	}
-
-	@keyframes checkmark {
-		0% { transform: scale(0); }
-		50% { transform: scale(1.2); }
-		100% { transform: scale(1); }
-	}
-
-	/* ========================================
-	   EMPTY STATES
-	======================================== */
-	.loading-categories,
-	.empty-search,
-	.categories-placeholder {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		padding: 3rem 1rem;
-		text-align: center;
-	}
-
-	.empty-icon,
-	.placeholder-icon {
-		font-size: 3rem;
-		margin-bottom: 1rem;
-		opacity: 0.6;
-	}
-
-	.empty-message,
-	.placeholder-message {
-		color: var(--text-secondary);
-		margin: 0 0 1rem 0;
-		font-size: 0.875rem;
-	}
-
-	.search-info {
-		margin-top: 1rem;
-		padding-top: 1rem;
-		border-top: 1px solid var(--border-primary);
-		text-align: center;
-	}
-
-	.search-results-text {
-		color: var(--text-secondary);
-		font-size: 0.75rem;
-		margin: 0;
-	}
-
-	.clear-search-btn-alt {
-		background: var(--accent-purple);
-		color: white;
-		border: none;
-		padding: 0.5rem 1rem;
-		border-radius: 0.5rem;
-		cursor: pointer;
-		font-size: 0.75rem;
-		transition: all 0.2s ease;
-	}
-
-	.clear-search-btn-alt:hover {
-		background: var(--accent-teal);
-		transform: translateY(-1px);
-	}
-
-	/* ========================================
-	   SUMMARY PANEL
-	======================================== */
-	.summary-container {
-		padding: 2rem;
-		min-height: auto;
-	}
-
-	.summary-list {
-		display: flex;
-		flex-direction: column;
-		gap: 1.5rem;
-	}
-
-	.summary-section {
-		background: var(--bg-secondary);
-		border-radius: 1rem;
-		padding: 1.5rem;
-		border: 1px solid var(--border-primary);
-	}
-
-	.summary-section-title {
-		font-size: 1rem;
-		font-weight: 600;
-		color: var(--text-primary);
-		margin: 0 0 1rem 0;
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-	}
-
-	.summary-item {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		padding: 0.75rem 0;
-		border-bottom: 1px solid var(--border-primary);
-	}
-
-	.summary-item:last-child {
-		border-bottom: none;
-	}
-
-	.summary-label {
-		font-weight: 500;
-		color: var(--text-secondary);
-		font-size: 0.875rem;
-	}
-
-	.summary-value {
-		font-weight: 600;
-		color: var(--text-primary);
-		font-size: 0.875rem;
-		text-align: right;
-	}
-
-	.summary-value.missing {
-		color: var(--text-secondary);
-		opacity: 0.7;
-		font-style: italic;
-	}
-
-	.empty-summary {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		padding: 2rem 1rem;
-		text-align: center;
-	}
-
-	.empty-title {
-		color: var(--text-primary);
-		margin: 0 0 0.5rem 0;
-		font-size: 1.125rem;
-		font-weight: 600;
-	}
-
-	.summary-card {
-		flex: 1;
-	}
-
-	/* ========================================
-	   SUBMIT CARD
-	======================================== */
-	.submit-card {
-		background: var(--bg-primary);
-		border-radius: 1.5rem;
-		box-shadow: var(--shadow-lg);
-		border: 1px solid var(--border-primary);
-		overflow: hidden;
-	}
-
-	.submit-content {
-		padding: 1.5rem;
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		gap: 1.5rem;
-		flex-wrap: wrap;
-	}
-
-	.submit-info {
-		flex: 1;
-		min-width: 200px;
-	}
-
-	.submit-title {
-		font-size: 1.25rem;
-		font-weight: 700;
-		color: var(--text-primary);
-		margin: 0 0 0.5rem 0;
-	}
-
-	.submit-description {
-		color: var(--text-secondary);
-		margin: 0;
-		line-height: 1.5;
-		font-size: 0.875rem;
-	}
-
-	.submit-actions {
-		flex-shrink: 0;
-	}
-
-	.submit-link {
-		text-decoration: none;
-	}
-
-	.submit-link.disabled {
-		pointer-events: none;
-	}
-
-	.submit-button {
-		background: linear-gradient(135deg, var(--accent-purple), var(--accent-teal));
-		color: white;
-		border: none;
-		padding: 0.875rem 1.5rem;
-		border-radius: 0.75rem;
-		font-size: 0.875rem;
-		font-weight: 600;
-		cursor: pointer;
-		transition: all 0.3s ease;
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		box-shadow: var(--shadow-md);
-		position: relative;
-		overflow: hidden;
-		white-space: nowrap;
-	}
-
-	.submit-button::before {
-		content: '';
-		position: absolute;
-		top: 0;
-		left: -100%;
-		width: 100%;
-		height: 100%;
-		background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-		transition: left 0.5s ease;
-	}
-
-	.submit-button:hover:not(:disabled)::before {
-		left: 100%;
-	}
-
-	.submit-button:hover:not(:disabled) {
-		transform: translateY(-3px);
-		box-shadow: var(--shadow-lg), 0 10px 20px rgba(139, 92, 246, 0.3);
-	}
-
-	.submit-button:disabled {
-		background: var(--text-secondary);
-		cursor: not-allowed;
-		transform: none;
-		box-shadow: var(--shadow-sm);
-	}
-
-	.btn-spinner {
-		width: 1rem;
-		height: 1rem;
-		border: 2px solid currentColor;
-		border-right-color: transparent;
-		border-radius: 50%;
-		animation: spin 0.8s linear infinite;
-	}
-
-	@keyframes spin {
-		to { transform: rotate(360deg); }
-	}
-
-	/* ========================================
-	   ANIMATIONS
-	======================================== */
-	@keyframes fadeInUp {
-		from {
-			opacity: 0;
-			transform: translateY(30px);
-		}
-=======
 		0% {
 			transform: translateX(-100%);
 		}
@@ -1743,7 +1296,6 @@
 			opacity: 0;
 			transform: translateY(30px);
 		}
->>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 		to {
 			opacity: 1;
 			transform: translateY(0);
@@ -1857,8 +1409,6 @@
 			width: 2rem;
 			height: 2rem;
 			font-size: 1.25rem;
-<<<<<<< HEAD
-=======
 		}
 	}
 
@@ -1966,7 +1516,6 @@
 		.control-input,
 		.submit-button {
 			border-width: 2px;
->>>>>>> dd21d6302e1808b766e17463f32c855f7b78910a
 		}
 	}
 

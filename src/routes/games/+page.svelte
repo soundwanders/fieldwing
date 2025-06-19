@@ -1,4 +1,4 @@
-<!-- src/routes/games/+page.svelte - MOBILE STYLES FIX -->
+<!-- src/routes/games/+page.svelte -->
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { theme } from '$lib/stores/theme';

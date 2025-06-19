@@ -197,9 +197,7 @@
 								<span class="panel-count">({teamStats.showing} teams)</span>
 							{/if}
 						</h2>
-						<p class="panel-subtitle">
-							Choose two teams to compare their head-to-head matchups
-						</p>
+						<p class="panel-subtitle">Choose two teams to compare their head-to-head matchups</p>
 					</div>
 
 					<!-- Controls Section -->

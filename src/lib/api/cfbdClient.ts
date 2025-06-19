@@ -121,7 +121,7 @@ class CFBDApiClient {
 			console.warn(`⚠️ ${invalidItems.length}/${data.length} API response items failed validation`);
 			console.warn('❌ Invalid items sample:', invalidItems.slice(0, 3));
 
-			// In development, log more details
+			// In development env, log more details
 			if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
 				console.warn('🔍 Full invalid items:', invalidItems);
 			}

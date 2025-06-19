@@ -190,7 +190,7 @@
 	}
 
 	onMount(() => {
-			mounted = true;
+		mounted = true;
 	});
 
 	onDestroy(() => {

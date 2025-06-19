@@ -104,7 +104,7 @@ export const GET: RequestHandler = async ({ url }) => {
 	} catch (error) {
 		console.error('❌ Player stats API route error:', error);
 
-		// Return more specific error information
+		// Return error information
 		const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
 		const statusCode = errorMessage.includes('400')
 			? 400

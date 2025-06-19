@@ -1,6 +1,5 @@
 <script>
 	import TeamSelection from '$lib/components/TeamSelection.svelte';
-	import TeamSearchbar from '$lib/components/TeamSearchbar.svelte';
 	import Footer from '$lib/Footer.svelte';
 	import '../../styles/main.css';
 

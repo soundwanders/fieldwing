@@ -593,13 +593,6 @@
 		line-height: 1.2;
 	}
 
-	.page-subtitle {
-		font-size: 1.125rem;
-		color: var(--text-secondary);
-		margin: 0;
-		line-height: 1.5;
-	}
-
 	/* Search Section */
 	.search-section {
 		margin-bottom: 3rem;
@@ -850,11 +843,7 @@
 		.page-title {
 			font-size: 2rem;
 		}
-
-		.page-subtitle {
-			font-size: 1rem;
-		}
-
+		
 		.header-icon {
 			width: 48px;
 			height: 48px;

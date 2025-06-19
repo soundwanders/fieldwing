@@ -10,7 +10,7 @@
 			<section class="landing-container">
 				<article class="landing-hero">
 					<h2>Your Front Row Seat to College Football Data</h2>
-					<p>Browse game results and explore statistics for all your favorite teams</p>
+					<p>Browse game results and explore statistics for all NCAA college football teams</p>
 					<a href="/game-results" role="button" aria-label="Get Started">
 						<button type="button" class="get-started" class:light={!$theme} class:dark={$theme}>
 							Get Started
@@ -50,7 +50,7 @@
 						</svg>
 
 						<h3>Explore Legacies</h3>
-						<p>Dive into the rich history of college football with comprehensive game results</p>
+						<p>Dive into the rich history of college football</p>
 					</div>
 
 					<div class="landing-ctas">
@@ -93,7 +93,7 @@
 						</svg>
 
 						<h3>Unlock Updates</h3>
-						<p>Stay connected every week with current data for all your favorite teams</p>
+						<p>Stay connected during the season with current data for your favorite teams</p>
 					</div>
 				</article>
 			</section>

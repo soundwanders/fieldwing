@@ -237,7 +237,7 @@ export function isTeamStat(obj: any): obj is TeamStat {
 	);
 }
 
-// Enhanced type guard for MatchupGame
+// Type guard for MatchupGame
 export function isMatchupGame(obj: any): obj is MatchupGame {
 	return (
 		typeof obj === 'object' &&

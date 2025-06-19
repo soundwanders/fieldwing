@@ -265,12 +265,24 @@
 	}
 
 	/* Column width definitions for desktop */
-	.player-col { width: 20%; }
-	.team-col { width: 15%; }
-	.conference-col { width: 12%; }
-	.category-col { width: 15%; }
-	.stat-type-col { width: 18%; }
-	.value-col { width: 20%; }
+	.player-col {
+		width: 20%;
+	}
+	.team-col {
+		width: 15%;
+	}
+	.conference-col {
+		width: 12%;
+	}
+	.category-col {
+		width: 15%;
+	}
+	.stat-type-col {
+		width: 18%;
+	}
+	.value-col {
+		width: 20%;
+	}
 
 	/* Mobile responsive fixes */
 	@media (max-width: 768px) {
@@ -305,28 +317,28 @@
 		}
 
 		/* Optimize column widths for mobile */
-		.player-col { 
-			width: 25%; 
+		.player-col {
+			width: 25%;
 			min-width: 80px;
 		}
-		.team-col { 
-			width: 20%; 
+		.team-col {
+			width: 20%;
 			min-width: 60px;
 		}
-		.conference-col { 
-			width: 15%; 
+		.conference-col {
+			width: 15%;
 			min-width: 45px;
 		}
-		.category-col { 
-			width: 15%; 
+		.category-col {
+			width: 15%;
 			min-width: 50px;
 		}
-		.stat-type-col { 
-			width: 25%; 
+		.stat-type-col {
+			width: 25%;
 			min-width: 70px;
 		}
-		.value-col { 
-			width: 20%; 
+		.value-col {
+			width: 20%;
 			min-width: 60px;
 			text-align: right;
 		}

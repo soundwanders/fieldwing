@@ -105,7 +105,6 @@ export const load: PageServerLoad = async ({ url }): Promise<LoadResult> => {
 		if (matchupData.games && (minYear || maxYear)) {
 			const minYearNum = minYear ? parseInt(minYear) : 0;
 			const maxYearNum = maxYear ? parseInt(maxYear) : 9999;
-
 			matchupData.games = matchupData.games.filter((game: any) => {
 				const gameYear = game.season;
 				return gameYear >= minYearNum && gameYear <= maxYearNum;

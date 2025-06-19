@@ -217,7 +217,6 @@
 		max-width: 100%;
 		box-sizing: border-box;
 	}
-
 	button {
 		width: 1.5rem;
 		height: auto;

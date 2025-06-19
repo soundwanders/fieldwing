@@ -134,7 +134,7 @@
 
 		isLoading = true;
 
-		// Simulate brief loading for better UX
+		// Simulate brief loading
 		await new Promise((resolve) => setTimeout(resolve, 300));
 
 		// Trim school mascot name if present
@@ -178,10 +178,7 @@
 
 <svelte:head>
 	<title>Team Statistics Search - FIELDWING</title>
-	<meta
-		name="description"
-		content="Search and analyze comprehensive team statistics across seasons, conferences, and game weeks."
-	/>
+	<meta name="description" content="Search for historical team data" />
 </svelte:head>
 
 <div class="team-search-wrapper" class:light={!$theme} class:dark={$theme}>
@@ -192,9 +189,7 @@
 				<img class="hero-icon" src="/teamstats.png" alt="Team Statistics" />
 				<h1 class="hero-title">Team Statistics</h1>
 			</div>
-			<p class="hero-subtitle">
-				Discover comprehensive team performance data across seasons, conferences, and game weeks
-			</p>
+			<p class="hero-subtitle">View historical team stats by seasons, conferences, and more</p>
 		</div>
 	</div>
 
@@ -458,7 +453,7 @@
 						<div class="empty-selected">
 							<div class="empty-icon">📊</div>
 							<h3 class="empty-title">Configure Your Search</h3>
-							<p class="empty-message">Fill in the search parameters to analyze team statistics</p>
+							<p class="empty-message">Fill in the search parameters to view team stats</p>
 						</div>
 					{/if}
 				</div>
@@ -775,6 +770,7 @@
 	.control-input:disabled {
 		opacity: 0.6;
 		cursor: not-allowed;
+		transform: none;
 	}
 
 	.search-input {

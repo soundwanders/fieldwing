@@ -258,7 +258,6 @@
 										</button>
 									{/each}
 								</div>
-
 								{#if searchQuery && teams.length > filteredTeams.length}
 									<div class="search-info">
 										<p class="search-results-text">
@@ -326,7 +325,6 @@
 									</div>
 								{/each}
 							</div>
-
 							<!-- Search Summary -->
 							<div class="search-summary">
 								<div class="summary-item">
@@ -990,7 +988,6 @@
 	.submit-content {
 		padding: 1.5rem;
 		display: flex;
-		justify-content: center;
 		align-items: center;
 		gap: 1.5rem;
 		flex-wrap: wrap;

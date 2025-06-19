@@ -1,4 +1,4 @@
-<!-- ExportButton.svelte (EXPORTS CSV FILE) -->
+<!-- ExportButton.svelte (EXPORTS A CSV FILE) -->
 <script lang="ts">
 	import { theme } from '$lib/stores/theme';
 	import {
@@ -120,7 +120,6 @@
 			{/if}
 		</span>
 	{/if}
-
 	<span class="export-label">
 		{getButtonLabel()}
 	</span>

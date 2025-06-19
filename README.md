@@ -17,7 +17,7 @@
 
 **Mobile-First Design** — Fully responsive interface optimized for all devices with progressive enhancement
 
-### 📊 **Comprehensive Statistics**
+### 📊 **Statistics and Logistics**
 - **Player Analytics** — Search by category (passing, rushing, receiving, defense, kicking)
 - **Team Performance** — Conference comparisons and seasonal trends
 - **Head-to-Head Matchups** — Historical rivalry analysis with custom date ranges
@@ -61,7 +61,7 @@ npm run dev
 Fieldwing integrates with the [College Football Database API](https://collegefootballdata.com/) to provide:
 
 - **40+ years** of historical game data
-- **Comprehensive player statistics** across all statistical categories  
+- **Player statistics** across all statistical categories  
 - **Team performance metrics** with conference breakdowns
 - **Real-time scheduling** and score updates
 
@@ -72,7 +72,7 @@ The app implements intelligent **rate limiting** and **caching** to ensure optim
 - **Mobile-First Responsive Design** — Progressive enhancement from mobile to desktop
 - **Accessibility by Default** — WCAG 2.1 compliance with keyboard navigation
 - **Performance Optimization** — Lazy loading, intelligent caching, and minimal bundle size
-- **Error Resilience** — Comprehensive error boundaries with user-friendly fallbacks
+- **Error Resilience** — Error boundaries with user-friendly fallbacks
 - **Type Safety** — Runtime validation with TypeScript type guards
 
 ## 🤝 **Contributing**
@@ -91,7 +91,7 @@ npm run test
 npm run lint
 
 # 4. Commit with a descriptive message
-git commit -m 'feat: add amazing feature with comprehensive tests'
+git commit -m 'feat: add amazing feature with real fun tests'
 
 # 5. Push and create a Pull Request
 git push origin feature/amazing-feature
@@ -106,7 +106,7 @@ git push origin feature/amazing-feature
 
 ## 🙏 **Acknowledgments**
 
-- **[College Football Database](https://collegefootballdata.com/)** — Providing comprehensive CFB data
+- **[College Football Database](https://collegefootballdata.com/)** — Providing all your college football data needs
 - **[FlatIcon](https://www.flaticon.com/)** — Beautiful icons and imagery  
 - **[SvelteKit Community](https://kit.svelte.dev/)** — Amazing framework and ecosystem
 

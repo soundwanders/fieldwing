@@ -52,7 +52,6 @@
 		if (!minYear && !maxYear) return true;
 		if (minYear && !maxYear) return true;
 		if (!minYear && maxYear) return true;
-
 		const min = parseInt(minYear);
 		const max = parseInt(maxYear);
 		return !isNaN(min) && !isNaN(max) && min <= max;
@@ -142,7 +141,6 @@
 		params.set('team1', selectedTeamsArray[0]);
 		params.set('team2', selectedTeamsArray[1]);
 		params.set('division', selectedDivision);
-
 		if (minYear) params.set('minYear', minYear);
 		if (maxYear) params.set('maxYear', maxYear);
 
@@ -199,9 +197,7 @@
 								<span class="panel-count">({teamStats.showing} teams)</span>
 							{/if}
 						</h2>
-						<p class="panel-subtitle">
-							Select exactly two teams to compare their head-to-head record
-						</p>
+						<p class="panel-subtitle">Choose two teams to compare their head-to-head matchups</p>
 					</div>
 
 					<!-- Controls Section -->
@@ -319,7 +315,6 @@
 										</button>
 									{/each}
 								</div>
-
 								{#if searchQuery && teams.length > filteredTeams.length}
 									<div class="search-info">
 										<p class="search-results-text">
@@ -433,12 +428,10 @@
 										</button>
 									</div>
 								</div>
-
 								<div class="vs-divider active">
 									<span class="vs-text">VS</span>
 									<div class="rivalry-indicator">🔥</div>
 								</div>
-
 								<div class="team-slot filled">
 									<div class="team-number">2</div>
 									<div class="team-info">
@@ -1487,6 +1480,114 @@
 
 		.team-info .team-name {
 			font-size: 1rem;
+		}
+	}
+
+	/* Small Mobile */
+	@media (max-width: 480px) {
+		.matchup-select-wrapper {
+			padding: 0.5rem;
+		}
+
+		.selection-interface {
+			gap: 1rem;
+			padding: 0;
+		}
+
+		.hero-section {
+			padding: 1rem 0.25rem 1.5rem 0.25rem;
+		}
+
+		.hero-title {
+			font-size: 1.75rem;
+		}
+
+		.hero-subtitle {
+			font-size: 0.875rem;
+		}
+
+		.panel-header {
+			padding: 1rem;
+		}
+
+		.controls-section {
+			padding: 1rem;
+		}
+
+		.teams-header {
+			padding: 0.75rem 1rem;
+		}
+
+		.teams-container {
+			padding: 0.75rem 1rem 1rem 1rem;
+		}
+
+		.selected-teams-container {
+			padding: 1rem;
+		}
+
+		.submit-content {
+			padding: 1rem;
+			align-items: center;
+		}
+
+		.submit-button {
+			width: min-content;
+			justify-content: center;
+			max-width: 200px;
+			padding: 0.875rem 1.5rem;
+			font-size: 0.875rem;
+		}
+
+		.panel-card {
+			border-radius: 0.75rem;
+		}
+
+		.team-slot {
+			padding: 0.75rem;
+		}
+
+		.team-number {
+			width: 2rem;
+			height: 2rem;
+			font-size: 1rem;
+		}
+	}
+
+	/* ========================================
+	   ACCESSIBILITY & FOCUS STATES
+	======================================== */
+	.team-button:focus,
+	.control-select:focus,
+	.control-input:focus,
+	.submit-button:focus,
+	.clear-all-btn:focus,
+	.swap-btn:focus,
+	.remove-team-btn:focus,
+	.clear-search-btn:focus,
+	.clear-search-btn-alt:focus {
+		outline: 2px solid var(--accent-orange);
+		outline-offset: 2px;
+	}
+
+	/* Reduced motion preferences */
+	@media (prefers-reduced-motion: reduce) {
+		*,
+		*::before,
+		*::after {
+			animation-duration: 0.01ms !important;
+			animation-iteration-count: 1 !important;
+			transition-duration: 0.01ms !important;
+		}
+	}
+
+	/* High contrast mode support */
+	@media (prefers-contrast: high) {
+		.team-button,
+		.control-select,
+		.control-input,
+		.submit-button {
+			border-width: 2px;
 		}
 	}
 

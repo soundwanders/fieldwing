@@ -21,7 +21,6 @@ function escapeCsvField(value: any): string {
 		// Escape internal quotes by doubling them
 		return `"${stringValue.replace(/"/g, '""')}"`;
 	}
-
 	return stringValue;
 }
 
@@ -53,7 +52,6 @@ function arrayToCsv<T extends Record<string, any>>(data: T[], headers: string[])
 function downloadCsv(csvContent: string, filename: string): void {
 	const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
 	const url = window.URL.createObjectURL(blob);
-
 	const link = document.createElement('a');
 	link.href = url;
 	link.download = filename;
@@ -77,7 +75,6 @@ function getTimestamp(): string {
 	const day = String(now.getDate()).padStart(2, '0');
 	const hours = String(now.getHours()).padStart(2, '0');
 	const minutes = String(now.getMinutes()).padStart(2, '0');
-
 	return `${year}${month}${day}-${hours}${minutes}`;
 }
 
@@ -236,7 +233,6 @@ export function getExportSummary(data: any[]): {
 			message: 'No data available to export'
 		};
 	}
-
 	return {
 		canExport: true,
 		count,

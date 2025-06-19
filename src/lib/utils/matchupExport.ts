@@ -62,7 +62,6 @@ export function generateMatchupExportFilename(
 	} else {
 		filename += '-all-time';
 	}
-
 	return filename;
 }
 

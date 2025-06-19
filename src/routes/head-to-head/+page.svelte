@@ -33,7 +33,6 @@
 	$: maxYear = searchParams?.maxYear;
 	$: team1 = searchParams?.team1 || matchupData?.team1;
 	$: team2 = searchParams?.team2 || matchupData?.team2;
-
 	// Set selectedDivision reactively to avoid SSR issues
 	$: if (searchParams?.division) {
 		selectedDivision = searchParams.division;
@@ -104,7 +103,6 @@
 
 	// USING CALCULATED WINNERS FOR CONSISTENCY
 	$: totalGames = filteredGames.length;
-
 	$: team1Wins = filteredGames.filter((game: MatchupGame) => {
 		const result = getGameWinner(game);
 		return teamsMatch(result.winner, team1);
@@ -134,13 +132,11 @@
 
 	// Export data - convert MatchupGame format to standard Game format for export
 	$: exportData = convertMatchupGamesToExportFormat(filteredGames);
-
 	// Export filename
 	$: exportFilename = (() => {
 		const t1 = team1?.replace(/\s+/g, '-') || 'team1';
 		const t2 = team2?.replace(/\s+/g, '-') || 'team2';
 		let filename = `${t1}-vs-${t2}-matchup`;
-
 		if (minYear && maxYear) {
 			filename += `-${minYear}-${maxYear}`;
 		} else if (minYear) {
@@ -148,7 +144,6 @@
 		} else if (maxYear) {
 			filename += `-through-${maxYear}`;
 		}
-
 		return filename;
 	})();
 
@@ -173,12 +168,10 @@
 
 	onMount(() => {
 		checkNavigation();
-
 		// Set selectedDivision after mount to avoid SSR issues
 		if (searchParams?.division) {
 			selectedDivision = searchParams.division;
 		}
-
 		const timer = setTimeout(() => {
 			isLoading = false;
 		}, 300);
@@ -228,7 +221,6 @@
 										<div class="stat-number">{team1Wins}</div>
 										<div class="stat-label">{team1} Wins</div>
 									</div>
-
 									<div class="stat-card series-card">
 										<div class="series-record">
 											{team1Wins}-{team2Wins}{ties > 0 ? `-${ties}` : ''}
@@ -238,7 +230,6 @@
 											<div class="ties-note">{ties} tie{ties !== 1 ? 's' : ''}</div>
 										{/if}
 									</div>
-
 									<div class="stat-card team2-card">
 										<div class="stat-number">{team2Wins}</div>
 										<div class="stat-label">{team2} Wins</div>
@@ -342,7 +333,6 @@
 												{formatStartDate(game.date)}
 											</span>
 										</div>
-
 										<div class="detail-row">
 											<span class="detail-label">🏟️</span>
 											<span class="detail-value">

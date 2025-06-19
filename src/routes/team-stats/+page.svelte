@@ -216,7 +216,7 @@
 	<title>Team Statistics - Fieldwing</title>
 	<meta
 		name="description"
-		content="Search and analyze college football team statistics by year, team, conference, and week range."
+		content="Search college football team statistics by year, team, conference, and week range."
 	/>
 </svelte:head>
 
@@ -227,9 +227,6 @@
 			<div class="header-content">
 				<img class="header-icon" src="/teamstats.png" alt="Team Stats" />
 				<h1 class="page-title">Team Statistics</h1>
-				<p class="page-subtitle">
-					Analyze team performance metrics and statistics across college football
-				</p>
 			</div>
 		</div>
 
@@ -505,13 +502,6 @@
 		line-height: 1.2;
 	}
 
-	.page-subtitle {
-		font-size: 1.125rem;
-		color: var(--text-secondary);
-		margin: 0;
-		line-height: 1.5;
-	}
-
 	/* Search Section */
 	.search-section {
 		margin-bottom: 3rem;
@@ -754,10 +744,6 @@
 
 		.page-title {
 			font-size: 2rem;
-		}
-
-		.page-subtitle {
-			font-size: 1rem;
 		}
 
 		.header-icon {

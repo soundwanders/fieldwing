@@ -1,6 +1,6 @@
+<!-- src/routes/player-stats/+page.svelte -->
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
-	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import { theme } from '$lib/stores/theme';
 	import PlayerStatsTable from '$lib/components/PlayerStatsTable.svelte';
@@ -11,7 +11,11 @@
 	import ExportButton from '$lib/components/ExportButton.svelte';
 	import type { PlayerStat } from '$lib/types/api';
 
-	export let data: { searchParams?: Record<string, string> } = {};
+	export let data: {
+		playerData?: { playerStatsData: PlayerStat[]; total: number };
+		searchParams?: Record<string, string>;
+		error?: string;
+	} = {};
 
 	// Component state
 	let playerStats: PlayerStat[] = [];
@@ -79,8 +83,8 @@
 		return Math.floor(skip / pageSize);
 	}
 
-	// Initialize form from URL parameters
-	function initializeFromURL(): void {
+	// Initialize from server data or URL parameters
+	function initializeFromData(): void {
 		if (typeof window === 'undefined') return;
 
 		const urlParams = new URLSearchParams(window.location.search);
@@ -94,6 +98,12 @@
 			category: urlParams.get('category') || data.searchParams?.category || '',
 			seasonType: urlParams.get('seasonType') || data.searchParams?.seasonType || 'regular'
 		};
+
+		// If we have server data, use it
+		if (data.playerData?.playerStatsData) {
+			playerStats = data.playerData.playerStatsData;
+			totalItems = data.playerData.total;
+		}
 	}
 
 	// Form validation function
@@ -217,7 +227,7 @@
 			return;
 		}
 
-		// Update URL
+		// Update URL and trigger search
 		const url = new URL(window.location.href);
 		Object.entries(searchParams).forEach(([key, value]) => {
 			if (value && value !== '') {
@@ -230,7 +240,6 @@
 		// Reset pagination on new search
 		url.searchParams.delete('skip');
 
-		// Update URL and trigger search
 		goto(url.pathname + url.search, { replaceState: true });
 		fetchPlayerStats();
 	}
@@ -252,13 +261,8 @@
 
 	// Initialize on mount
 	onMount(() => {
-		initializeFromURL();
+		initializeFromData();
 		isInitialized = true;
-
-		// Only fetch if we have a year
-		if (searchParams.year) {
-			fetchPlayerStats();
-		}
 	});
 
 	// Cleanup
@@ -271,7 +275,7 @@
 	<title>Player Statistics - Fieldwing</title>
 	<meta
 		name="description"
-		content="Search and analyze college football player statistics by year, team, conference, and category."
+		content="Search college football player statistics by year, team, conference, and category."
 	/>
 </svelte:head>
 
@@ -282,9 +286,6 @@
 			<div class="header-content">
 				<img class="header-icon" src="/playerstats.png" alt="Player Stats" />
 				<h1 class="page-title">Player Statistics</h1>
-				<p class="page-subtitle">
-					Discover standout performances and analyze player statistics across college football
-				</p>
 			</div>
 		</div>
 
@@ -518,6 +519,7 @@
 </div>
 
 <style>
+	/* Use the exact same styles as team-stats page */
 	.light {
 		--bg-primary: #ffffff;
 		--bg-secondary: #f8fafc;
@@ -589,13 +591,6 @@
 		color: var(--text-primary);
 		margin: 0 0 0.5rem 0;
 		line-height: 1.2;
-	}
-
-	.page-subtitle {
-		font-size: 1.125rem;
-		color: var(--text-secondary);
-		margin: 0;
-		line-height: 1.5;
 	}
 
 	/* Search Section */
@@ -679,18 +674,6 @@
 		background: var(--accent-blue);
 		transform: translateY(-2px);
 		box-shadow: var(--shadow-md);
-	}
-
-	.btn-outline {
-		background: transparent;
-		color: var(--accent-blue);
-		border: 2px solid var(--accent-blue);
-	}
-
-	.btn-outline:hover {
-		background: var(--accent-blue);
-		color: white;
-		transform: translateY(-2px);
 	}
 
 	.btn-spinner {
@@ -860,11 +843,7 @@
 		.page-title {
 			font-size: 2rem;
 		}
-
-		.page-subtitle {
-			font-size: 1rem;
-		}
-
+		
 		.header-icon {
 			width: 48px;
 			height: 48px;

@@ -18,6 +18,7 @@
 
 	let pageSize: number = 16;
 	let componentError: Error | null = null;
+	let mounted = false;
 	let isLoading: boolean = false;
 	let searchQuery: string = '';
 	let filteredCategories: any[] = [];
@@ -86,12 +87,10 @@
 			if (!startWeek && !endWeek) return true;
 			if (startWeek && !endWeek) return Number(startWeek) >= 1 && Number(startWeek) <= 14;
 			if (!startWeek && endWeek) return Number(endWeek) >= 1 && Number(endWeek) <= 14;
-
 			const start = Number(startWeek);
 			const end = Number(endWeek);
 			return start >= 1 && start <= 14 && end >= 1 && end <= 14 && start <= end;
 		})();
-
 		return hasValidYear && hasValidWeekRange;
 	})();
 
@@ -191,8 +190,7 @@
 	}
 
 	onMount(() => {
-		// Initialize with current year
-		year = currentYear.toString();
+		mounted = true;
 	});
 
 	onDestroy(() => {
@@ -399,7 +397,6 @@
 										</button>
 									{/each}
 								</div>
-
 								{#if searchQuery && categoryOptions.length > filteredCategories.length}
 									<div class="search-info">
 										<p class="search-results-text">
@@ -1412,6 +1409,113 @@
 			width: 2rem;
 			height: 2rem;
 			font-size: 1.25rem;
+		}
+	}
+
+	/* Small Mobile */
+	@media (max-width: 480px) {
+		.player-select-wrapper {
+			padding: 0.5rem;
+		}
+
+		.selection-interface {
+			gap: 1rem;
+			padding: 0;
+		}
+
+		.hero-section {
+			padding: 1rem 0.25rem 1.5rem 0.25rem;
+		}
+
+		.hero-title {
+			font-size: 1.75rem;
+		}
+
+		.hero-subtitle {
+			font-size: 0.875rem;
+		}
+
+		.panel-header {
+			padding: 1rem;
+		}
+
+		.controls-section {
+			padding: 1rem;
+		}
+
+		.categories-header {
+			padding: 0.75rem 1rem;
+		}
+
+		.categories-container {
+			padding: 0.75rem 1rem 1rem 1rem;
+		}
+
+		.summary-container {
+			padding: 1rem;
+		}
+
+		.submit-content {
+			padding: 1rem;
+			align-items: center;
+		}
+
+		.submit-button {
+			width: min-content;
+			justify-content: center;
+			max-width: 200px;
+			padding: 0.875rem 1.5rem;
+			font-size: 0.875rem;
+		}
+
+		.panel-card {
+			border-radius: 0.75rem;
+		}
+
+		.category-button {
+			padding: 0.75rem;
+			gap: 0.75rem;
+		}
+
+		.category-icon {
+			width: 1.75rem;
+			height: 1.75rem;
+			font-size: 1rem;
+		}
+	}
+
+	/* ========================================
+	   ACCESSIBILITY & FOCUS STATES
+	======================================== */
+	.category-button:focus,
+	.control-select:focus,
+	.control-input:focus,
+	.submit-button:focus,
+	.clear-all-btn:focus,
+	.clear-search-btn:focus,
+	.clear-search-btn-alt:focus {
+		outline: 2px solid var(--accent-purple);
+		outline-offset: 2px;
+	}
+
+	/* Reduced motion preferences */
+	@media (prefers-reduced-motion: reduce) {
+		*,
+		*::before,
+		*::after {
+			animation-duration: 0.01ms !important;
+			animation-iteration-count: 1 !important;
+			transition-duration: 0.01ms !important;
+		}
+	}
+
+	/* High contrast mode support */
+	@media (prefers-contrast: high) {
+		.category-button,
+		.control-select,
+		.control-input,
+		.submit-button {
+			border-width: 2px;
 		}
 	}
 

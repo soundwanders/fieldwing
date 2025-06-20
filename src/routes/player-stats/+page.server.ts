@@ -2,7 +2,7 @@
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ url }) => {
-	// pass URL search params to the client, Smart Data Provider handles the rest
+	// The client handles all data fetching using the API route
 	return {
 		searchParams: Object.fromEntries(url.searchParams.entries())
 	};

@@ -7,6 +7,7 @@
 	import { statsNameTrim } from '$lib/utils/statsNameTrim';
 	import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
 	import ErrorBoundary from '$lib/components/ErrorBoundary.svelte';
+	import type { Player } from '$lib/types/api';
 
 	let year: string = '';
 	let team: string = '';
@@ -15,6 +16,14 @@
 	let endWeek: number | '' = '';
 	let seasonType: string = 'regular';
 	let selectedCategory: string = '';
+
+	// Player search state
+	let playerSearchQuery = '';
+	let playerSearchResults: Player[] = [];
+	let isSearchingPlayers = false;
+	let playerSearchError: string | null = null;
+	let showPlayerSearch = false;
+	let selectedPlayer: Player | null = null;
 
 	let pageSize: number = 16;
 	let componentError: Error | null = null;
@@ -94,6 +103,97 @@
 		return hasValidYear && hasValidWeekRange;
 	})();
 
+	// Player search functionality
+	async function searchPlayers(): Promise<void> {
+		if (!playerSearchQuery || playerSearchQuery.trim().length < 2) {
+			playerSearchResults = [];
+			return;
+		}
+
+		isSearchingPlayers = true;
+		playerSearchError = null;
+
+		try {
+			const params = new URLSearchParams();
+			params.set('search_term', playerSearchQuery.trim());
+
+			// Add optional filters if available
+			if (team && team.trim()) {
+				params.set('team', team.trim());
+			}
+
+			if (year && year.trim()) {
+				params.set('year', year.trim());
+			}
+
+			const response = await fetch(`/api/player-search?${params.toString()}`);
+
+			if (!response.ok) {
+				const errorData = await response.json().catch(() => ({ error: 'Network error' }));
+				throw new Error(errorData.error || `HTTP ${response.status}`);
+			}
+
+			const result = await response.json();
+			
+			if (result.success && Array.isArray(result.data)) {
+				playerSearchResults = result.data;
+				if (playerSearchResults.length === 0) {
+					playerSearchError = `No players found matching "${playerSearchQuery}"`;
+				}
+			} else {
+				throw new Error(result.error || 'Invalid response format');
+			}
+		} catch (err) {
+			console.error('❌ Player search error:', err);
+			playerSearchError = err instanceof Error ? err.message : 'Failed to search players';
+			playerSearchResults = [];
+		} finally {
+			isSearchingPlayers = false;
+		}
+	}
+
+	// Handle player selection
+	function selectPlayer(player: Player): void {
+		selectedPlayer = player;
+		team = player.team;
+		showPlayerSearch = false;
+		playerSearchQuery = player.name;
+		
+		// Update the search title to show we're looking for this specific player
+		console.log(`🎯 Selected player: ${player.name} from ${player.team}`);
+	}
+
+	// Clear player selection
+	function clearPlayerSelection(): void {
+		selectedPlayer = null;
+		playerSearchQuery = '';
+		playerSearchResults = [];
+		showPlayerSearch = false;
+	}
+
+	// Debounced player search
+	let playerSearchTimeout: ReturnType<typeof setTimeout>;
+	function handlePlayerSearchInput(event: Event): void {
+		const target = event.target as HTMLInputElement;
+		playerSearchQuery = target.value;
+		
+		// Clear previous timeout
+		if (playerSearchTimeout) {
+			clearTimeout(playerSearchTimeout);
+		}
+		
+		// Debounce search
+		if (playerSearchQuery.trim().length >= 2) {
+			showPlayerSearch = true;
+			playerSearchTimeout = setTimeout(() => {
+				searchPlayers();
+			}, 300);
+		} else {
+			showPlayerSearch = false;
+			playerSearchResults = [];
+		}
+	}
+
 	// Toggle category selection
 	const toggleCategorySelection = (event: Event, category: string) => {
 		event.preventDefault();
@@ -108,6 +208,7 @@
 		startWeek = '';
 		endWeek = '';
 		seasonType = 'regular';
+		clearPlayerSelection();
 	};
 
 	// Handle week input validation
@@ -175,6 +276,7 @@
 				? [`seasonType=${encodeURIComponent(seasonType)}`]
 				: []),
 			...(selectedCategory ? [`category=${encodeURIComponent(selectedCategory)}`] : []),
+			...(selectedPlayer ? [`playerName=${encodeURIComponent(selectedPlayer.name)}`] : []),
 			`limit=${pageSize}`,
 			`skip=${currentPage * pageSize}`
 		].join('&');
@@ -197,6 +299,11 @@
 		// Clean up all subscriptions
 		unsubscribers.forEach((unsub) => unsub());
 		unsubscribers = [];
+		
+		// Clear player search timeout
+		if (playerSearchTimeout) {
+			clearTimeout(playerSearchTimeout);
+		}
 	});
 </script>
 
@@ -224,8 +331,8 @@
 					<div class="panel-header">
 						<h2 class="panel-title">
 							🔍 Search Configuration
-							{#if selectedCategory}
-								<span class="panel-count">(Category Selected)</span>
+							{#if selectedCategory || selectedPlayer}
+								<span class="panel-count">({selectedCategory ? 'Category' : ''}{selectedCategory && selectedPlayer ? ' & ' : ''}{selectedPlayer ? 'Player' : ''} Selected)</span>
 							{/if}
 						</h2>
 						<p class="panel-subtitle">
@@ -235,6 +342,91 @@
 
 					<!-- Controls Section -->
 					<div class="controls-section">
+						<!-- Player Name Search -->
+						<div class="player-search-container">
+							<label for="player-search-input" class="control-label">🎯 Search by Player Name (Optional)</label>
+							<input
+								type="text"
+								class="control-input search-input"
+								id="player-search-input"
+								bind:value={playerSearchQuery}
+								on:input={handlePlayerSearchInput}
+								placeholder="e.g., Ricky Williams..."
+								autocomplete="off"
+							/>
+							{#if playerSearchQuery && !selectedPlayer}
+								<button
+									class="clear-search-btn"
+									on:click={clearPlayerSelection}
+									type="button"
+									aria-label="Clear player search"
+								>
+									✕
+								</button>
+							{/if}
+
+							{#if selectedPlayer}
+								<div class="selected-player-badge">
+									<div class="selected-player-info">
+										<span class="selected-player-name">{selectedPlayer.name}</span>
+										<span class="selected-player-details">
+											{selectedPlayer.position} • {selectedPlayer.team}
+											{#if selectedPlayer.jersey} • #{selectedPlayer.jersey}{/if}
+										</span>
+									</div>
+									<button
+										type="button"
+										class="clear-player-btn"
+										on:click={clearPlayerSelection}
+										title="Clear player selection"
+									>
+										✕
+									</button>
+								</div>
+							{/if}
+
+							{#if showPlayerSearch && (isSearchingPlayers || playerSearchResults.length > 0 || playerSearchError)}
+								<div class="player-search-dropdown">
+									{#if isSearchingPlayers}
+										<div class="player-search-loading">
+											<LoadingSpinner size="small" text="Searching players..." />
+										</div>
+									{:else if playerSearchError}
+										<div class="player-search-error">
+											<span class="error-icon">❌</span>
+											{playerSearchError}
+										</div>
+									{:else if playerSearchResults.length > 0}
+										<div class="player-search-results">
+											<div class="player-search-header">
+												Found {playerSearchResults.length} player{playerSearchResults.length !== 1 ? 's' : ''}:
+											</div>
+											{#each playerSearchResults.slice(0, 8) as player}
+												<button
+													type="button"
+													class="player-result-item"
+													on:click={() => selectPlayer(player)}
+												>
+													<div class="player-result-info">
+														<span class="player-result-name">{player.name}</span>
+														<span class="player-result-details">
+															{player.position} • {player.team}
+															{#if player.jersey} • #{player.jersey}{/if}
+														</span>
+													</div>
+												</button>
+											{/each}
+											{#if playerSearchResults.length > 8}
+												<div class="player-search-footer">
+													Showing first 8 results. Refine your search for more specific results.
+												</div>
+											{/if}
+										</div>
+									{/if}
+								</div>
+							{/if}
+						</div>
+
 						<!-- Year and Season Type -->
 						<div class="control-row">
 							<div class="control-group">
@@ -267,14 +459,19 @@
 						<!-- Team and Conference -->
 						<div class="control-row">
 							<div class="control-group">
-								<label for="team-input" class="control-label"> 🏈 Team (Optional) </label>
+								<label for="team-input" class="control-label"> 🏈 Team {selectedPlayer ? '(Auto-filled)' : '(Optional)'} </label>
 								<input
 									type="text"
 									class="control-input"
 									id="team-input"
 									bind:value={team}
 									placeholder="e.g., Auburn"
+									readonly={selectedPlayer ? true : false}
+									class:readonly={selectedPlayer ? true : false}
 								/>
+								{#if selectedPlayer}
+									<small class="input-helper">Team auto-filled from selected player</small>
+								{/if}
 							</div>
 
 							<div class="control-group">
@@ -434,7 +631,7 @@
 					<!-- Summary Header -->
 					<div class="panel-header">
 						<h2 class="panel-title">📋 Search Summary</h2>
-						{#if selectedCategory || team || conference}
+						{#if selectedCategory || team || conference || selectedPlayer}
 							<button class="clear-all-btn" on:click={clearAllSelections} type="button">
 								Clear All
 							</button>
@@ -443,7 +640,7 @@
 
 					<!-- Summary Content -->
 					<div class="summary-container">
-						{#if year || selectedCategory || team || conference || startWeek || endWeek}
+						{#if year || selectedCategory || team || conference || startWeek || endWeek || selectedPlayer}
 							<div class="summary-list">
 								<!-- Required Fields -->
 								<div class="summary-section">
@@ -455,6 +652,31 @@
 										</span>
 									</div>
 								</div>
+
+								<!-- Player Selection -->
+								{#if selectedPlayer}
+									<div class="summary-section">
+										<h4 class="summary-section-title">Selected Player</h4>
+										<div class="summary-item">
+											<span class="summary-label">🎯 Player:</span>
+											<span class="summary-value">
+												{selectedPlayer.name}
+											</span>
+										</div>
+										<div class="summary-item">
+											<span class="summary-label">📍 Position:</span>
+											<span class="summary-value">
+												{selectedPlayer.position}
+											</span>
+										</div>
+										<div class="summary-item">
+											<span class="summary-label">🏈 Team:</span>
+											<span class="summary-value">
+												{selectedPlayer.team}
+											</span>
+										</div>
+									</div>
+								{/if}
 
 								<!-- Optional Fields -->
 								<div class="summary-section">
@@ -512,6 +734,9 @@
 								<p class="empty-message">
 									Fill in the search parameters to analyze player statistics
 								</p>
+								<small class="empty-hint">
+									💡 Try searching for a specific player like "Ricky Williams" or filter by team and category
+								</small>
 							</div>
 						{/if}
 					</div>
@@ -525,11 +750,13 @@
 								<h3 class="submit-title">🚀 Ready to Search</h3>
 								<p class="submit-description">
 									Search player statistics for {year}
-									{#if selectedCategory}
+									{#if selectedPlayer}
+										for <strong>{selectedPlayer.name}</strong>
+									{:else if selectedCategory}
 										in the {categoryOptions.find((cat) => cat.value === selectedCategory)?.label ||
 											selectedCategory} category
 									{/if}
-									{#if team}
+									{#if team && !selectedPlayer}
 										for {team}
 									{/if}
 								</p>
@@ -568,7 +795,11 @@
 										<span class="btn-spinner" />
 										Searching...
 									{:else if isValidForm}
-										📊 Search Player Stats
+										{#if selectedPlayer}
+											📊 Search {selectedPlayer.name}'s Stats
+										{:else}
+											📊 Search Player Stats
+										{/if}
 									{:else if !year}
 										Enter Year
 									{:else}
@@ -792,6 +1023,10 @@
 		gap: 0.5rem;
 	}
 
+	#player-search-input {
+		margin-top: 0.5rem;
+	}
+
 	.control-select,
 	.control-input {
 		padding: 0.75rem 1rem;
@@ -815,6 +1050,13 @@
 	.control-input:disabled {
 		opacity: 0.6;
 		cursor: not-allowed;
+	}
+
+	.control-input.readonly {
+		background: var(--bg-tertiary);
+		color: var(--text-secondary);
+		cursor: not-allowed;
+		opacity: 0.8;
 	}
 
 	.search-input {
@@ -845,6 +1087,13 @@
 		transform: translateY(-50%) scale(1.1);
 	}
 
+	.input-helper {
+		font-size: 0.75rem;
+		color: var(--text-secondary);
+		font-style: italic;
+		margin-top: 0.25rem;
+	}
+
 	.error-text {
 		font-size: 0.75rem;
 		color: var(--accent-red);
@@ -859,6 +1108,174 @@
 		margin-top: 1rem;
 		font-size: 0.875rem;
 		font-weight: 500;
+	}
+
+	/* ========================================
+	   PLAYER SEARCH STYLES
+	======================================== */
+	.player-search-container {
+		position: relative;
+		margin-bottom: 1rem;
+	}
+
+	.selected-player-badge {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+		color: white;
+		padding: 0.75rem 1rem;
+		border-radius: 0.75rem;
+		margin-top: 0.5rem;
+		gap: 1rem;
+		animation: slideIn 0.3s ease-out;
+	}
+
+	@keyframes slideIn {
+		from {
+			opacity: 0;
+			transform: translateY(-10px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	.selected-player-info {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+	}
+
+	.selected-player-name {
+		font-weight: 600;
+		font-size: 1rem;
+	}
+
+	.selected-player-details {
+		font-size: 0.875rem;
+		opacity: 0.9;
+	}
+
+	.clear-player-btn {
+		background: rgba(255, 255, 255, 0.2);
+		color: white;
+		border: none;
+		border-radius: 50%;
+		width: 1.5rem;
+		height: 1.5rem;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		font-size: 0.875rem;
+		transition: all 0.2s ease;
+		flex-shrink: 0;
+	}
+
+	.clear-player-btn:hover {
+		background: rgba(255, 255, 255, 0.3);
+		transform: scale(1.1);
+	}
+
+	.player-search-dropdown {
+		position: absolute;
+		top: 100%;
+		left: 0;
+		right: 0;
+		background: var(--bg-primary);
+		border: 1px solid var(--border-primary);
+		border-radius: 0.75rem;
+		box-shadow: var(--shadow-lg);
+		z-index: 50;
+		max-height: 300px;
+		overflow-y: auto;
+		margin-top: 0.25rem;
+		animation: fadeInDown 0.2s ease-out;
+	}
+
+	@keyframes fadeInDown {
+		from {
+			opacity: 0;
+			transform: translateY(-10px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	.player-search-loading {
+		padding: 1rem;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.player-search-error {
+		padding: 1rem;
+		color: var(--accent-red);
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-size: 0.875rem;
+	}
+
+	.player-search-results {
+		padding: 0.5rem 0;
+	}
+
+	.player-search-header {
+		padding: 0.75rem 1rem;
+		font-size: 0.875rem;
+		font-weight: 600;
+		color: var(--text-secondary);
+		border-bottom: 1px solid var(--border-primary);
+	}
+
+	.player-result-item {
+		width: 100%;
+		padding: 0.75rem 1rem;
+		border: none;
+		background: none;
+		text-align: left;
+		cursor: pointer;
+		transition: background-color 0.15s ease;
+		border-bottom: 1px solid var(--border-primary);
+	}
+
+	.player-result-item:hover {
+		background: var(--bg-secondary);
+	}
+
+	.player-result-item:last-child {
+		border-bottom: none;
+	}
+
+	.player-result-info {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+	}
+
+	.player-result-name {
+		font-weight: 600;
+		color: var(--text-primary);
+		font-size: 0.875rem;
+	}
+
+	.player-result-details {
+		font-size: 0.75rem;
+		color: var(--text-secondary);
+	}
+
+	.player-search-footer {
+		padding: 0.75rem 1rem;
+		font-size: 0.75rem;
+		color: var(--text-secondary);
+		font-style: italic;
+		border-top: 1px solid var(--border-primary);
 	}
 
 	/* ========================================
@@ -1171,6 +1588,14 @@
 		font-weight: 600;
 	}
 
+	.empty-hint {
+		color: var(--text-secondary);
+		opacity: 0.8;
+		font-size: 0.75rem;
+		display: block;
+		margin-top: 0.5rem;
+	}
+
 	.summary-card {
 		flex: 1;
 	}
@@ -1410,112 +1835,9 @@
 			height: 2rem;
 			font-size: 1.25rem;
 		}
-	}
 
-	/* Small Mobile */
-	@media (max-width: 480px) {
-		.player-select-wrapper {
-			padding: 0.5rem;
-		}
-
-		.selection-interface {
-			gap: 1rem;
-			padding: 0;
-		}
-
-		.hero-section {
-			padding: 1rem 0.25rem 1.5rem 0.25rem;
-		}
-
-		.hero-title {
-			font-size: 1.75rem;
-		}
-
-		.hero-subtitle {
-			font-size: 0.875rem;
-		}
-
-		.panel-header {
-			padding: 1rem;
-		}
-
-		.controls-section {
-			padding: 1rem;
-		}
-
-		.categories-header {
-			padding: 0.75rem 1rem;
-		}
-
-		.categories-container {
-			padding: 0.75rem 1rem 1rem 1rem;
-		}
-
-		.summary-container {
-			padding: 1rem;
-		}
-
-		.submit-content {
-			padding: 1rem;
-			align-items: center;
-		}
-
-		.submit-button {
-			width: min-content;
-			justify-content: center;
-			max-width: 200px;
-			padding: 0.875rem 1.5rem;
-			font-size: 0.875rem;
-		}
-
-		.panel-card {
-			border-radius: 0.75rem;
-		}
-
-		.category-button {
-			padding: 0.75rem;
-			gap: 0.75rem;
-		}
-
-		.category-icon {
-			width: 1.75rem;
-			height: 1.75rem;
-			font-size: 1rem;
-		}
-	}
-
-	/* ========================================
-	   ACCESSIBILITY & FOCUS STATES
-	======================================== */
-	.category-button:focus,
-	.control-select:focus,
-	.control-input:focus,
-	.submit-button:focus,
-	.clear-all-btn:focus,
-	.clear-search-btn:focus,
-	.clear-search-btn-alt:focus {
-		outline: 2px solid var(--accent-purple);
-		outline-offset: 2px;
-	}
-
-	/* Reduced motion preferences */
-	@media (prefers-reduced-motion: reduce) {
-		*,
-		*::before,
-		*::after {
-			animation-duration: 0.01ms !important;
-			animation-iteration-count: 1 !important;
-			transition-duration: 0.01ms !important;
-		}
-	}
-
-	/* High contrast mode support */
-	@media (prefers-contrast: high) {
-		.category-button,
-		.control-select,
-		.control-input,
-		.submit-button {
-			border-width: 2px;
+		.player-search-dropdown {
+			max-height: 250px;
 		}
 	}
 
@@ -1589,6 +1911,10 @@
 			height: 1.75rem;
 			font-size: 1rem;
 		}
+
+		.player-search-dropdown {
+			max-height: 200px;
+		}
 	}
 
 	/* ========================================
@@ -1600,7 +1926,7 @@
 	.submit-button:focus,
 	.clear-all-btn:focus,
 	.clear-search-btn:focus,
-	.clear-search-btn-alt:focus {
+	.clear-player-btn:focus {
 		outline: 2px solid var(--accent-purple);
 		outline-offset: 2px;
 	}

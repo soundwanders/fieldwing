@@ -1,4 +1,4 @@
-<!-- PlayerStatsTable.svelte -->
+<!-- src/lib/components/PlayerStatsTable.svelte -->
 <script lang="ts">
 	import { theme } from '$lib/stores/theme';
 	import type { PlayerStat } from '$lib/types/api';
@@ -21,21 +21,36 @@
 	}
 
 	$: sortedStats = (() => {
-		if (!sortable) return stats;
+		if (!sortable || !stats || stats.length === 0) return stats || [];
 
 		return [...stats].sort((a, b) => {
 			let aVal = a[sortBy];
 			let bVal = b[sortBy];
 
 			// Handle numeric sorting for stat values
-			if (sortBy === 'stat' && !isNaN(Number(aVal)) && !isNaN(Number(bVal))) {
-				aVal = Number(aVal);
-				bVal = Number(bVal);
+			if (sortBy === 'stat') {
+				// Convert to numbers for proper numeric sorting
+				const aNum = parseFloat(String(aVal).replace(/,/g, ''));
+				const bNum = parseFloat(String(bVal).replace(/,/g, ''));
+				
+				if (!isNaN(aNum) && !isNaN(bNum)) {
+					aVal = aNum;
+					bVal = bNum;
+				}
 			}
 
+			// Handle null/undefined values
 			if (aVal === undefined && bVal === undefined) return 0;
-			if (aVal === undefined) return 1;
-			if (bVal === undefined) return -1;
+			if (aVal === undefined || aVal === null) return 1;
+			if (bVal === undefined || bVal === null) return -1;
+
+			// Convert to strings for comparison if not numbers
+			if (typeof aVal !== 'number' && typeof bVal !== 'number') {
+				aVal = String(aVal).toLowerCase();
+				bVal = String(bVal).toLowerCase();
+			}
+
+			// Compare values
 			if (aVal < bVal) return sortOrder === 'asc' ? -1 : 1;
 			if (aVal > bVal) return sortOrder === 'asc' ? 1 : -1;
 			return 0;
@@ -44,110 +59,163 @@
 
 	function formatStatValue(value: any): string {
 		if (value === null || value === undefined) return '-';
-		if (typeof value === 'number') return value.toLocaleString();
-		return String(value);
+		if (typeof value === 'number') {
+			// Format large numbers with commas
+			return value.toLocaleString();
+		}
+		// Handle string numbers
+		const strValue = String(value);
+		const numValue = parseFloat(strValue);
+		if (!isNaN(numValue) && numValue > 999) {
+			return numValue.toLocaleString();
+		}
+		return strValue;
+	}
+
+	function formatCategoryName(category: string): string {
+		if (!category) return '';
+		
+		// Handle camelCase categories
+		const formatted = category
+			.replace(/([A-Z])/g, ' $1') // Add space before capital letters
+			.replace(/^./, str => str.toUpperCase()) // Capitalize first letter
+			.trim();
+		
+		return formatted;
+	}
+
+	function getSortIcon(column: keyof PlayerStat): string {
+		if (!sortable || sortBy !== column) return '';
+		return sortOrder === 'asc' ? '↑' : '↓';
 	}
 </script>
 
 <div class="table-wrapper" class:light={!$theme} class:dark={$theme}>
-	<div class="table-container">
-		<table class="stats-table">
-			<thead>
-				<tr>
-					<th class="player-col">
-						{#if sortable}
-							<button
-								class="sort-button"
-								on:click={() => handleSort('player')}
-								class:active={sortBy === 'player'}
-							>
-								Player {sortBy === 'player' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
-							</button>
-						{:else}
-							Player
-						{/if}
-					</th>
-					<th class="team-col">
-						{#if sortable}
-							<button
-								class="sort-button"
-								on:click={() => handleSort('team')}
-								class:active={sortBy === 'team'}
-							>
-								Team {sortBy === 'team' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
-							</button>
-						{:else}
-							Team
-						{/if}
-					</th>
-					<th class="conference-col">
-						{#if sortable}
-							<button
-								class="sort-button"
-								on:click={() => handleSort('conference')}
-								class:active={sortBy === 'conference'}
-							>
-								Conf {sortBy === 'conference' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
-							</button>
-						{:else}
-							Conf
-						{/if}
-					</th>
-					<th class="category-col">
-						{#if sortable}
-							<button
-								class="sort-button"
-								on:click={() => handleSort('category')}
-								class:active={sortBy === 'category'}
-							>
-								Cat {sortBy === 'category' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
-							</button>
-						{:else}
-							Cat
-						{/if}
-					</th>
-					<th class="stat-type-col">
-						{#if sortable}
-							<button
-								class="sort-button"
-								on:click={() => handleSort('statType')}
-								class:active={sortBy === 'statType'}
-							>
-								Stat {sortBy === 'statType' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
-							</button>
-						{:else}
-							Stat
-						{/if}
-					</th>
-					<th class="value-col text-right">
-						{#if sortable}
-							<button
-								class="sort-button"
-								on:click={() => handleSort('stat')}
-								class:active={sortBy === 'stat'}
-							>
-								Value {sortBy === 'stat' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
-							</button>
-						{:else}
-							Value
-						{/if}
-					</th>
-				</tr>
-			</thead>
-			<tbody>
-				{#each sortedStats as stat (stat.playerId + stat.statType)}
-					<tr class="stat-row">
-						<td class="player-name player-col">{stat.player}</td>
-						<td class="team-col">{stat.team}</td>
-						<td class="conference-col">{stat.conference}</td>
-						<td class="category-col capitalize">{stat.category}</td>
-						<td class="stat-type-col">{stat.statType}</td>
-						<td class="stat-value value-col text-right">{formatStatValue(stat.stat)}</td>
+	{#if !stats || stats.length === 0}
+		<div class="empty-table">
+			<div class="empty-icon">📊</div>
+			<p class="empty-message">No player statistics to display</p>
+		</div>
+	{:else}
+		<div class="table-container">
+			<table class="stats-table">
+				<thead>
+					<tr>
+						<th class="player-col">
+							{#if sortable}
+								<button
+									class="sort-button"
+									on:click={() => handleSort('player')}
+									class:active={sortBy === 'player'}
+									type="button"
+								>
+									Player {getSortIcon('player')}
+								</button>
+							{:else}
+								Player
+							{/if}
+						</th>
+						<th class="team-col">
+							{#if sortable}
+								<button
+									class="sort-button"
+									on:click={() => handleSort('team')}
+									class:active={sortBy === 'team'}
+									type="button"
+								>
+									Team {getSortIcon('team')}
+								</button>
+							{:else}
+								Team
+							{/if}
+						</th>
+						<th class="conference-col">
+							{#if sortable}
+								<button
+									class="sort-button"
+									on:click={() => handleSort('conference')}
+									class:active={sortBy === 'conference'}
+									type="button"
+								>
+									Conf {getSortIcon('conference')}
+								</button>
+							{:else}
+								Conf
+							{/if}
+						</th>
+						<th class="category-col">
+							{#if sortable}
+								<button
+									class="sort-button"
+									on:click={() => handleSort('category')}
+									class:active={sortBy === 'category'}
+									type="button"
+								>
+									Category {getSortIcon('category')}
+								</button>
+							{:else}
+								Category
+							{/if}
+						</th>
+						<th class="stat-type-col">
+							{#if sortable}
+								<button
+									class="sort-button"
+									on:click={() => handleSort('statType')}
+									class:active={sortBy === 'statType'}
+									type="button"
+								>
+									Stat Type {getSortIcon('statType')}
+								</button>
+							{:else}
+								Stat Type
+							{/if}
+						</th>
+						<th class="value-col text-right">
+							{#if sortable}
+								<button
+									class="sort-button text-right"
+									on:click={() => handleSort('stat')}
+									class:active={sortBy === 'stat'}
+									type="button"
+								>
+									Value {getSortIcon('stat')}
+								</button>
+							{:else}
+								Value
+							{/if}
+						</th>
 					</tr>
-				{/each}
-			</tbody>
-		</table>
-	</div>
+				</thead>
+				<tbody>
+					{#each sortedStats as stat, index (stat.playerId ? `${stat.playerId}-${stat.statType}-${index}` : `${stat.player}-${stat.statType}-${index}`)}
+						<tr class="stat-row">
+							<td class="player-name player-col" title={stat.player || 'Unknown Player'}>
+								{stat.player || 'Unknown Player'}
+							</td>
+							<td class="team-col" title={stat.team || 'Unknown Team'}>
+								{stat.team || 'Unknown Team'}
+							</td>
+							<td class="conference-col" title={stat.conference || 'Unknown Conference'}>
+								{stat.conference || 'N/A'}
+							</td>
+							<td class="category-col">
+								<span class="category-badge">
+									{formatCategoryName(stat.category || 'Other')}
+								</span>
+							</td>
+							<td class="stat-type-col" title={stat.statType || 'Unknown Stat'}>
+								{stat.statType || 'Unknown Stat'}
+							</td>
+							<td class="stat-value value-col text-right" title="Value: {formatStatValue(stat.stat)}">
+								{formatStatValue(stat.stat)}
+							</td>
+						</tr>
+					{/each}
+				</tbody>
+			</table>
+		</div>
+	{/if}
 </div>
 
 <style>
@@ -159,6 +227,9 @@
 		--row-hover: #f9fafb;
 		--text-color: #111827;
 		--primary-color: #3b82f6;
+		--secondary-color: #64748b;
+		--category-bg: #eff6ff;
+		--category-text: #1e40af;
 	}
 
 	.dark {
@@ -169,6 +240,9 @@
 		--row-hover: #374151;
 		--text-color: #f9fafb;
 		--primary-color: #60a5fa;
+		--secondary-color: #9ca3af;
+		--category-bg: #1e3a8a;
+		--category-text: #bfdbfe;
 	}
 
 	.table-wrapper {
@@ -179,6 +253,27 @@
 		width: 100%;
 		margin: 0;
 		padding: 0;
+	}
+
+	.empty-table {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding: 3rem 2rem;
+		text-align: center;
+	}
+
+	.empty-icon {
+		font-size: 3rem;
+		margin-bottom: 1rem;
+		opacity: 0.6;
+	}
+
+	.empty-message {
+		color: var(--secondary-color);
+		margin: 0;
+		font-size: 1rem;
 	}
 
 	.table-container {
@@ -192,7 +287,8 @@
 		width: 100%;
 		border-collapse: collapse;
 		background: var(--table-bg);
-		table-layout: fixed;
+		table-layout: auto;
+		min-width: 800px;
 	}
 
 	.stats-table th {
@@ -202,10 +298,11 @@
 		font-weight: 600;
 		font-size: 0.875rem;
 		color: var(--header-text);
-		border-bottom: 1px solid var(--table-border);
+		border-bottom: 2px solid var(--table-border);
 		white-space: nowrap;
-		overflow: hidden;
-		text-overflow: ellipsis;
+		position: sticky;
+		top: 0;
+		z-index: 1;
 	}
 
 	.stats-table td {
@@ -213,9 +310,11 @@
 		border-bottom: 1px solid var(--table-border);
 		color: var(--text-color);
 		font-size: 0.875rem;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
+		vertical-align: top;
+	}
+
+	.stat-row {
+		transition: background-color 0.15s ease;
 	}
 
 	.stat-row:hover {
@@ -238,6 +337,11 @@
 		text-align: left;
 	}
 
+	.sort-button.text-right {
+		justify-content: flex-end;
+		text-align: right;
+	}
+
 	.sort-button:hover {
 		color: var(--primary-color);
 	}
@@ -247,26 +351,34 @@
 	}
 
 	.player-name {
-		font-weight: 500;
+		font-weight: 600;
 		color: var(--primary-color);
 	}
 
 	.stat-value {
 		font-weight: 600;
-		font-family: 'JetBrains Mono', 'Courier New', monospace;
+		font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+		color: var(--primary-color);
+	}
+
+	.category-badge {
+		display: inline-block;
+		background: var(--category-bg);
+		color: var(--category-text);
+		padding: 0.25rem 0.5rem;
+		border-radius: 0.375rem;
+		font-size: 0.75rem;
+		font-weight: 500;
+		text-transform: capitalize;
 	}
 
 	.text-right {
 		text-align: right;
 	}
 
-	.capitalize {
-		text-transform: capitalize;
-	}
-
 	/* Column width definitions for desktop */
 	.player-col {
-		width: 20%;
+		width: 25%;
 	}
 	.team-col {
 		width: 15%;
@@ -278,10 +390,10 @@
 		width: 15%;
 	}
 	.stat-type-col {
-		width: 18%;
+		width: 20%;
 	}
 	.value-col {
-		width: 20%;
+		width: 13%;
 	}
 
 	/* Mobile responsive fixes */
@@ -298,85 +410,61 @@
 		}
 
 		.stats-table {
-			min-width: 100%;
-			table-layout: auto;
+			min-width: 700px;
 		}
 
 		.stats-table th {
-			padding: 0.4rem 0.25rem;
-			font-size: 0.7rem;
-			vertical-align: top;
+			padding: 0.5rem 0.25rem;
+			font-size: 0.75rem;
 		}
 
 		.stats-table td {
-			padding: 0.4rem 0.25rem;
+			padding: 0.5rem 0.25rem;
 			font-size: 0.75rem;
-			vertical-align: top;
-			word-wrap: break-word;
-			white-space: normal;
-		}
-
-		/* Optimize column widths for mobile */
-		.player-col {
-			width: 25%;
-			min-width: 80px;
-		}
-		.team-col {
-			width: 20%;
-			min-width: 60px;
-		}
-		.conference-col {
-			width: 15%;
-			min-width: 45px;
-		}
-		.category-col {
-			width: 15%;
-			min-width: 50px;
-		}
-		.stat-type-col {
-			width: 25%;
-			min-width: 70px;
-		}
-		.value-col {
-			width: 20%;
-			min-width: 60px;
-			text-align: right;
 		}
 
 		.sort-button {
-			font-size: 0.7rem;
-			padding: 0.2rem 0;
-			gap: 0.1rem;
+			font-size: 0.75rem;
+			gap: 0.125rem;
 		}
 
 		.player-name {
-			font-weight: 600;
 			font-size: 0.75rem;
 			line-height: 1.2;
 		}
 
 		.stat-value {
-			font-weight: 700;
 			font-size: 0.8rem;
-			color: var(--primary-color);
 		}
 
-		/* Hide sort arrows on mobile to save space */
-		.sort-button:after {
-			display: none;
+		.category-badge {
+			font-size: 0.625rem;
+			padding: 0.125rem 0.375rem;
+		}
+
+		.empty-table {
+			padding: 2rem 1rem;
+		}
+
+		.empty-icon {
+			font-size: 2rem;
+		}
+
+		.empty-message {
+			font-size: 0.875rem;
 		}
 	}
 
 	/* Extra small mobile */
 	@media (max-width: 480px) {
-		.stats-table th {
-			font-size: 0.65rem;
-			padding: 0.3rem 0.15rem;
+		.stats-table th,
+		.stats-table td {
+			padding: 0.375rem 0.125rem;
+			font-size: 0.7rem;
 		}
 
-		.stats-table td {
-			font-size: 0.7rem;
-			padding: 0.3rem 0.15rem;
+		.stats-table {
+			min-width: 600px;
 		}
 
 		.player-name,
@@ -384,13 +472,31 @@
 			font-size: 0.7rem;
 		}
 
-		.conference-col {
-			width: 12%;
-			min-width: 35px;
+		.category-badge {
+			font-size: 0.6rem;
+			padding: 0.1rem 0.3rem;
 		}
+	}
 
-		.value-col {
-			width: 22%;
+	/* Accessibility improvements */
+	.sort-button:focus {
+		outline: 2px solid var(--primary-color);
+		outline-offset: 2px;
+	}
+
+	/* Print styles */
+	@media print {
+		.table-wrapper {
+			box-shadow: none;
+			border: 1px solid #000;
+		}
+		
+		.stat-row:hover {
+			background: transparent;
+		}
+		
+		.sort-button {
+			color: #000;
 		}
 	}
 </style>

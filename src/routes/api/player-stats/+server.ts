@@ -1,136 +1,143 @@
 // src/routes/api/player-stats/+server.ts
 import { json } from '@sveltejs/kit';
-import type { RequestHandler } from '@sveltejs/kit';
 import { cfbdApi } from '$lib/api/cfbdClient';
+import type { RequestHandler } from './$types';
 import type { PlayerStatsSearchParams, PlayerStatCategory } from '$lib/types/api';
 
 export const GET: RequestHandler = async ({ url }) => {
 	try {
-		const searchParams = url.searchParams;
+		// Extract and validate query parameters
+		const yearParam = url.searchParams.get('year');
+		const teamParam = url.searchParams.get('team');
+		const conferenceParam = url.searchParams.get('conference');
+		const startWeekParam = url.searchParams.get('startWeek');
+		const endWeekParam = url.searchParams.get('endWeek');
+		const seasonTypeParam = url.searchParams.get('seasonType');
+		const categoryParam = url.searchParams.get('category');
 
-		console.log(
-			'🏈 Player Stats API Route called with params:',
-			Object.fromEntries(searchParams.entries())
-		);
+		// Pagination parameters
+		const limit = parseInt(url.searchParams.get('limit') || '50');
+		const skip = parseInt(url.searchParams.get('skip') || '0');
 
-		// Helper function to safely parse season type
-		const parseSeasonType = (
-			value: string | null
-		): 'regular' | 'postseason' | 'both' | undefined => {
-			if (!value) return undefined;
-			if (value === 'regular' || value === 'postseason' || value === 'both') {
-				return value;
-			}
-			return undefined;
-		};
-
-		// Helper function to safely parse year
-		const parseYear = (value: string | null): string | undefined => {
-			if (!value) return undefined;
-			const parsed = parseInt(value);
-			if (isNaN(parsed)) return undefined;
-			return value; // Return as string since API expects string
-		};
-
-		// Helper function to safely parse integer
-		const parseInteger = (value: string | null): number | undefined => {
-			if (!value) return undefined;
-			const parsed = parseInt(value);
-			return isNaN(parsed) ? undefined : parsed;
-		};
-
-		// Helper function to validate category
-		const parseCategory = (value: string | null): PlayerStatCategory | undefined => {
-			if (!value) return undefined;
-			const validCategories: PlayerStatCategory[] = [
-				'passing',
-				'rushing',
-				'receiving',
-				'fumbles',
-				'defense',
-				'kicking',
-				'punting',
-				'kickReturns',
-				'puntReturns',
-				'interceptions'
-			];
-			return validCategories.includes(value as PlayerStatCategory)
-				? (value as PlayerStatCategory)
-				: undefined;
-		};
-
-		// Build params with proper type conversion
-		const year = parseYear(searchParams.get('year'));
-		const team = searchParams.get('team') || undefined;
-		const conference = searchParams.get('conference') || undefined;
-		const startWeek = parseInteger(searchParams.get('startWeek'));
-		const endWeek = parseInteger(searchParams.get('endWeek'));
-		const category = parseCategory(searchParams.get('category'));
-		const seasonType = parseSeasonType(searchParams.get('seasonType'));
+		console.log('🔍 Player stats API called with params:', {
+			year: yearParam,
+			team: teamParam,
+			conference: conferenceParam,
+			startWeek: startWeekParam,
+			endWeek: endWeekParam,
+			seasonType: seasonTypeParam,
+			category: categoryParam
+		});
 
 		// Validate required parameters
-		if (!year) {
-			console.error('❌ Missing required year parameter');
-			return json({ error: 'Year parameter is required' }, { status: 400 });
+		if (!yearParam) {
+			return json(
+				{
+					success: false,
+					error: 'Year parameter is required',
+					data: []
+				},
+				{ status: 400 }
+			);
 		}
 
-		// Build clean params object
-		const params: PlayerStatsSearchParams = {
-			year,
-			...(team && { team }),
-			...(conference && { conference }),
-			...(startWeek && { startWeek }),
-			...(endWeek && { endWeek }),
-			...(category && { category }),
-			...(seasonType && { seasonType })
+		// Validate year range
+		const year = parseInt(yearParam);
+		const currentYear = new Date().getFullYear();
+		if (isNaN(year) || year < 1900 || year > currentYear + 1) {
+			return json(
+				{
+					success: false,
+					error: `Invalid year. Must be between 1900 and ${currentYear + 1}`,
+					data: []
+				},
+				{ status: 400 }
+			);
+		}
+
+		// Clean up parameters for CFBD API
+		const cfbdParams: PlayerStatsSearchParams = {
+			year: year // Convert to number for CFBD API
 		};
 
-		console.log('🔍 Fetching player stats with validated params:', params);
+		// Only add optional parameters if they have values
+		if (teamParam && teamParam.trim()) {
+			cfbdParams.team = teamParam.trim();
+		}
 
-		// Call the API
-		const data = await cfbdApi.getPlayerStats(params);
+		if (conferenceParam && conferenceParam.trim()) {
+			cfbdParams.conference = conferenceParam.trim();
+		}
 
-		console.log(`✅ Player stats API returned ${data?.length || 0} records`);
+		if (startWeekParam && startWeekParam.trim()) {
+			const startWeek = parseInt(startWeekParam.trim());
+			if (!isNaN(startWeek) && startWeek >= 1 && startWeek <= 20) {
+				cfbdParams.startWeek = startWeek;
+			}
+		}
 
-		// Ensure we always return an array
-		const responseData = Array.isArray(data) ? data : [];
+		if (endWeekParam && endWeekParam.trim()) {
+			const endWeek = parseInt(endWeekParam.trim());
+			if (!isNaN(endWeek) && endWeek >= 1 && endWeek <= 20) {
+				cfbdParams.endWeek = endWeek;
+			}
+		}
+
+		if (seasonTypeParam && seasonTypeParam !== 'regular') {
+			cfbdParams.seasonType = seasonTypeParam as 'regular' | 'postseason' | 'both';
+		}
+
+		if (categoryParam && categoryParam.trim()) {
+			// Validate category against allowed values
+			const validCategories: PlayerStatCategory[] = [
+				'passing', 'rushing', 'receiving', 'defense', 'kicking', 
+				'punting', 'kickReturns', 'puntReturns', 'interceptions', 'fumbles'
+			];
+			const category = categoryParam.trim() as PlayerStatCategory;
+			if (validCategories.includes(category)) {
+				cfbdParams.category = category;
+			}
+		}
+
+		console.log('📡 Calling CFBD API with cleaned params:', cfbdParams);
+
+		// Call CFBD API using our client
+		const playerStats = await cfbdApi.getPlayerStats(cfbdParams);
+
+		console.log(`✅ CFBD API returned ${playerStats.length} player stats`);
+
+		// Apply pagination
+		const total = playerStats.length;
+		const paginatedStats = playerStats.slice(skip, skip + limit);
+
+		console.log(`📄 Returning ${paginatedStats.length} stats (page ${Math.floor(skip / limit) + 1})`);
 
 		return json({
-			data: responseData,
-			total: responseData.length,
-			requestCount: cfbdApi.getRequestCount(),
-			params: params // Include params for debugging
+			success: true,
+			data: paginatedStats,
+			total: total,
+			pagination: {
+				limit,
+				skip,
+				page: Math.floor(skip / limit),
+				totalPages: Math.ceil(total / limit),
+				hasNext: skip + limit < total,
+				hasPrev: skip > 0
+			}
 		});
+
 	} catch (error) {
-		console.error('❌ Player stats API route error:', error);
-
-		// Return error information
+		console.error('❌ Player stats API error:', error);
+		
 		const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-		const statusCode = errorMessage.includes('400')
-			? 400
-			: errorMessage.includes('404')
-			? 404
-			: 500;
-
+		
 		return json(
 			{
-				error: errorMessage,
-				code: 'PLAYER_STATS_ERROR',
-				timestamp: new Date().toISOString()
+				success: false,
+				error: `Failed to fetch player statistics: ${errorMessage}`,
+				data: []
 			},
-			{ status: statusCode }
+			{ status: 500 }
 		);
 	}
-};
-
-// Add OPTIONS handler for CORS if needed
-export const OPTIONS: RequestHandler = async () => {
-	return new Response(null, {
-		status: 200,
-		headers: {
-			'Access-Control-Allow-Origin': '*',
-			'Access-Control-Allow-Methods': 'GET, OPTIONS',
-			'Access-Control-Allow-Headers': 'Content-Type'
-		}
-	});
 };

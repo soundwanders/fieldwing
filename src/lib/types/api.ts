@@ -1,4 +1,4 @@
-// src/lib/types/api.ts
+// src/lib/types/api.ts 
 
 // Base API Response Structure
 export interface APIResponse<T> {
@@ -56,7 +56,30 @@ export interface GameSearchParams {
 	seasonType?: 'regular' | 'postseason' | 'both';
 }
 
-// Player Stats Types
+// Player Types - Updated for search functionality
+export interface Player {
+	id: number;
+	first_name: string;
+	last_name: string;
+	name: string;
+	position: string;
+	height?: number;
+	weight?: number;
+	jersey?: number;
+	team: string;
+	team_color?: string;
+	team_color_secondary?: string;
+	hometown?: string;
+}
+
+export interface PlayerSearchParams {
+	search_term: string;
+	position?: string;
+	team?: string;
+	year?: number;
+}
+
+// Player Stats Types - Fixed type definitions
 export interface PlayerStat {
 	playerId: number;
 	player: string;
@@ -72,11 +95,11 @@ export interface PlayerStat {
 }
 
 export interface PlayerStatsSearchParams {
-	year: string | number;
+	year: number; // Changed from string | number to number for consistency
 	team?: string;
 	conference?: string;
-	startWeek?: string | number;
-	endWeek?: string | number;
+	startWeek?: number; // Changed from string | number to number
+	endWeek?: number; // Changed from string | number to number
 	seasonType?: 'regular' | 'postseason' | 'both';
 	category?: PlayerStatCategory;
 }
@@ -215,6 +238,17 @@ export function isGame(obj: any): obj is Game {
 	);
 }
 
+export function isPlayer(obj: any): obj is Player {
+	return (
+		typeof obj === 'object' &&
+		obj !== null &&
+		typeof obj.id === 'number' &&
+		typeof obj.name === 'string' &&
+		typeof obj.team === 'string' &&
+		typeof obj.position === 'string'
+	);
+}
+
 export function isPlayerStat(obj: any): obj is PlayerStat {
 	return (
 		typeof obj === 'object' &&
@@ -263,6 +297,15 @@ export function validateAPIResponse<T>(
 		Array.isArray(response.data) &&
 		response.data.every(validator)
 	);
+}
+
+// Helper function to validate player stat category
+export function isValidPlayerStatCategory(category: string): category is PlayerStatCategory {
+	const validCategories: PlayerStatCategory[] = [
+		'passing', 'rushing', 'receiving', 'defense', 'kicking',
+		'punting', 'kickReturns', 'puntReturns', 'interceptions', 'fumbles'
+	];
+	return validCategories.includes(category as PlayerStatCategory);
 }
 
 // Helper Types for Components

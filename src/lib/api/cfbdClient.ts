@@ -1,11 +1,13 @@
-// src/lib/api/cfbdClient.ts
+// src/lib/api/cfbdClient.ts 
 import { CFBD_API_KEY } from '$env/static/private';
 import { error } from '@sveltejs/kit';
 
 // Separate type imports from value imports
 import type {
 	Game,
+	Player,
 	PlayerStat,
+	PlayerSearchParams,
 	TeamStat,
 	TeamMatchup,
 	GameSearchParams,
@@ -16,7 +18,7 @@ import type {
 } from '$lib/types/api';
 
 // Import type guards as VALUES (not types)
-import { isGame, isPlayerStat, isTeamStat, isMatchupGame } from '$lib/types/api';
+import { isGame, isPlayer, isPlayerStat, isTeamStat, isMatchupGame } from '$lib/types/api';
 
 interface RequestOptions {
 	timeout?: number;
@@ -233,6 +235,18 @@ class CFBDApiClient {
 		return this.request('/stats/player/season', params, { validateResponse: false }, isPlayerStat);
 	}
 
+	async searchPlayers(params: PlayerSearchParams): Promise<Player[]> {
+		if (!params.search_term || params.search_term.trim().length < 2) {
+			throw new Error('Search term is required and must be at least 2 characters');
+		}
+		
+		// Use shorter cache time for player searches since they're more dynamic
+		return this.request('/player/search', params, { 
+			validateResponse: false,
+			cache: true
+		}, isPlayer);
+	}
+
 	async getTeamStats(params: TeamStatsSearchParams): Promise<TeamStat[]> {
 		if (!params.year) {
 			throw new Error('Year parameter is required for team statistics');
@@ -356,4 +370,4 @@ class CFBDApiClient {
 export const cfbdApi = new CFBDApiClient();
 
 // Export types for use in components
-export type { Game, PlayerStat, TeamStat, TeamMatchup, APIError };
+export type { Game, Player, PlayerStat, TeamStat, TeamMatchup, APIError };

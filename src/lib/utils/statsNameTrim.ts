@@ -148,8 +148,8 @@ export function findSimilarTeams(input: string, limit: number = 5): string[] {
 }
 
 /**
- * Enhanced function to check if a string is likely a team name
- * Uses the comprehensive team mapping to improve accuracy
+ * Check if a string is likely a team name
+ * Uses the team mapping util to improve accuracy
  */
 export function isLikelyTeamName(input: string): boolean {
 	if (!input || typeof input !== 'string') {

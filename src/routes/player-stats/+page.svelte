@@ -2,6 +2,7 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
 	import { theme } from '$lib/stores/theme';
 	import PlayerStatsTable from '$lib/components/PlayerStatsTable.svelte';
 	import Pagination from '$lib/components/Pagination.svelte';
@@ -9,22 +10,33 @@
 	import ErrorMessage from '$lib/components/ErrorMessage.svelte';
 	import FormField from '$lib/components/FormField.svelte';
 	import ExportButton from '$lib/components/ExportButton.svelte';
-	import type { PlayerStat } from '$lib/types/api';
+	import { statsNameTrim } from '$lib/utils/statsNameTrim';
+	import type { PlayerStat, Player } from '$lib/types/api';
 
 	export let data: {
-		playerData?: { playerStatsData: PlayerStat[]; total: number };
 		searchParams?: Record<string, string>;
-		error?: string;
 	} = {};
 
 	// Component state
 	let playerStats: PlayerStat[] = [];
 	let isLoading = false;
 	let error: string | null = null;
-	let totalItems = 0;
+	let totalResults = 0;
 	let isInitialized = false;
 
-	// Form state
+	// Player search state
+	let playerSearchQuery = '';
+	let playerSearchResults: Player[] = [];
+	let isSearchingPlayers = false;
+	let playerSearchError: string | null = null;
+	let showPlayerSearch = false;
+	let selectedPlayer: Player | null = null;
+
+	// Pagination
+	const pageSize = 50; // Use larger page size for better performance
+	let currentPage = 0;
+
+	// Form state - using the exact same pattern as team stats
 	let searchParams = {
 		year: '',
 		team: '',
@@ -32,15 +44,16 @@
 		startWeek: '',
 		endWeek: '',
 		category: '',
-		seasonType: 'regular'
+		seasonType: 'regular',
+		playerName: '' // New field for player-specific searches
 	};
 
 	// Form validation
 	let formErrors: Record<string, string> = {};
 
-	// Category options
+	// Category options - matching CFBD API exactly
 	const categories = [
-		{ value: '', label: 'Select Category...' },
+		{ value: '', label: 'All Categories' },
 		{ value: 'passing', label: 'Passing' },
 		{ value: 'rushing', label: 'Rushing' },
 		{ value: 'receiving', label: 'Receiving' },
@@ -53,12 +66,16 @@
 		{ value: 'interceptions', label: 'Interceptions' }
 	];
 
-	// Pagination constants
-	const pageSize = 16;
+	// Season type options
+	const seasonTypes = [
+		{ value: 'regular', label: 'Regular Season' },
+		{ value: 'postseason', label: 'Postseason' },
+		{ value: 'both', label: 'Both' }
+	];
 
 	// Reactive variables for export functionality
 	$: hasResults = playerStats.length > 0;
-	$: exportData = playerStats; // The data we want to export
+	$: exportData = playerStats;
 	$: exportFilename = (() => {
 		let filename = `player-stats-${searchParams.year}`;
 		if (searchParams.team) filename += `-${searchParams.team.replace(/\s+/g, '-')}`;
@@ -76,19 +93,13 @@
 		return filename;
 	})();
 
-	// Get current page from URL
-	function getCurrentPage(): number {
-		if (typeof window === 'undefined') return 0;
-		const skip = Number(new URLSearchParams(window.location.search).get('skip')) || 0;
-		return Math.floor(skip / pageSize);
-	}
-
-	// Initialize from server data or URL parameters
-	function initializeFromData(): void {
+	// Initialize from URL parameters on mount
+	function initializeFromUrl(): void {
 		if (typeof window === 'undefined') return;
 
 		const urlParams = new URLSearchParams(window.location.search);
 
+		// Initialize search params from URL or data
 		searchParams = {
 			year: urlParams.get('year') || data.searchParams?.year || new Date().getFullYear().toString(),
 			team: urlParams.get('team') || data.searchParams?.team || '',
@@ -96,13 +107,17 @@
 			startWeek: urlParams.get('startWeek') || data.searchParams?.startWeek || '',
 			endWeek: urlParams.get('endWeek') || data.searchParams?.endWeek || '',
 			category: urlParams.get('category') || data.searchParams?.category || '',
-			seasonType: urlParams.get('seasonType') || data.searchParams?.seasonType || 'regular'
+			seasonType: urlParams.get('seasonType') || data.searchParams?.seasonType || 'regular',
+			playerName: urlParams.get('playerName') || data.searchParams?.playerName || ''
 		};
 
-		// If we have server data, use it
-		if (data.playerData?.playerStatsData) {
-			playerStats = data.playerData.playerStatsData;
-			totalItems = data.playerData.total;
+		// Get current page
+		const skip = Number(urlParams.get('skip')) || 0;
+		currentPage = Math.floor(skip / pageSize);
+
+		// If we have search parameters and year, do initial search
+		if (searchParams.year && isValidYear(searchParams.year)) {
+			fetchPlayerStats();
 		}
 	}
 
@@ -110,11 +125,13 @@
 	function validateForm(): boolean {
 		formErrors = {};
 
+		// Year is required
 		if (!searchParams.year) {
 			formErrors.year = 'Year is required';
 			return false;
 		}
 
+		// Validate year range
 		const year = parseInt(searchParams.year);
 		const currentYear = new Date().getFullYear();
 		if (isNaN(year) || year < 1900 || year > currentYear + 1) {
@@ -122,6 +139,7 @@
 			return false;
 		}
 
+		// Validate week ranges
 		if (searchParams.startWeek) {
 			const week = parseInt(searchParams.startWeek);
 			if (isNaN(week) || week < 1 || week > 20) {
@@ -150,11 +168,105 @@
 		return true;
 	}
 
-	// API call function
+	// Helper function to check if year is valid
+	function isValidYear(year: string): boolean {
+		const yearNum = parseInt(year);
+		const currentYear = new Date().getFullYear();
+		return !isNaN(yearNum) && yearNum >= 1900 && yearNum <= currentYear + 1;
+	}
+
+	// Player search functionality
+	async function searchPlayers(): Promise<void> {
+		if (!playerSearchQuery || playerSearchQuery.trim().length < 2) {
+			playerSearchResults = [];
+			return;
+		}
+
+		isSearchingPlayers = true;
+		playerSearchError = null;
+
+		try {
+			const params = new URLSearchParams();
+			params.set('search_term', playerSearchQuery.trim());
+
+			// Add optional filters if available
+			if (searchParams.team && searchParams.team.trim()) {
+				params.set('team', searchParams.team.trim());
+			}
+
+			const response = await fetch(`/api/player-search?${params.toString()}`);
+
+			if (!response.ok) {
+				const errorData = await response.json().catch(() => ({ error: 'Network error' }));
+				throw new Error(errorData.error || `HTTP ${response.status}`);
+			}
+
+			const result = await response.json();
+			
+			if (result.success && Array.isArray(result.data)) {
+				playerSearchResults = result.data;
+				if (playerSearchResults.length === 0) {
+					playerSearchError = `No players found matching "${playerSearchQuery}"`;
+				}
+			} else {
+				throw new Error(result.error || 'Invalid response format');
+			}
+		} catch (err) {
+			console.error('❌ Player search error:', err);
+			playerSearchError = err instanceof Error ? err.message : 'Failed to search players';
+			playerSearchResults = [];
+		} finally {
+			isSearchingPlayers = false;
+		}
+	}
+
+	// Handle player selection
+	function selectPlayer(player: Player): void {
+		selectedPlayer = player;
+		searchParams.team = player.team;
+		searchParams.playerName = player.name;
+		showPlayerSearch = false;
+		playerSearchQuery = player.name;
+		
+		// Update the search title to show we're looking for this specific player
+		console.log(`🎯 Selected player: ${player.name} from ${player.team}`);
+	}
+
+	// Clear player selection
+	function clearPlayerSelection(): void {
+		selectedPlayer = null;
+		searchParams.playerName = '';
+		playerSearchQuery = '';
+		playerSearchResults = [];
+		showPlayerSearch = false;
+	}
+
+	// Debounced player search
+	let playerSearchTimeout: ReturnType<typeof setTimeout>;
+	function handlePlayerSearchInput(event: Event): void {
+		const target = event.target as HTMLInputElement;
+		playerSearchQuery = target.value;
+		
+		// Clear previous timeout
+		if (playerSearchTimeout) {
+			clearTimeout(playerSearchTimeout);
+		}
+		
+		// Debounce search
+		if (playerSearchQuery.trim().length >= 2) {
+			showPlayerSearch = true;
+			playerSearchTimeout = setTimeout(() => {
+				searchPlayers();
+			}, 300);
+		} else {
+			showPlayerSearch = false;
+			playerSearchResults = [];
+		}
+	}
 	async function fetchPlayerStats(): Promise<void> {
 		if (!validateForm()) {
 			playerStats = [];
-			totalItems = 0;
+			totalResults = 0;
 			return;
 		}
 
@@ -163,44 +275,72 @@
 
 		try {
 			const params = new URLSearchParams();
+			
+			// Year is required by CFBD API
 			params.set('year', searchParams.year);
 
-			if (searchParams.team) params.set('team', searchParams.team);
-			if (searchParams.conference) params.set('conference', searchParams.conference);
-			if (searchParams.startWeek) params.set('startWeek', searchParams.startWeek);
-			if (searchParams.endWeek) params.set('endWeek', searchParams.endWeek);
-			if (searchParams.category) params.set('category', searchParams.category);
-			if (searchParams.seasonType) params.set('seasonType', searchParams.seasonType);
+			// Optional filters - only add if they have values
+			if (searchParams.team && searchParams.team.trim()) {
+				// Use statsNameTrim to normalize team names
+				const normalizedTeam = statsNameTrim(searchParams.team.trim());
+				if (normalizedTeam) {
+					params.set('team', normalizedTeam);
+				}
+			}
+			
+			if (searchParams.conference && searchParams.conference.trim()) {
+				params.set('conference', searchParams.conference.trim());
+			}
+			
+			if (searchParams.startWeek && searchParams.startWeek.trim()) {
+				params.set('startWeek', searchParams.startWeek.trim());
+			}
+			
+			if (searchParams.endWeek && searchParams.endWeek.trim()) {
+				params.set('endWeek', searchParams.endWeek.trim());
+			}
+			
+			if (searchParams.category && searchParams.category.trim()) {
+				params.set('category', searchParams.category.trim());
+			}
+			
+			if (searchParams.seasonType && searchParams.seasonType !== 'regular') {
+				params.set('seasonType', searchParams.seasonType);
+			}
 
 			// Add pagination
-			const currentPage = getCurrentPage();
 			params.set('limit', pageSize.toString());
 			params.set('skip', (currentPage * pageSize).toString());
 
+			console.log('🔍 Fetching player stats with params:', params.toString());
+			
 			const response = await fetch(`/api/player-stats?${params.toString()}`);
 
 			if (!response.ok) {
-				const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-				throw new Error(errorData.error || `HTTP ${response.status}`);
+				const errorData = await response.json().catch(() => ({ error: 'Network error' }));
+				throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
 			}
 
 			const result = await response.json();
+			console.log('📦 Player stats API response:', result);
 
-			if (result.data && Array.isArray(result.data)) {
+			if (result.success && Array.isArray(result.data)) {
 				playerStats = result.data;
-				totalItems = result.data.length;
+				totalResults = result.total || result.data.length;
 
-				if (playerStats.length === 0 && searchParams.year) {
-					error =
-						'No player statistics found for your search criteria. Try adjusting your filters.';
+				if (playerStats.length === 0) {
+					error = 'No player statistics found for your search criteria. Try adjusting your filters.';
+				} else {
+					error = null;
 				}
 			} else {
-				throw new Error('Invalid response format');
+				throw new Error(result.error || 'Invalid response format from API');
 			}
 		} catch (err) {
+			console.error('❌ Player stats fetch error:', err);
 			error = err instanceof Error ? err.message : 'Failed to fetch player stats';
 			playerStats = [];
-			totalItems = 0;
+			totalResults = 0;
 		} finally {
 			isLoading = false;
 		}
@@ -221,47 +361,80 @@
 		}
 	}
 
-	// Handle form submission
+	// Handle form submission - update URL and fetch
 	function handleSearch(): void {
 		if (!validateForm()) {
 			return;
 		}
 
-		// Update URL and trigger search
+		// Reset to first page on new search
+		currentPage = 0;
+
+		// Update URL
+		updateUrl();
+		
+		// Fetch data
+		fetchPlayerStats();
+	}
+
+	// Update URL with current search parameters
+	function updateUrl(): void {
+		if (typeof window === 'undefined') return;
+
 		const url = new URL(window.location.href);
+		
+		// Clear existing search params
+		url.searchParams.forEach((_, key) => {
+			url.searchParams.delete(key);
+		});
+
+		// Add current search params
 		Object.entries(searchParams).forEach(([key, value]) => {
-			if (value && value !== '') {
+			if (value && value !== '' && value !== 'regular') {
 				url.searchParams.set(key, String(value));
-			} else {
-				url.searchParams.delete(key);
 			}
 		});
 
-		// Reset pagination on new search
-		url.searchParams.delete('skip');
+		// Add pagination if not on first page
+		if (currentPage > 0) {
+			url.searchParams.set('skip', (currentPage * pageSize).toString());
+		}
 
-		goto(url.pathname + url.search, { replaceState: true });
-		fetchPlayerStats();
+		// Update URL without reload
+		goto(url.pathname + url.search, { replaceState: true, noScroll: true });
 	}
 
 	// Handle page changes
 	function handlePageChange(newPage: number): void {
-		const url = new URL(window.location.href);
-		const skip = newPage * pageSize;
-
-		if (skip > 0) {
-			url.searchParams.set('skip', skip.toString());
-		} else {
-			url.searchParams.delete('skip');
-		}
-
-		goto(url.pathname + url.search, { replaceState: true });
+		currentPage = newPage;
+		updateUrl();
 		fetchPlayerStats();
+	}
+
+	// Handle clearing search
+	function clearSearch(): void {
+		searchParams = {
+			year: new Date().getFullYear().toString(),
+			team: '',
+			conference: '',
+			startWeek: '',
+			endWeek: '',
+			category: '',
+			seasonType: 'regular',
+			playerName: ''
+		};
+		formErrors = {};
+		currentPage = 0;
+		playerStats = [];
+		totalResults = 0;
+		error = null;
+		clearPlayerSelection();
+		updateUrl();
 	}
 
 	// Initialize on mount
 	onMount(() => {
-		initializeFromData();
+		initializeFromUrl();
 		isInitialized = true;
 	});
 
@@ -269,13 +442,26 @@
 	onDestroy(() => {
 		// Any cleanup needed
 	});
+
+	// Watch for URL changes (back/forward navigation)
+	$: if (isInitialized && $page.url) {
+		// Re-initialize if URL changed externally
+		const urlParams = new URLSearchParams($page.url.searchParams);
+		const urlYear = urlParams.get('year') || new Date().getFullYear().toString();
+		
+		if (urlYear !== searchParams.year || 
+			urlParams.get('team') !== searchParams.team ||
+			urlParams.get('category') !== searchParams.category) {
+			initializeFromUrl();
+		}
+	}
 </script>
 
 <svelte:head>
 	<title>Player Statistics - Fieldwing</title>
 	<meta
 		name="description"
-		content="Search college football player statistics by year, team, conference, and category."
+		content="Search college football player statistics by year, team, conference, week range, and statistical category."
 	/>
 </svelte:head>
 
@@ -286,6 +472,9 @@
 			<div class="header-content">
 				<img class="header-icon" src="/playerstats.png" alt="Player Stats" />
 				<h1 class="page-title">Player Statistics</h1>
+				<p class="page-subtitle">
+					Search and analyze individual player performance across college football
+				</p>
 			</div>
 		</div>
 
@@ -294,19 +483,92 @@
 			<div class="search-card">
 				<div class="search-header">
 					<h2 class="search-title">🔍 Search Player Stats</h2>
-					<p class="search-subtitle">Find player statistics by customizing your search criteria</p>
+					<p class="search-subtitle">
+						Find player statistics by customizing your search criteria below
+					</p>
 				</div>
 
 				<form on:submit|preventDefault={handleSearch} class="search-form">
 					<div class="form-grid">
+						<!-- Player Name Search -->
+						<div class="player-search-container">
+							<FormField
+								label="🔍 Search by Player Name (Optional)"
+								type="text"
+								value={playerSearchQuery}
+								placeholder="e.g., Ricky Williams, Cam Newton"
+								on:input={handlePlayerSearchInput}
+							/>
+							
+							{#if selectedPlayer}
+								<div class="selected-player-badge">
+									<div class="selected-player-info">
+										<span class="selected-player-name">{selectedPlayer.name}</span>
+										<span class="selected-player-details">
+											{selectedPlayer.position} • {selectedPlayer.team}
+										</span>
+									</div>
+									<button
+										type="button"
+										class="clear-player-btn"
+										on:click={clearPlayerSelection}
+										title="Clear player selection"
+									>
+										✕
+									</button>
+								</div>
+							{/if}
+
+							{#if showPlayerSearch && (isSearchingPlayers || playerSearchResults.length > 0 || playerSearchError)}
+								<div class="player-search-dropdown">
+									{#if isSearchingPlayers}
+										<div class="player-search-loading">
+											<LoadingSpinner size="small" text="Searching players..." />
+										</div>
+									{:else if playerSearchError}
+										<div class="player-search-error">
+											<span class="error-icon">❌</span>
+											{playerSearchError}
+										</div>
+									{:else if playerSearchResults.length > 0}
+										<div class="player-search-results">
+											<div class="player-search-header">
+												Found {playerSearchResults.length} player{playerSearchResults.length !== 1 ? 's' : ''}:
+											</div>
+											{#each playerSearchResults.slice(0, 10) as player}
+												<button
+													type="button"
+													class="player-result-item"
+													on:click={() => selectPlayer(player)}
+												>
+													<div class="player-result-info">
+														<span class="player-result-name">{player.name}</span>
+														<span class="player-result-details">
+															{player.position} • {player.team}
+															{#if player.jersey} • #{player.jersey}{/if}
+														</span>
+													</div>
+												</button>
+											{/each}
+											{#if playerSearchResults.length > 10}
+												<div class="player-search-footer">
+													Showing first 10 results. Refine your search for more specific results.
+												</div>
+											{/if}
+										</div>
+									{/if}
+								</div>
+							{/if}
+						</div>
+
 						<!-- Year (Required) -->
 						<FormField
-							label="Year"
+							label="Year *"
 							type="number"
 							value={searchParams.year}
 							required={true}
 							error={formErrors.year}
-							placeholder="2023"
+							placeholder={new Date().getFullYear().toString()}
 							min="1900"
 							max={new Date().getFullYear() + 1}
 							on:change={(e) => handleFieldChange(e, 'year')}
@@ -314,7 +576,7 @@
 
 						<!-- Category -->
 						<FormField
-							label="Category"
+							label="Statistical Category"
 							type="select"
 							value={searchParams.category}
 							options={categories}
@@ -326,7 +588,7 @@
 							label="Team"
 							type="text"
 							value={searchParams.team}
-							placeholder="e.g., Auburn"
+							placeholder="e.g., Auburn, Alabama, Georgia"
 							on:change={(e) => handleFieldChange(e, 'team')}
 						/>
 
@@ -335,7 +597,7 @@
 							label="Conference"
 							type="text"
 							value={searchParams.conference}
-							placeholder="e.g., SEC"
+							placeholder="e.g., SEC, Big 10, ACC"
 							on:change={(e) => handleFieldChange(e, 'conference')}
 						/>
 
@@ -368,11 +630,7 @@
 							label="Season Type"
 							type="select"
 							value={searchParams.seasonType}
-							options={[
-								{ value: 'regular', label: 'Regular Season' },
-								{ value: 'postseason', label: 'Postseason' },
-								{ value: 'both', label: 'Both' }
-							]}
+							options={seasonTypes}
 							on:change={(e) => handleFieldChange(e, 'seasonType')}
 						/>
 
@@ -381,17 +639,25 @@
 							<button
 								type="submit"
 								class="btn btn-primary"
-								disabled={isLoading || Object.keys(formErrors).length > 0}
+								disabled={isLoading || Object.keys(formErrors).length > 0 || !searchParams.year}
 							>
 								{#if isLoading}
 									<span class="btn-spinner" />
 									Searching...
 								{:else}
-									🔍 Search Stats
+									🔍 Search Player Stats
 								{/if}
 							</button>
 
-							<!-- New ExportButton -->
+							<button
+								type="button"
+								class="btn btn-secondary"
+								on:click={clearSearch}
+								disabled={isLoading}
+							>
+								🗑️ Clear
+							</button>
+
 							{#if hasResults}
 								<div class="export-container">
 									<ExportButton
@@ -415,8 +681,8 @@
 								<span class="validation-text">Please fix the following errors:</span>
 							</div>
 							<ul class="validation-list">
-								{#each Object.entries(formErrors) as [field, error]}
-									<li>{field}: {error}</li>
+								{#each Object.entries(formErrors) as [field, errorMsg]}
+									<li><strong>{field}:</strong> {errorMsg}</li>
 								{/each}
 							</ul>
 						</div>
@@ -434,32 +700,43 @@
 						<h2 class="results-title">
 							📈 Search Results
 							{#if playerStats.length > 0}
-								<span class="results-count">({playerStats.length} records)</span>
+								<span class="results-count">({playerStats.length} of {totalResults} records)</span>
 							{/if}
 						</h2>
 						{#if searchParams.year && isInitialized}
 							<p class="results-subtitle">
-								Showing player statistics for {searchParams.year}
-								{#if searchParams.team}• {searchParams.team}{/if}
-								{#if searchParams.conference}• {searchParams.conference}{/if}
-								{#if searchParams.category}• {searchParams.category}{/if}
+								Showing player statistics for <strong>{searchParams.year}</strong>
+								{#if selectedPlayer}
+									• <strong>{selectedPlayer.name}</strong> ({selectedPlayer.team})
+								{:else if searchParams.team}
+									• <strong>{searchParams.team}</strong>
+								{/if}
+								{#if searchParams.conference}• <strong>{searchParams.conference}</strong>{/if}
+								{#if searchParams.category}• <strong>{searchParams.category}</strong>{/if}
+								{#if searchParams.startWeek && searchParams.endWeek}
+									• Weeks <strong>{searchParams.startWeek}-{searchParams.endWeek}</strong>
+								{:else if searchParams.startWeek}
+									• Week <strong>{searchParams.startWeek}+</strong>
+								{:else if searchParams.endWeek}
+									• Week <strong>1-{searchParams.endWeek}</strong>
+								{/if}
+								{#if searchParams.seasonType !== 'regular'}
+									• <strong>{seasonTypes.find(t => t.value === searchParams.seasonType)?.label}</strong>
+								{/if}
 							</p>
 						{/if}
 					</div>
 
 					{#if playerStats.length > 0}
 						<div class="results-actions">
-							<!-- New ExportButton in results header -->
-							<div class="export-container">
-								<ExportButton
-									data={exportData}
-									type="player-stats"
-									variant="primary"
-									size="small"
-									filename={exportFilename}
-									showCount={false}
-								/>
-							</div>
+							<ExportButton
+								data={exportData}
+								type="player-stats"
+								variant="primary"
+								size="small"
+								filename={exportFilename}
+								showCount={false}
+							/>
 						</div>
 					{/if}
 				</div>
@@ -472,31 +749,38 @@
 							<div class="error-content">
 								<h3>Search Error</h3>
 								<p>{error}</p>
-								<button class="btn btn-primary" on:click={fetchPlayerStats}> 🔄 Try Again </button>
+								<button class="btn btn-primary" on:click={fetchPlayerStats}>
+									🔄 Try Again
+								</button>
 							</div>
 						</div>
 					{:else if isLoading}
 						<div class="loading-state">
 							<LoadingSpinner size="large" text="Searching player statistics..." />
 						</div>
-					{:else if !searchParams.year}
+					{:else if !searchParams.year || !isValidYear(searchParams.year)}
 						<div class="empty-state">
 							<div class="empty-icon">🏈</div>
 							<div class="empty-content">
 								<h3>Ready to Search</h3>
-								<p>Enter a year above to start searching for player statistics.</p>
+								<p>Enter a valid year above to start searching for player statistics.</p>
+								<small>Year is required to search the CFBD player stats database.</small>
 							</div>
 						</div>
-					{:else if playerStats.length === 0 && isInitialized}
+					{:else if playerStats.length === 0 && isInitialized && !isLoading}
 						<div class="empty-state">
 							<div class="empty-icon">📊</div>
 							<div class="empty-content">
 								<h3>No Statistics Found</h3>
-								<p>No player statistics match your search criteria.</p>
-								<small
-									>Try adjusting your search parameters or check if data exists for the selected
-									year.</small
-								>
+								<p>No player statistics match your current search criteria.</p>
+								<small>
+									Try adjusting your search parameters. For Auburn passing stats weeks 4-8 in 2023:
+									<br />
+									<strong>Year:</strong> 2023, <strong>Team:</strong> Auburn, <strong>Category:</strong> passing, 
+									<strong>Start Week:</strong> 4, <strong>End Week:</strong> 8
+									<br />
+									Or search for a specific player like "Ricky Williams" to see their career stats.
+								</small>
 							</div>
 						</div>
 					{:else if playerStats.length > 0}
@@ -506,9 +790,15 @@
 						</div>
 
 						<!-- Pagination -->
-						{#if Math.ceil(totalItems / pageSize) > 1}
+						{#if totalResults > pageSize}
 							<div class="pagination-section">
-								<Pagination {totalItems} {pageSize} maxVisiblePages={7} />
+								<Pagination 
+									totalItems={totalResults} 
+									{pageSize} 
+									{currentPage}
+									maxVisiblePages={7}
+									on:pageChange={(e) => handlePageChange(e.detail)}
+								/>
 							</div>
 						{/if}
 					{/if}
@@ -519,7 +809,7 @@
 </div>
 
 <style>
-	/* Use the exact same styles as team-stats page */
+	/* Theme Variables */
 	.light {
 		--bg-primary: #ffffff;
 		--bg-secondary: #f8fafc;
@@ -536,6 +826,7 @@
 		--accent-green: #10b981;
 		--accent-orange: #f59e0b;
 		--accent-red: #ef4444;
+		--accent-purple: #8b5cf6;
 	}
 
 	.dark {
@@ -554,8 +845,10 @@
 		--accent-green: #34d399;
 		--accent-orange: #fbbf24;
 		--accent-red: #f87171;
+		--accent-purple: #a78bfa;
 	}
 
+	/* Layout */
 	.wrapper {
 		min-height: 100vh;
 		background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
@@ -593,6 +886,13 @@
 		line-height: 1.2;
 	}
 
+	.page-subtitle {
+		color: var(--text-secondary);
+		font-size: 1.125rem;
+		margin: 0;
+		line-height: 1.5;
+	}
+
 	/* Search Section */
 	.search-section {
 		margin-bottom: 3rem;
@@ -607,7 +907,7 @@
 	}
 
 	.search-header {
-		background: linear-gradient(135deg, var(--accent-blue), var(--accent-green));
+		background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
 		color: white;
 		padding: 2rem;
 		text-align: center;
@@ -631,7 +931,7 @@
 
 	.form-grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+		grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 		gap: 1.5rem;
 		margin-bottom: 2rem;
 	}
@@ -642,6 +942,7 @@
 		gap: 1rem;
 		justify-content: center;
 		flex-wrap: wrap;
+		align-items: center;
 	}
 
 	/* Button Styles */
@@ -657,6 +958,7 @@
 		align-items: center;
 		gap: 0.5rem;
 		text-decoration: none;
+		white-space: nowrap;
 	}
 
 	.btn:disabled {
@@ -674,6 +976,17 @@
 		background: var(--accent-blue);
 		transform: translateY(-2px);
 		box-shadow: var(--shadow-md);
+	}
+
+	.btn-secondary {
+		background: var(--bg-secondary);
+		color: var(--text-primary);
+		border: 1px solid var(--border-primary);
+	}
+
+	.btn-secondary:hover:not(:disabled) {
+		background: var(--bg-tertiary);
+		transform: translateY(-1px);
 	}
 
 	.btn-spinner {
@@ -744,10 +1057,12 @@
 		padding: 2rem;
 		background: var(--bg-secondary);
 		border-bottom: 1px solid var(--border-primary);
+		gap: 1rem;
 	}
 
 	.results-title-section {
 		flex: 1;
+		min-width: 0;
 	}
 
 	.results-title {
@@ -758,6 +1073,7 @@
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
+		flex-wrap: wrap;
 	}
 
 	.results-count {
@@ -770,6 +1086,7 @@
 		color: var(--text-secondary);
 		margin: 0;
 		font-size: 0.875rem;
+		line-height: 1.4;
 	}
 
 	.results-actions {
@@ -821,6 +1138,8 @@
 		font-size: 0.875rem;
 		display: block;
 		margin-top: 0.5rem;
+		line-height: 1.4;
+		max-width: 500px;
 	}
 
 	.table-section {
@@ -831,6 +1150,153 @@
 		display: flex;
 		justify-content: center;
 		padding-top: 2rem;
+		border-top: 1px solid var(--border-primary);
+	}
+
+	.export-container {
+		display: flex;
+		align-items: center;
+	}
+
+	/* Player Search Styles */
+	.player-search-container {
+		position: relative;
+		grid-column: 1 / -1;
+	}
+
+	.selected-player-badge {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+		color: white;
+		padding: 0.75rem 1rem;
+		border-radius: 0.5rem;
+		margin-top: 0.5rem;
+		gap: 1rem;
+	}
+
+	.selected-player-info {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+	}
+
+	.selected-player-name {
+		font-weight: 600;
+		font-size: 1rem;
+	}
+
+	.selected-player-details {
+		font-size: 0.875rem;
+		opacity: 0.9;
+	}
+
+	.clear-player-btn {
+		background: rgba(255, 255, 255, 0.2);
+		color: white;
+		border: none;
+		border-radius: 50%;
+		width: 1.5rem;
+		height: 1.5rem;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		font-size: 0.875rem;
+		transition: all 0.2s ease;
+		flex-shrink: 0;
+	}
+
+	.clear-player-btn:hover {
+		background: rgba(255, 255, 255, 0.3);
+		transform: scale(1.1);
+	}
+
+	.player-search-dropdown {
+		position: absolute;
+		top: 100%;
+		left: 0;
+		right: 0;
+		background: var(--bg-primary);
+		border: 1px solid var(--border-primary);
+		border-radius: 0.5rem;
+		box-shadow: var(--shadow-lg);
+		z-index: 50;
+		max-height: 400px;
+		overflow-y: auto;
+		margin-top: 0.25rem;
+	}
+
+	.player-search-loading {
+		padding: 1rem;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.player-search-error {
+		padding: 1rem;
+		color: var(--accent-red);
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-size: 0.875rem;
+	}
+
+	.player-search-results {
+		padding: 0.5rem 0;
+	}
+
+	.player-search-header {
+		padding: 0.75rem 1rem;
+		font-size: 0.875rem;
+		font-weight: 600;
+		color: var(--text-secondary);
+		border-bottom: 1px solid var(--border-primary);
+	}
+
+	.player-result-item {
+		width: 100%;
+		padding: 0.75rem 1rem;
+		border: none;
+		background: none;
+		text-align: left;
+		cursor: pointer;
+		transition: background-color 0.15s ease;
+		border-bottom: 1px solid var(--border-primary);
+	}
+
+	.player-result-item:hover {
+		background: var(--bg-secondary);
+	}
+
+	.player-result-item:last-child {
+		border-bottom: none;
+	}
+
+	.player-result-info {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+	}
+
+	.player-result-name {
+		font-weight: 600;
+		color: var(--text-primary);
+		font-size: 0.875rem;
+	}
+
+	.player-result-details {
+		font-size: 0.75rem;
+		color: var(--text-secondary);
+	}
+
+	.player-search-footer {
+		padding: 0.75rem 1rem;
+		font-size: 0.75rem;
+		color: var(--text-secondary);
+		font-style: italic;
 		border-top: 1px solid var(--border-primary);
 	}
 
@@ -878,6 +1344,12 @@
 		.btn {
 			justify-content: center;
 		}
+
+		.results-title {
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 0.25rem;
+		}
 	}
 
 	@media (max-width: 480px) {
@@ -887,15 +1359,33 @@
 
 		.results-title {
 			font-size: 1.25rem;
-			flex-direction: column;
-			align-items: flex-start;
-			gap: 0.25rem;
 		}
 
 		.loading-state,
 		.empty-state,
 		.error-state {
 			padding: 3rem 1rem;
+		}
+
+		.page-subtitle {
+			font-size: 1rem;
+		}
+	}
+
+	/* Focus and accessibility */
+	.btn:focus {
+		outline: 2px solid var(--accent-blue);
+		outline-offset: 2px;
+	}
+
+	/* Reduced motion preferences */
+	@media (prefers-reduced-motion: reduce) {
+		*,
+		*::before,
+		*::after {
+			animation-duration: 0.01ms !important;
+			animation-iteration-count: 1 !important;
+			transition-duration: 0.01ms !important;
 		}
 	}
 </style>

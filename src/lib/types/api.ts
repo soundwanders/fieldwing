@@ -1,4 +1,4 @@
-// src/lib/types/api.ts - Updated with player search support and fixed types
+// src/lib/types/api.ts
 
 // Base API Response Structure
 export interface APIResponse<T> {

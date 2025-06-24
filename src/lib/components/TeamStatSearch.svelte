@@ -453,7 +453,7 @@
 						<div class="empty-selected">
 							<div class="empty-icon">📊</div>
 							<h3 class="empty-title">Configure Your Search</h3>
-							<p class="empty-message">Fill in the search parameters to view team stats</p>
+							<p class="empty-message">Fill in the search fields to view team stats</p>
 						</div>
 					{/if}
 				</div>

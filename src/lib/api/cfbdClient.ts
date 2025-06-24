@@ -1,4 +1,4 @@
-// src/lib/api/cfbdClient.ts 
+// src/lib/api/cfbdClient.ts - Updated with player search support
 import { CFBD_API_KEY } from '$env/static/private';
 import { error } from '@sveltejs/kit';
 
@@ -236,7 +236,7 @@ class CFBDApiClient {
 	}
 
 	async searchPlayers(params: PlayerSearchParams): Promise<Player[]> {
-		if (!params.search_term || params.search_term.trim().length < 2) {
+		if (!params.searchTerm || params.searchTerm.trim().length < 2) {
 			throw new Error('Search term is required and must be at least 2 characters');
 		}
 		

@@ -1,4 +1,4 @@
-// src/lib/types/api.ts 
+// src/lib/types/api.ts - Updated with player search support and fixed types
 
 // Base API Response Structure
 export interface APIResponse<T> {
@@ -73,13 +73,13 @@ export interface Player {
 }
 
 export interface PlayerSearchParams {
-	search_term: string;
+	searchTerm: string;
 	position?: string;
 	team?: string;
 	year?: number;
 }
 
-// Player Stats Types - Fixed type definitions
+// Player Stats Types
 export interface PlayerStat {
 	playerId: number;
 	player: string;
@@ -95,11 +95,11 @@ export interface PlayerStat {
 }
 
 export interface PlayerStatsSearchParams {
-	year: number; // Changed from string | number to number for consistency
+	year: number;
 	team?: string;
 	conference?: string;
-	startWeek?: number; // Changed from string | number to number
-	endWeek?: number; // Changed from string | number to number
+	startWeek?: number; 
+	endWeek?: number; 
 	seasonType?: 'regular' | 'postseason' | 'both';
 	category?: PlayerStatCategory;
 }

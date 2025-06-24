@@ -240,12 +240,11 @@
 
 				<form on:submit|preventDefault={handleSearch} class="search-form">
 					<div class="form-grid">
-						<!-- Year (Required) -->
+						<!-- Year -->
 						<FormField
 							label="Year"
 							type="number"
 							value={searchParams.year}
-							required={true}
 							error={formErrors.year}
 							placeholder="2023"
 							min="1900"

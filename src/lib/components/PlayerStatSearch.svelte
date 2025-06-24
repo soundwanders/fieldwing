@@ -88,24 +88,62 @@
 				.slice(0, 20) // Limit for performance
 		: categoryOptions;
 
-	// Form validation
+	// Reactive validation check
 	$: isValidForm = (() => {
-		const hasYear = year && !isNaN(Number(year));
-		const hasValidYear = hasYear && Number(year) >= 1900 && Number(year) <= currentYear + 1;
+		console.log('🔍 Validation check:', {
+			year,
+			playerSearchQuery,
+			selectedPlayer: selectedPlayer?.name,
+			team,
+			startWeek,
+			endWeek
+		});
+
+		// Convert year to string and handle both string/number types
+		const yearStr = String(year || '').trim();
+		const hasYear = yearStr && !isNaN(Number(yearStr)) && Number(yearStr) > 0;
+		
+		const hasSelectedPlayer = selectedPlayer && selectedPlayer.name;
+		const hasTypedPlayer = playerSearchQuery && String(playerSearchQuery).trim().length >= 2;
+		
+		console.log('📊 Validation flags:', {
+			hasYear,
+			hasSelectedPlayer,
+			hasTypedPlayer,
+			yearStr
+		});
+		
+		// Must have either year OR player selection OR typed player name
+		const hasValidSearchCriteria = hasYear || hasSelectedPlayer || hasTypedPlayer;
+		
+		// Week range validation (if provided) - also handle number/string conversion
 		const hasValidWeekRange = (() => {
-			if (!startWeek && !endWeek) return true;
-			if (startWeek && !endWeek) return Number(startWeek) >= 1 && Number(startWeek) <= 14;
-			if (!startWeek && endWeek) return Number(endWeek) >= 1 && Number(endWeek) <= 14;
-			const start = Number(startWeek);
-			const end = Number(endWeek);
-			return start >= 1 && start <= 14 && end >= 1 && end <= 14 && start <= end;
+			const startWeekNum = startWeek ? Number(startWeek) : null;
+			const endWeekNum = endWeek ? Number(endWeek) : null;
+			
+			if (!startWeekNum && !endWeekNum) return true;
+			
+			if (startWeekNum && endWeekNum) {
+				return startWeekNum >= 1 && startWeekNum <= 20 && 
+						endWeekNum >= 1 && endWeekNum <= 20 && 
+						startWeekNum <= endWeekNum;
+			}
+			
+			if (startWeekNum) return startWeekNum >= 1 && startWeekNum <= 20;
+			if (endWeekNum) return endWeekNum >= 1 && endWeekNum <= 20;
+			
+			return true;
 		})();
-		return hasValidYear && hasValidWeekRange;
+		
+		const isValid = hasValidSearchCriteria && hasValidWeekRange;
+		console.log('✅ Form is valid:', isValid);
+		
+		return isValid;
 	})();
 
 	// Player search functionality
 	async function searchPlayers(): Promise<void> {
-		if (!playerSearchQuery || playerSearchQuery.trim().length < 2) {
+		if (!playerSearchQuery || String(playerSearchQuery).trim().length < 2) {
 			playerSearchResults = [];
 			return;
 		}
@@ -115,15 +153,15 @@
 
 		try {
 			const params = new URLSearchParams();
-			params.set('search_term', playerSearchQuery.trim());
+			params.set('searchTerm', String(playerSearchQuery).trim());
 
-			// Add optional filters if available
-			if (team && team.trim()) {
-				params.set('team', team.trim());
+			// Add optional filters if available - handle type conversion
+			if (team && String(team).trim()) {
+				params.set('team', String(team).trim());
 			}
 
-			if (year && year.trim()) {
-				params.set('year', year.trim());
+			if (year && String(year).trim()) {
+				params.set('year', String(year).trim());
 			}
 
 			const response = await fetch(`/api/player-search?${params.toString()}`);
@@ -151,7 +189,7 @@
 			isSearchingPlayers = false;
 		}
 	}
-
+	
 	// Handle player selection
 	function selectPlayer(player: Player): void {
 		selectedPlayer = player;
@@ -159,7 +197,6 @@
 		showPlayerSearch = false;
 		playerSearchQuery = player.name;
 		
-		// Update the search title to show we're looking for this specific player
 		console.log(`🎯 Selected player: ${player.name} from ${player.team}`);
 	}
 
@@ -218,9 +255,9 @@
 	) {
 		const inputValue = Number(event.currentTarget.value);
 
-		if (inputValue < 1 || inputValue > 14 || isNaN(inputValue)) {
+		if (inputValue < 1 || inputValue > 20 || isNaN(inputValue)) {
 			event.currentTarget.value = '';
-			formErrors[weekType] = 'Week must be between 1 and 14';
+			formErrors[weekType] = 'Week must be between 1 and 20';
 		} else {
 			delete formErrors[weekType];
 		}
@@ -229,7 +266,6 @@
 
 	function handleRetry() {
 		componentError = null;
-		// Reset form if needed
 	}
 
 	function handleSearchInput(event: Event) {
@@ -237,18 +273,18 @@
 		searchQuery = target.value;
 	}
 
+	// Simple validation function
 	function validateData() {
 		const errors: Record<string, string> = {};
-
-		if (!year) {
-			errors.year = 'Year is required';
-		} else {
+		
+		if (year && String(year).trim()) {
 			const yearNum = Number(year);
 			if (isNaN(yearNum) || yearNum < 1900 || yearNum > currentYear + 1) {
 				errors.year = 'Please enter a valid year';
 			}
 		}
 
+		// Week range validation if provided
 		if (startWeek && endWeek && Number(startWeek) > Number(endWeek)) {
 			errors.weekRange = 'Start week cannot be greater than end week';
 		}
@@ -262,32 +298,72 @@
 			return '#';
 		}
 
-		// Trim school mascot name if present
-		let schoolName = statsNameTrim(team);
+		// Build URL parameters array
+		const urlParams: string[] = [];
 
-		// Construct the URL with the provided parameters
-		const queryParams = [
-			`year=${encodeURIComponent(year)}`,
-			...(schoolName ? [`team=${encodeURIComponent(schoolName)}`] : []),
-			...(conference ? [`conference=${encodeURIComponent(conference)}`] : []),
-			...(startWeek ? [`startWeek=${startWeek}`] : []),
-			...(endWeek ? [`endWeek=${endWeek}`] : []),
-			...(seasonType && seasonType !== 'regular'
-				? [`seasonType=${encodeURIComponent(seasonType)}`]
-				: []),
-			...(selectedCategory ? [`category=${encodeURIComponent(selectedCategory)}`] : []),
-			...(selectedPlayer ? [`playerName=${encodeURIComponent(selectedPlayer.name)}`] : []),
-			`limit=${pageSize}`,
-			`skip=${currentPage * pageSize}`
-		].join('&');
+		// Add year if provided - handle type conversion
+		if (year && String(year).trim()) {
+			urlParams.push(`year=${encodeURIComponent(String(year).trim())}`);
+		}
 
-		return `/player-stats?${queryParams}`;
+		// Add player name if selected
+		if (selectedPlayer && selectedPlayer.name) {
+			urlParams.push(`playerName=${encodeURIComponent(selectedPlayer.name)}`);
+		} else if (playerSearchQuery && String(playerSearchQuery).trim().length >= 2) {
+			// Also handle case where user typed a name but didn't select from dropdown
+			urlParams.push(`playerName=${encodeURIComponent(String(playerSearchQuery).trim())}`);
+		}
+
+		// Add team (with name trimming)
+		if (team && String(team).trim()) {
+			const schoolName = statsNameTrim(String(team).trim());
+			if (schoolName) {
+				urlParams.push(`team=${encodeURIComponent(schoolName)}`);
+			}
+		}
+
+		// Add conference
+		if (conference && String(conference).trim()) {
+			urlParams.push(`conference=${encodeURIComponent(String(conference).trim())}`);
+		}
+
+		// Add week range - handle type conversion
+		if (startWeek && String(startWeek).trim()) {
+			urlParams.push(`startWeek=${encodeURIComponent(String(startWeek))}`);
+		}
+		if (endWeek && String(endWeek).trim()) {
+			urlParams.push(`endWeek=${encodeURIComponent(String(endWeek))}`);
+		}
+
+		// Add season type if not regular
+		if (seasonType && seasonType !== 'regular') {
+			urlParams.push(`seasonType=${encodeURIComponent(seasonType)}`);
+		}
+
+		// Add category
+		if (selectedCategory && String(selectedCategory).trim()) {
+			urlParams.push(`category=${encodeURIComponent(selectedCategory)}`);
+		}
+
+		// Add pagination defaults
+		urlParams.push(`limit=50`);
+		urlParams.push(`skip=0`);
+
+		const queryString = urlParams.join('&');
+		const finalURL = `/player-stats?${queryString}`;
+		
+		console.log('🔗 Generated URL:', finalURL);
+		
+		return finalURL;
 	}
 
 	function handleSubmit() {
 		if (validateData()) {
 			const url = getSearchURL();
+			console.log('🚀 Navigating to:', url);
 			goto(url);
+		} else {
+			console.error('❌ Form validation failed:', formErrors);
 		}
 	}
 
@@ -317,7 +393,7 @@
 					<h1 class="hero-title">Player Statistics</h1>
 				</div>
 				<p class="hero-subtitle">
-					Discover standout performances and analyze individual player statistics
+					Search by player name (like "Bo Jackson") or filter by year and other criteria
 				</p>
 			</div>
 		</div>
@@ -327,7 +403,6 @@
 			<!-- Left Panel: Search Controls -->
 			<div class="selection-panel">
 				<div class="panel-card">
-					<!-- Panel Header -->
 					<div class="panel-header">
 						<h2 class="panel-title">
 							🔍 Search Configuration
@@ -336,7 +411,7 @@
 							{/if}
 						</h2>
 						<p class="panel-subtitle">
-							Configure your search criteria to find specific player statistics
+							Choose search criteria to find specific player statistics
 						</p>
 					</div>
 
@@ -351,7 +426,7 @@
 								id="player-search-input"
 								bind:value={playerSearchQuery}
 								on:input={handlePlayerSearchInput}
-								placeholder="e.g., Ricky Williams..."
+								placeholder="e.g., Ricky Williams, Bo Jackson..."
 								autocomplete="off"
 							/>
 							{#if playerSearchQuery && !selectedPlayer}
@@ -430,7 +505,9 @@
 						<!-- Year and Season Type -->
 						<div class="control-row">
 							<div class="control-group">
-								<label for="year-input" class="control-label"> 📅 Year (Required) </label>
+								<label for="year-input" class="control-label">
+									📅 Year {selectedPlayer || (playerSearchQuery && playerSearchQuery.trim().length >= 2) ? '(Optional)' : '(Required)'}
+								</label>
 								<input
 									type="number"
 									class="control-input"
@@ -438,8 +515,8 @@
 									bind:value={year}
 									min={1900}
 									max={currentYear + 1}
-									placeholder={yearString}
-									required
+									placeholder={selectedPlayer || (playerSearchQuery && playerSearchQuery.trim().length >= 2) ? "All years" : yearString}
+									required={!(selectedPlayer || (playerSearchQuery && playerSearchQuery.trim().length >= 2))}
 								/>
 								{#if formErrors.year}
 									<span class="error-text">{formErrors.year}</span>
@@ -642,17 +719,6 @@
 					<div class="summary-container">
 						{#if year || selectedCategory || team || conference || startWeek || endWeek || selectedPlayer}
 							<div class="summary-list">
-								<!-- Required Fields -->
-								<div class="summary-section">
-									<h4 class="summary-section-title">Required Parameters</h4>
-									<div class="summary-item">
-										<span class="summary-label">📅 Year:</span>
-										<span class="summary-value" class:missing={!year}>
-											{year || 'Not specified'}
-										</span>
-									</div>
-								</div>
-
 								<!-- Player Selection -->
 								{#if selectedPlayer}
 									<div class="summary-section">
@@ -677,6 +743,17 @@
 										</div>
 									</div>
 								{/if}
+
+								<!-- Required Fields -->
+								<div class="summary-section">
+									<h4 class="summary-section-title">Search Parameters</h4>
+									<div class="summary-item">
+										<span class="summary-label">📅 Year:</span>
+										<span class="summary-value" class:missing={!year}>
+											{year || (selectedPlayer ? 'Add year for stats' : 'Required')}
+										</span>
+									</div>
+								</div>
 
 								<!-- Optional Fields -->
 								<div class="summary-section">
@@ -745,38 +822,42 @@
 				<!-- Submit Card -->
 				<div class="panel-card submit-card">
 					<div class="submit-content">
-						{#if isValidForm}
-							<div class="submit-info">
+						<div class="submit-info">
+							{#if isValidForm}
 								<h3 class="submit-title">🚀 Ready to Search</h3>
 								<p class="submit-description">
-									Search player statistics for {year}
 									{#if selectedPlayer}
-										for <strong>{selectedPlayer.name}</strong>
-									{:else if selectedCategory}
-										in the {categoryOptions.find((cat) => cat.value === selectedCategory)?.label ||
-											selectedCategory} category
-									{/if}
-									{#if team && !selectedPlayer}
-										for {team}
+										Search {selectedPlayer.name}'s statistics
+										{#if year}for {year}{:else}across all available years{/if}
+									{:else if playerSearchQuery && playerSearchQuery.trim().length >= 2}
+										Search for "{playerSearchQuery}"
+										{#if year}in {year}{:else}across all available years{/if}
+									{:else if year}
+										Search player statistics for {year}
+										{#if selectedCategory}
+											in the {categoryOptions.find((cat) => cat.value === selectedCategory)?.label ||
+												selectedCategory} category
+										{/if}
+										{#if team}
+											for {team}
+										{/if}
 									{/if}
 								</p>
-							</div>
-						{:else}
-							<div class="submit-info">
+							{:else}
 								<h3 class="submit-title">⚠️ Configuration Needed</h3>
 								<p class="submit-description">
-									{#if !year}
-										Please enter a year to search for player statistics
+									{#if !year && !selectedPlayer && (!playerSearchQuery || playerSearchQuery.trim().length < 2)}
+										Please enter a year or search for a specific player to continue
 									{:else if formErrors.year}
-										Please enter a valid year (1900-{currentYear + 1})
+										Please enter a valid year (1900-{currentYear + 1}) or search for a player
 									{:else if formErrors.weekRange}
 										Please fix the week range issue
 									{:else}
 										Please check your search configuration
 									{/if}
 								</p>
-							</div>
-						{/if}
+							{/if}
+						</div>
 
 						<div class="submit-actions">
 							<a
@@ -794,16 +875,12 @@
 									{#if isLoading}
 										<span class="btn-spinner" />
 										Searching...
-									{:else if isValidForm}
-										{#if selectedPlayer}
-											📊 Search {selectedPlayer.name}'s Stats
-										{:else}
-											📊 Search Player Stats
-										{/if}
-									{:else if !year}
-										Enter Year
+									{:else if selectedPlayer}
+										📊 Search {selectedPlayer.name}'s Stats
+									{:else if playerSearchQuery && playerSearchQuery.trim().length >= 2}
+										📊 Search for "{playerSearchQuery}"
 									{:else}
-										Fix Configuration
+										📊 Search Player Stats
 									{/if}
 								</button>
 							</a>

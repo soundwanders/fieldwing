@@ -200,54 +200,58 @@
 
 	// Player search functionality
 	async function searchPlayers(): Promise<void> {
-		if (!playerSearchQuery || playerSearchQuery.trim().length < 2) {
-			playerSearchResults = [];
-			return;
-		}
-
-		isSearchingPlayers = true;
-		playerSearchError = null;
-
-		try {
-			const params = new URLSearchParams();
-			params.set('search_term', playerSearchQuery.trim());
-
-			// Add optional filters if available
-			if (searchParams.team && searchParams.team.trim()) {
-				params.set('team', searchParams.team.trim());
-			}
-
-			const response = await fetch(`/api/player-search?${params.toString()}`);
-
-			if (!response.ok) {
-				const errorData = await response.json().catch(() => ({ error: 'Network error' }));
-				throw new Error(errorData.error || `HTTP ${response.status}`);
-			}
-
-			const result = await response.json();
-			
-			if (result.success && Array.isArray(result.data)) {
-				playerSearchResults = result.data;
-				if (playerSearchResults.length === 0) {
-					playerSearchError = `No players found matching "${playerSearchQuery}"`;
-				}
-			} else {
-				throw new Error(result.error || 'Invalid response format');
-			}
-		} catch (err) {
-			console.error('❌ Player search error:', err);
-			playerSearchError = err instanceof Error ? err.message : 'Failed to search players';
-			playerSearchResults = [];
-		} finally {
-			isSearchingPlayers = false;
-		}
+	if (!playerSearchQuery || playerSearchQuery.trim().length < 2) {
+		playerSearchResults = [];
+		return;
 	}
 
-	// Handle player selection - ENHANCED with better debugging
+	isSearchingPlayers = true;
+	playerSearchError = null;
+
+	try {
+		const params = new URLSearchParams();
+		params.set('searchTerm', playerSearchQuery.trim()); 
+
+		// Add optional filters if available
+		if (searchParams?.team && searchParams.team.trim()) {
+			params.set('team', searchParams.team.trim());
+		}
+
+		if (searchParams?.year && String(searchParams.year).trim()) {
+			params.set('year', String(searchParams.year).trim());
+		}
+
+		const response = await fetch(`/api/player-search?${params.toString()}`);
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({ error: 'Network error' }));
+			throw new Error(errorData.error || `HTTP ${response.status}`);
+		}
+
+		const result = await response.json();
+		
+		if (result.success && Array.isArray(result.data)) {
+			playerSearchResults = result.data;
+			if (playerSearchResults.length === 0) {
+				playerSearchError = `No players found matching "${playerSearchQuery}"`;
+			}
+		} else {
+			throw new Error(result.error || 'Invalid response format');
+		}
+	} catch (err) {
+		console.error('❌ Player search error:', err);
+		playerSearchError = err instanceof Error ? err.message : 'Failed to search players';
+		playerSearchResults = [];
+	} finally {
+		isSearchingPlayers = false;
+	}
+}
+
+	// Handle player selection
 	function selectPlayer(player: Player): void {
 		selectedPlayer = player;
 		searchParams.team = player.team;
-		searchParams.playerName = player.name; // CRITICAL: Set playerName in searchParams
+		searchParams.playerName = player.name;
 		showPlayerSearch = false;
 		playerSearchQuery = player.name;
 		
@@ -260,7 +264,7 @@
 		}, 100);
 	}
 
-	// Clear player selection - ENHANCED
+	// Clear player selection
 	function clearPlayerSelection(): void {
 		selectedPlayer = null;
 		searchParams.playerName = '';
@@ -271,7 +275,7 @@
 		console.log('🧹 Cleared player selection, updated searchParams:', searchParams);
 	}
 
-	// Debounced player search - FIXED to handle both direct events and FormField events
+	// Debounced player search 
 	let playerSearchTimeout: ReturnType<typeof setTimeout>;
 	function handlePlayerSearchInput(event: Event | CustomEvent<{ value: string }>): void {
 		let newValue: string;
@@ -322,7 +326,7 @@
 			const params = new URLSearchParams();
 			
 			// Add year only if provided
-			if (searchParams.year && searchParams.year.trim()) {
+			if (searchParams.year && String(searchParams.year).trim()) {
 				params.set('year', searchParams.year);
 			}
 
@@ -400,7 +404,7 @@
 		}
 	}
 
-	// Handle form field changes - ENHANCED with typing detection
+	// Handle form field changes
 	function handleFieldChange(event: CustomEvent<{ value: string | number }> | Event, field: string): void {
 		let newValue: string | number;
 		
@@ -527,7 +531,7 @@
 		// Any cleanup needed
 	});
 
-	// Watch for URL changes (back/forward navigation) - ENHANCED to respect user typing
+	// Watch for URL changes (back/forward navigation)
 	$: if (isInitialized && $page.url && !isUserTyping) {
 		// Only re-initialize if URL changed externally AND we're not currently in the middle of user input
 		const urlParams = new URLSearchParams($page.url.searchParams);
@@ -647,7 +651,7 @@
 											{/each}
 											{#if playerSearchResults.length > 10}
 												<div class="player-search-footer">
-													Showing first 10 results. Refine your search for more specific results.
+													Showing first 10 results. Refine your search for better results.
 												</div>
 											{/if}
 										</div>

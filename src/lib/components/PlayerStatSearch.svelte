@@ -88,38 +88,62 @@
 				.slice(0, 20) // Limit for performance
 		: categoryOptions;
 
-	// Simple form validation - just check if we have something to search with
+	// Reactive validation check
 	$: isValidForm = (() => {
-		// Valid if we have ANY meaningful search criteria:
-		// 1. Year (for traditional searches)
-		// 2. Player name (for player searches)
-		// 3. Team name (can search by team alone if year provided)
+		console.log('🔍 Validation check:', {
+			year,
+			playerSearchQuery,
+			selectedPlayer: selectedPlayer?.name,
+			team,
+			startWeek,
+			endWeek
+		});
+
+		// Convert year to string and handle both string/number types
+		const yearStr = String(year || '').trim();
+		const hasYear = yearStr && !isNaN(Number(yearStr)) && Number(yearStr) > 0;
 		
-		const hasYear = year && year.trim() && !isNaN(Number(year));
-		const hasPlayer = selectedPlayer || (playerSearchQuery && playerSearchQuery.trim().length >= 2);
-		const hasTeam = team && team.trim();
+		const hasSelectedPlayer = selectedPlayer && selectedPlayer.name;
+		const hasTypedPlayer = playerSearchQuery && String(playerSearchQuery).trim().length >= 2;
 		
-		// Must have either year OR player name
-		// If no player, must have year
-		// Week range validation (if provided)
+		console.log('📊 Validation flags:', {
+			hasYear,
+			hasSelectedPlayer,
+			hasTypedPlayer,
+			yearStr
+		});
+		
+		// Must have either year OR player selection OR typed player name
+		const hasValidSearchCriteria = hasYear || hasSelectedPlayer || hasTypedPlayer;
+		
+		// Week range validation (if provided) - also handle number/string conversion
 		const hasValidWeekRange = (() => {
-			if (!startWeek && !endWeek) return true;
-			if (startWeek && endWeek) {
-				const start = Number(startWeek);
-				const end = Number(endWeek);
-				return start >= 1 && start <= 20 && end >= 1 && end <= 20 && start <= end;
+			const startWeekNum = startWeek ? Number(startWeek) : null;
+			const endWeekNum = endWeek ? Number(endWeek) : null;
+			
+			if (!startWeekNum && !endWeekNum) return true;
+			
+			if (startWeekNum && endWeekNum) {
+				return startWeekNum >= 1 && startWeekNum <= 20 && 
+						endWeekNum >= 1 && endWeekNum <= 20 && 
+						startWeekNum <= endWeekNum;
 			}
-			if (startWeek) return Number(startWeek) >= 1 && Number(startWeek) <= 20;
-			if (endWeek) return Number(endWeek) >= 1 && Number(endWeek) <= 20;
+			
+			if (startWeekNum) return startWeekNum >= 1 && startWeekNum <= 20;
+			if (endWeekNum) return endWeekNum >= 1 && endWeekNum <= 20;
+			
 			return true;
 		})();
 		
-		return (hasYear || hasPlayer) && hasValidWeekRange;
+		const isValid = hasValidSearchCriteria && hasValidWeekRange;
+		console.log('✅ Form is valid:', isValid);
+		
+		return isValid;
 	})();
 
 	// Player search functionality
 	async function searchPlayers(): Promise<void> {
-		if (!playerSearchQuery || playerSearchQuery.trim().length < 2) {
+		if (!playerSearchQuery || String(playerSearchQuery).trim().length < 2) {
 			playerSearchResults = [];
 			return;
 		}
@@ -129,15 +153,15 @@
 
 		try {
 			const params = new URLSearchParams();
-			params.set('search_term', playerSearchQuery.trim());
+			params.set('searchTerm', String(playerSearchQuery).trim());
 
-			// Add optional filters if available
-			if (team && team.trim()) {
-				params.set('team', team.trim());
+			// Add optional filters if available - handle type conversion
+			if (team && String(team).trim()) {
+				params.set('team', String(team).trim());
 			}
 
-			if (year && year.trim()) {
-				params.set('year', year.trim());
+			if (year && String(year).trim()) {
+				params.set('year', String(year).trim());
 			}
 
 			const response = await fetch(`/api/player-search?${params.toString()}`);
@@ -165,7 +189,7 @@
 			isSearchingPlayers = false;
 		}
 	}
-
+	
 	// Handle player selection
 	function selectPlayer(player: Player): void {
 		selectedPlayer = player;
@@ -252,9 +276,8 @@
 	// Simple validation function
 	function validateData() {
 		const errors: Record<string, string> = {};
-
-		// Basic validation - just check year format if provided
-		if (year && year.trim()) {
+		
+		if (year && String(year).trim()) {
 			const yearNum = Number(year);
 			if (isNaN(yearNum) || yearNum < 1900 || yearNum > currentYear + 1) {
 				errors.year = 'Please enter a valid year';
@@ -270,7 +293,6 @@
 		return Object.keys(errors).length === 0;
 	}
 
-	// FIXED getSearchURL function - this was the main issue!
 	function getSearchURL() {
 		if (!validateData()) {
 			return '#';
@@ -279,35 +301,38 @@
 		// Build URL parameters array
 		const urlParams: string[] = [];
 
-		// Add year if provided
-		if (year && year.trim()) {
-			urlParams.push(`year=${encodeURIComponent(year.trim())}`);
+		// Add year if provided - handle type conversion
+		if (year && String(year).trim()) {
+			urlParams.push(`year=${encodeURIComponent(String(year).trim())}`);
 		}
 
 		// Add player name if selected
 		if (selectedPlayer && selectedPlayer.name) {
 			urlParams.push(`playerName=${encodeURIComponent(selectedPlayer.name)}`);
+		} else if (playerSearchQuery && String(playerSearchQuery).trim().length >= 2) {
+			// Also handle case where user typed a name but didn't select from dropdown
+			urlParams.push(`playerName=${encodeURIComponent(String(playerSearchQuery).trim())}`);
 		}
 
 		// Add team (with name trimming)
-		if (team && team.trim()) {
-			const schoolName = statsNameTrim(team.trim());
+		if (team && String(team).trim()) {
+			const schoolName = statsNameTrim(String(team).trim());
 			if (schoolName) {
 				urlParams.push(`team=${encodeURIComponent(schoolName)}`);
 			}
 		}
 
 		// Add conference
-		if (conference && conference.trim()) {
-			urlParams.push(`conference=${encodeURIComponent(conference.trim())}`);
+		if (conference && String(conference).trim()) {
+			urlParams.push(`conference=${encodeURIComponent(String(conference).trim())}`);
 		}
 
-		// Add week range - simplified check
-		if (startWeek) {
-			urlParams.push(`startWeek=${encodeURIComponent(startWeek.toString())}`);
+		// Add week range - handle type conversion
+		if (startWeek && String(startWeek).trim()) {
+			urlParams.push(`startWeek=${encodeURIComponent(String(startWeek))}`);
 		}
-		if (endWeek) {
-			urlParams.push(`endWeek=${encodeURIComponent(endWeek.toString())}`);
+		if (endWeek && String(endWeek).trim()) {
+			urlParams.push(`endWeek=${encodeURIComponent(String(endWeek))}`);
 		}
 
 		// Add season type if not regular
@@ -316,28 +341,18 @@
 		}
 
 		// Add category
-		if (selectedCategory && selectedCategory.trim()) {
+		if (selectedCategory && String(selectedCategory).trim()) {
 			urlParams.push(`category=${encodeURIComponent(selectedCategory)}`);
 		}
 
 		// Add pagination defaults
-		urlParams.push(`limit=${pageSize}`);
-		urlParams.push(`skip=0`); // Always start at first page for new searches
+		urlParams.push(`limit=50`);
+		urlParams.push(`skip=0`);
 
 		const queryString = urlParams.join('&');
 		const finalURL = `/player-stats?${queryString}`;
 		
 		console.log('🔗 Generated URL:', finalURL);
-		console.log('📋 Current form state:', {
-			year,
-			team,
-			conference,
-			startWeek,
-			endWeek,
-			seasonType,
-			selectedCategory,
-			selectedPlayer: selectedPlayer?.name
-		});
 		
 		return finalURL;
 	}
@@ -860,6 +875,10 @@
 									{#if isLoading}
 										<span class="btn-spinner" />
 										Searching...
+									{:else if selectedPlayer}
+										📊 Search {selectedPlayer.name}'s Stats
+									{:else if playerSearchQuery && playerSearchQuery.trim().length >= 2}
+										📊 Search for "{playerSearchQuery}"
 									{:else}
 										📊 Search Player Stats
 									{/if}

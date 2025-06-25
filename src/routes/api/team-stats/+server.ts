@@ -4,7 +4,12 @@ import type { RequestHandler } from '@sveltejs/kit';
 import { cfbdApi } from '$lib/api/cfbdClient';
 import type { TeamStatsSearchParams } from '$lib/types/api';
 
-export const GET: RequestHandler = async ({ url }) => {
+export const GET: RequestHandler = async ({ url, setHeaders }) => {
+	setHeaders({
+		'Cache-Control': 'public, max-age=300, s-maxage=600', // 5 min browser, 10 min CDN
+		'Vary': 'Accept-Encoding'
+	});
+	
 	try {
 		const searchParams = url.searchParams;
 

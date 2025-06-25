@@ -186,7 +186,15 @@
 	<div class="hero-section">
 		<div class="hero-content">
 			<div class="hero-icon-wrapper">
-				<img class="hero-icon" src="/teamstats.png" alt="Team Statistics" />
+				<img 
+					class="hero-icon" 
+					src="/teamstats.png" 
+					alt="Team Statistics"
+					width="64"
+					height="64"
+					loading="eager"
+					decoding="async"
+				/>
 				<h1 class="hero-title">Team Statistics</h1>
 			</div>
 			<p class="hero-subtitle">View historical team stats by seasons, conferences, and more</p>

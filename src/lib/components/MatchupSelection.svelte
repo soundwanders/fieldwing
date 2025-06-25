@@ -177,7 +177,15 @@
 		<div class="hero-section">
 			<div class="hero-content">
 				<div class="hero-icon-wrapper">
-					<img class="hero-icon" src="/matchup.png" alt="Head to Head Matchups" />
+					<img 
+						class="hero-icon" 
+						src="/matchup.png" 
+						alt="Head to Head Matchups"
+						width="64"
+						height="64"
+						loading="eager"
+						decoding="async"
+					/>
 					<h1 class="hero-title">Head-to-Head Matchups</h1>
 				</div>
 				<p class="hero-subtitle">Compare two teams and explore their historical rivalry</p>

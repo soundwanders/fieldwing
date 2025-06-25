@@ -123,7 +123,15 @@
 		<div class="hero-section">
 			<div class="hero-content">
 				<div class="hero-icon-wrapper">
-					<img class="hero-icon" src="/selection.png" alt="Team Selection" />
+					<img 
+						class="hero-icon" 
+						src="/selection.png" 
+						alt="Team Selection"
+						width="64"
+						height="64"
+						loading="eager"
+						decoding="async"
+					/>
 					<h1 class="hero-title">Select Your Teams</h1>
 				</div>
 				<p class="hero-subtitle">Choose your favorite teams to view game results and stats</p>

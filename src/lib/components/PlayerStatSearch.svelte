@@ -25,7 +25,14 @@
 	let showPlayerSearch = false;
 	let selectedPlayer: Player | null = null;
 
-	let pageSize: number = 16;
+	// REQUEST CANCELLATION
+	let currentSearchRequest: AbortController | null = null;
+
+	// SIMPLE CACHE
+	const searchCache = new Map();
+	const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+	let pageSize: number = 50;
 	let componentError: Error | null = null;
 	let mounted = false;
 	let isLoading: boolean = false;
@@ -85,10 +92,10 @@
 						category.label.toLowerCase().includes(searchQuery.toLowerCase().trim()) ||
 						category.description.toLowerCase().includes(searchQuery.toLowerCase().trim())
 				)
-				.slice(0, 20) // Limit for performance
+				.slice(0, 20)
 		: categoryOptions;
 
-	// Reactive validation check
+	// UPDATED VALIDATION with better type handling
 	$: isValidForm = (() => {
 		console.log('🔍 Validation check:', {
 			year,
@@ -125,8 +132,8 @@
 			
 			if (startWeekNum && endWeekNum) {
 				return startWeekNum >= 1 && startWeekNum <= 20 && 
-						endWeekNum >= 1 && endWeekNum <= 20 && 
-						startWeekNum <= endWeekNum;
+					   endWeekNum >= 1 && endWeekNum <= 20 && 
+					   startWeekNum <= endWeekNum;
 			}
 			
 			if (startWeekNum) return startWeekNum >= 1 && startWeekNum <= 20;
@@ -141,12 +148,33 @@
 		return isValid;
 	})();
 
-	// Player search functionality
+	// searchPlayers with caching and request cancellation
 	async function searchPlayers(): Promise<void> {
+		// Cancel previous request if still running
+		if (currentSearchRequest) {
+			currentSearchRequest.abort();
+		}
+
 		if (!playerSearchQuery || String(playerSearchQuery).trim().length < 2) {
 			playerSearchResults = [];
 			return;
 		}
+
+		// Create cache key
+		const cacheKey = `${String(playerSearchQuery).trim()}-${String(team || '')}-${String(year || '')}`;
+		
+		// Check cache first
+		const cached = searchCache.get(cacheKey);
+		if (cached && (Date.now() - cached.timestamp) < CACHE_DURATION) {
+			console.log('🎯 Using cached search results');
+			playerSearchResults = cached.data;
+			playerSearchError = null;
+			isSearchingPlayers = false;
+			return;
+		}
+
+		// Create new request controller
+		currentSearchRequest = new AbortController();
 
 		isSearchingPlayers = true;
 		playerSearchError = null;
@@ -164,7 +192,9 @@
 				params.set('year', String(year).trim());
 			}
 
-			const response = await fetch(`/api/player-search?${params.toString()}`);
+			const response = await fetch(`/api/player-search?${params.toString()}`, {
+				signal: currentSearchRequest.signal // ADD REQUEST CANCELLATION
+			});
 
 			if (!response.ok) {
 				const errorData = await response.json().catch(() => ({ error: 'Network error' }));
@@ -175,6 +205,13 @@
 			
 			if (result.success && Array.isArray(result.data)) {
 				playerSearchResults = result.data;
+				
+				// Cache the results
+				searchCache.set(cacheKey, {
+					data: result.data,
+					timestamp: Date.now()
+				});
+				
 				if (playerSearchResults.length === 0) {
 					playerSearchError = `No players found matching "${playerSearchQuery}"`;
 				}
@@ -182,14 +219,18 @@
 				throw new Error(result.error || 'Invalid response format');
 			}
 		} catch (err) {
+			// Don't show error if request was cancelled
+			if (typeof err === 'object' && err !== null && 'name' in err && (err as { name?: string }).name === 'AbortError') return;
+			
 			console.error('❌ Player search error:', err);
 			playerSearchError = err instanceof Error ? err.message : 'Failed to search players';
 			playerSearchResults = [];
 		} finally {
+			currentSearchRequest = null;
 			isSearchingPlayers = false;
 		}
 	}
-	
+
 	// Handle player selection
 	function selectPlayer(player: Player): void {
 		selectedPlayer = player;
@@ -208,23 +249,34 @@
 		showPlayerSearch = false;
 	}
 
-	// Debounced player search
+	// UPDATED debounced player search with longer delay
 	let playerSearchTimeout: ReturnType<typeof setTimeout>;
-	function handlePlayerSearchInput(event: Event): void {
-		const target = event.target as HTMLInputElement;
-		playerSearchQuery = target.value;
+	function handlePlayerSearchInput(event: Event | CustomEvent<{ value: string }>): void {
+		let newValue: string;
+		
+		// Handle both direct input events and FormField custom events
+		if (event instanceof CustomEvent && event.detail && typeof event.detail.value === 'string') {
+			newValue = event.detail.value;
+		} else if (event.target && 'value' in event.target) {
+			newValue = (event.target as HTMLInputElement).value;
+		} else {
+			console.warn('Unexpected event type in handlePlayerSearchInput:', event);
+			return;
+		}
+		
+		playerSearchQuery = newValue;
 		
 		// Clear previous timeout
 		if (playerSearchTimeout) {
 			clearTimeout(playerSearchTimeout);
 		}
 		
-		// Debounce search
+		// Increased debounce time to reduce API calls
 		if (playerSearchQuery.trim().length >= 2) {
 			showPlayerSearch = true;
 			playerSearchTimeout = setTimeout(() => {
 				searchPlayers();
-			}, 300);
+			}, 500); // Increased from 300ms to 500ms
 		} else {
 			showPlayerSearch = false;
 			playerSearchResults = [];
@@ -276,7 +328,8 @@
 	// Simple validation function
 	function validateData() {
 		const errors: Record<string, string> = {};
-		
+
+		// Basic validation - check year format if provided - FIXED
 		if (year && String(year).trim()) {
 			const yearNum = Number(year);
 			if (isNaN(yearNum) || yearNum < 1900 || yearNum > currentYear + 1) {
@@ -293,6 +346,7 @@
 		return Object.keys(errors).length === 0;
 	}
 
+	// UPDATED getSearchURL function with type handling
 	function getSearchURL() {
 		if (!validateData()) {
 			return '#';
@@ -301,7 +355,7 @@
 		// Build URL parameters array
 		const urlParams: string[] = [];
 
-		// Add year if provided - handle type conversion
+		// Add year if provided - FIXED
 		if (year && String(year).trim()) {
 			urlParams.push(`year=${encodeURIComponent(String(year).trim())}`);
 		}
@@ -314,7 +368,7 @@
 			urlParams.push(`playerName=${encodeURIComponent(String(playerSearchQuery).trim())}`);
 		}
 
-		// Add team (with name trimming)
+		// Add team (with name trimming) - FIXED
 		if (team && String(team).trim()) {
 			const schoolName = statsNameTrim(String(team).trim());
 			if (schoolName) {
@@ -322,12 +376,12 @@
 			}
 		}
 
-		// Add conference
+		// Add conference - FIXED
 		if (conference && String(conference).trim()) {
 			urlParams.push(`conference=${encodeURIComponent(String(conference).trim())}`);
 		}
 
-		// Add week range - handle type conversion
+		// Add week range - FIXED
 		if (startWeek && String(startWeek).trim()) {
 			urlParams.push(`startWeek=${encodeURIComponent(String(startWeek))}`);
 		}
@@ -340,7 +394,7 @@
 			urlParams.push(`seasonType=${encodeURIComponent(seasonType)}`);
 		}
 
-		// Add category
+		// Add category - FIXED
 		if (selectedCategory && String(selectedCategory).trim()) {
 			urlParams.push(`category=${encodeURIComponent(selectedCategory)}`);
 		}
@@ -353,6 +407,16 @@
 		const finalURL = `/player-stats?${queryString}`;
 		
 		console.log('🔗 Generated URL:', finalURL);
+		console.log('📋 Current form state:', {
+			year,
+			team,
+			conference,
+			startWeek,
+			endWeek,
+			seasonType,
+			selectedCategory,
+			selectedPlayer: selectedPlayer?.name
+		});
 		
 		return finalURL;
 	}
@@ -380,6 +444,11 @@
 		if (playerSearchTimeout) {
 			clearTimeout(playerSearchTimeout);
 		}
+
+		// Cancel any pending request
+		if (currentSearchRequest) {
+			currentSearchRequest.abort();
+		}
 	});
 </script>
 
@@ -389,7 +458,15 @@
 		<div class="hero-section">
 			<div class="hero-content">
 				<div class="hero-icon-wrapper">
-					<img class="hero-icon" src="/playerstats.png" alt="Player Statistics" />
+					<img 
+						class="hero-icon" 
+						src="/playerstats.png" 
+						alt="Player Statistics"
+						width="64"
+						height="64"
+						loading="eager"
+						decoding="async"
+					/>
 					<h1 class="hero-title">Player Statistics</h1>
 				</div>
 				<p class="hero-subtitle">

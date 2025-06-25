@@ -4,7 +4,12 @@ import type { RequestHandler } from '@sveltejs/kit';
 import { cfbdApi } from '$lib/api/cfbdClient';
 import type { GameSearchParams } from '$lib/types/api';
 
-export const GET: RequestHandler = async ({ url }) => {
+export const GET: RequestHandler = async ({ url, setHeaders }) => {
+	setHeaders({
+		'Cache-Control': 'public, max-age=300, s-maxage=600', // 5 min browser, 10 min CDN
+		'Vary': 'Accept-Encoding'
+	});
+
 	try {
 		const searchParams = url.searchParams;
 
@@ -81,7 +86,8 @@ export const GET: RequestHandler = async ({ url }) => {
 		}
 
 		return json({
-			data: responseData,
+			success: true,
+			data: responseData.slice(0, 20),
 			total: responseData.length,
 			requestCount: cfbdApi.getRequestCount(),
 			params: params // Include params for debugging
@@ -89,7 +95,6 @@ export const GET: RequestHandler = async ({ url }) => {
 	} catch (error) {
 		console.error('❌ Games API route error:', error);
 
-		// Return more specific error information
 		const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
 		const statusCode = errorMessage.includes('400')
 			? 400

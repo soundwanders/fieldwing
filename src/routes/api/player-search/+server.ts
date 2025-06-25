@@ -32,61 +32,130 @@ export const GET: RequestHandler = async ({ url }) => {
 		// Clean up the search term
 		const cleanSearchTerm = searchTerm.trim();
 
-		// Prepare search parameters for CFBD API
-		const searchParams: PlayerSearchParams = {
-			searchTerm: cleanSearchTerm
-		};
-
-		// Add optional filters
-		if (team && team.trim()) {
-			searchParams.team = team.trim();
-		}
-
-		if (position && position.trim()) {
-			searchParams.position = position.trim();
-		}
-
+		// If a specific year is provided, only search that year
 		if (year && year.trim()) {
 			const yearNum = parseInt(year.trim());
 			if (!isNaN(yearNum)) {
-				searchParams.year = yearNum;
+				console.log(`🎯 Searching specific year: ${yearNum}`);
+				
+				const searchParams: PlayerSearchParams = {
+					searchTerm: cleanSearchTerm,
+					year: yearNum
+				};
+
+				// Add optional filters
+				if (team && team.trim()) {
+					searchParams.team = team.trim();
+				}
+				if (position && position.trim()) {
+					searchParams.position = position.trim();
+				}
+
+				const results = await cfbdApi.searchPlayers(searchParams);
+				console.log(`✅ Found ${results.length} players for "${cleanSearchTerm}" in ${yearNum}`);
+
+				return json({
+					success: true,
+					data: results,
+					searchInfo: {
+						searchTerm: cleanSearchTerm,
+						year: yearNum,
+						totalResults: results.length
+					}
+				});
 			}
 		}
 
-		console.log('📡 Calling CFBD API with search params:', searchParams);
+		// No year specified - search across multiple years for comprehensive results
+		console.log('🔍 No year specified, searching across multiple years...');
+		
+		// First try current/recent years (more likely to have data)
+		const currentYear = new Date().getFullYear();
+		const recentYears = [currentYear, currentYear - 1, currentYear - 2, currentYear - 3];
+		
+		let allResults: any[] = [];
+		
+		// Search recent years first
+		for (const searchYear of recentYears) {
+			try {
+				const searchParams: PlayerSearchParams = {
+					searchTerm: cleanSearchTerm,
+					year: searchYear
+				};
+				
+				if (team && team.trim()) {
+					searchParams.team = team.trim();
+				}
+				if (position && position.trim()) {
+					searchParams.position = position.trim();
+				}
+				
+				const yearResults = await cfbdApi.searchPlayers(searchParams);
+				console.log(`📅 Found ${yearResults.length} players for "${cleanSearchTerm}" in ${searchYear}`);
+				allResults.push(...yearResults);
+			} catch (error) {
+				console.log(`⚠️ Error searching year ${searchYear}:`, error);
+			}
+		}
 
-		// Call CFBD API for player search
-		const standardResults = await cfbdApi.searchPlayers(searchParams);
-		console.log(`✅ Standard search returned ${standardResults.length} players`);
+		// If we found enough recent players, return those
+		if (allResults.length >= 5) {
+			// Remove duplicates and return
+			const uniqueResults = allResults.filter((player, index, arr) => {
+				return index === arr.findIndex(p => 
+					p.name === player.name && 
+					p.team === player.team && 
+					p.position === player.position
+				);
+			});
 
-		// For common names like "Ricky Williams", search across multiple years to catch historical players
-		let additionalResults: any[] = [];
-		const isCommonName = cleanSearchTerm.split(' ').length >= 2; // First and last name
+			console.log(`✅ Found sufficient recent results: ${uniqueResults.length} players`);
+			return json({
+				success: true,
+				data: uniqueResults.slice(0, 20), // Limit to 20 results
+				searchInfo: {
+					searchTerm: cleanSearchTerm,
+					yearsSearched: recentYears,
+					totalResults: uniqueResults.length,
+					searchType: 'recent_years'
+				}
+			});
+		}
 
-		if (isCommonName && !year && standardResults.length < 10) {
-			console.log('🔍 Searching additional years for historical players...');
+		// Not enough recent results - search historical years (2000-present)
+		console.log('🕰️ Searching historical years for more comprehensive results...');
+		
+		const historicalYears = [];
+		for (let y = currentYear - 4; y >= 2000; y--) {
+			historicalYears.push(y);
+		}
+		
+		// Search historical years in batches to avoid timeout
+		const batchSize = 10;
+		const historicalBatches = [];
+		for (let i = 0; i < historicalYears.length; i += batchSize) {
+			historicalBatches.push(historicalYears.slice(i, i + batchSize));
+		}
+
+		// Search first 2 batches (20 years) for historical players
+		for (let batchIndex = 0; batchIndex < Math.min(2, historicalBatches.length); batchIndex++) {
+			const batch = historicalBatches[batchIndex];
 			
-			// Search key years when famous players were active
-			const searchYears = [2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015, 
-							   2014, 2013, 2012, 2011, 2010, 2009, 2008, 2007, 2006, 2005, 
-							   2004, 2003, 2002, 2001, 2000, 1999, 1998, 1997, 1996, 1995];
-
-			const searchPromises = searchYears.slice(0, 15).map(async (searchYear) => {
+			const batchPromises = batch.map(async (searchYear) => {
 				try {
-					const yearSearchParams: PlayerSearchParams = {
+					const searchParams: PlayerSearchParams = {
 						searchTerm: cleanSearchTerm,
 						year: searchYear
 					};
 					
-					// Add other filters if they exist
 					if (team && team.trim()) {
-						yearSearchParams.team = team.trim();
+						searchParams.team = team.trim();
 					}
 					if (position && position.trim()) {
-						yearSearchParams.position = position.trim();
+						searchParams.position = position.trim();
 					}
 					
-					const yearResults = await cfbdApi.searchPlayers(yearSearchParams);
+					const yearResults = await cfbdApi.searchPlayers(searchParams);
 					console.log(`📅 Found ${yearResults.length} players for "${cleanSearchTerm}" in ${searchYear}`);
 					return yearResults;
 				} catch (error) {
@@ -96,17 +165,19 @@ export const GET: RequestHandler = async ({ url }) => {
 			});
 
 			try {
-				const allYearResults = await Promise.all(searchPromises);
-				additionalResults = allYearResults.flat();
-				console.log(`📊 Additional historical search found ${additionalResults.length} total results`);
+				const batchResults = await Promise.all(batchPromises);
+				allResults.push(...batchResults.flat());
+				
+				// If we found enough results, stop searching
+				if (allResults.length >= 15) {
+					console.log(`✅ Found sufficient results after batch ${batchIndex + 1}`);
+					break;
+				}
 			} catch (error) {
-				console.error('❌ Error in multi-year search:', error);
+				console.error(`❌ Error in batch ${batchIndex + 1}:`, error);
 			}
 		}
 
-		// Combine and deduplicate results
-		const allResults = [...standardResults, ...additionalResults];
-		
 		// Remove duplicates based on player name + team + position combination
 		const uniqueResults = allResults.filter((player, index, arr) => {
 			return index === arr.findIndex(p => 
@@ -139,13 +210,12 @@ export const GET: RequestHandler = async ({ url }) => {
 
 		return json({
 			success: true,
-			data: uniqueResults,
+			data: uniqueResults.slice(0, 20), // Limit to 20 results
 			searchInfo: {
 				searchTerm: cleanSearchTerm,
-				standardResults: standardResults.length,
-				historicalResults: additionalResults.length,
+				totalYearsSearched: recentYears.length + Math.min(20, historicalYears.length),
 				totalUnique: uniqueResults.length,
-				searchedYears: isCommonName && !year ? 15 : 1
+				searchType: 'comprehensive'
 			}
 		});
 

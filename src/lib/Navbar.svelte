@@ -1,11 +1,15 @@
 <script>
 	import { theme } from '$lib/stores/theme.js';
 	import { media } from '$lib/utils/media';
+	import { page } from '$app/stores';
 	import ThemeIcons from './ThemeIcons.svelte';
 	import MobileNavbar from './MobileNavbar.svelte';
 	import { onMount } from 'svelte';
 
 	let isMobile = false;
+
+	// Reactive current page detection
+	$: currentPath = $page.url.pathname;
 
 	const updateIsMobile = () => {
 		isMobile = media('(max-width: 768px)');
@@ -22,7 +26,9 @@
 	function toggleTheme() {
 		theme.update((currentTheme) => {
 			const newTheme = !currentTheme;
-			localStorage.setItem('theme', newTheme ? 'dark' : 'light');
+			if (typeof localStorage !== 'undefined') {
+				localStorage.setItem('theme', newTheme ? 'dark' : 'light');
+			}
 			return newTheme;
 		});
 	}
@@ -40,8 +46,10 @@
 				class="link"
 				class:light={!$theme}
 				class:dark={$theme}
+				class:active={currentPath === '/'}
 				href="/"
 				aria-label="Go to Home"
+				data-sveltekit-preload-data="hover"
 			>
 				<img class="fieldwing-logo" src="/fieldwing.png" alt="Fieldwing Logo" />
 			</a>
@@ -51,8 +59,10 @@
 				class="link"
 				class:light={!$theme}
 				class:dark={$theme}
+				class:active={currentPath === '/game-results'}
 				href="/game-results"
 				aria-label="Go to Game Results page"
+				data-sveltekit-preload-data="hover"
 			>
 				Games
 			</a>
@@ -62,8 +72,10 @@
 				class="link"
 				class:light={!$theme}
 				class:dark={$theme}
+				class:active={currentPath === '/matchups'}
 				href="/matchups"
 				aria-label="Go to Head-to-Head Matchups page"
+				data-sveltekit-preload-data="hover"
 			>
 				Matchups
 			</a>
@@ -73,8 +85,10 @@
 				class="link"
 				class:light={!$theme}
 				class:dark={$theme}
+				class:active={currentPath === '/players'}
 				href="/players"
 				aria-label="Go to Player Statistics page"
+				data-sveltekit-preload-data="hover"
 			>
 				Player Stats
 			</a>
@@ -84,8 +98,10 @@
 				class="link"
 				class:light={!$theme}
 				class:dark={$theme}
+				class:active={currentPath === '/teams'}
 				href="/teams"
 				aria-label="Go to Team Statistics page"
+				data-sveltekit-preload-data="hover"
 			>
 				Team Stats
 			</a>
@@ -96,7 +112,8 @@
 					class:light={!$theme}
 					class:dark={$theme}
 					on:click={toggleTheme}
-					aria-label={`Toggle ${$theme ? 'light' : 'dark'} theme`}
+					aria-label={`Switch to ${$theme ? 'light' : 'dark'} theme`}
+					type="button"
 				>
 					<ThemeIcons />
 				</button>
@@ -153,6 +170,17 @@
 		text-decoration: none;
 	}
 
+	.link.active {
+		background-color: var(--primary-color, #424ae1);
+		color: white !important;
+		border-radius: 0.375rem;
+	}
+
+	.link.active:hover {
+		background-color: var(--primary-hover-color, #363dc4);
+		text-decoration: none;
+	}
+
 	#home-shortcut,
 	#games-shortcut,
 	#matchup-shortcut,
@@ -184,6 +212,11 @@
 		justify-content: center;
 	}
 
+	.mobile-container {
+		width: 100%;
+		max-width: 100%;
+		box-sizing: border-box;
+	}
 	button {
 		width: 1.5rem;
 		height: auto;
@@ -200,6 +233,21 @@
 
 	button:active {
 		translate: 0 1px;
+	}
+
+	/* Focus styles for mobile accessibility */
+	@media (max-width: 768px) {
+		*:focus {
+			outline: 2px solid #3b82f6;
+			outline-offset: 2px;
+		}
+	}
+
+	/* Focus styles for accessibility */
+	.link:focus,
+	#theme:focus {
+		outline: 2px solid var(--primary-color, #424ae1);
+		outline-offset: 2px;
 	}
 
 	@keyframes fadeIn {

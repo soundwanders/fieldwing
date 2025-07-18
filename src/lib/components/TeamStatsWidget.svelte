@@ -1,5 +1,4 @@
 <!-- TeamStatsWidget.svelte -->
-
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { statsNameTrim } from '$lib/utils/statsNameTrim';
@@ -25,7 +24,7 @@
 		const inputValue = Number(event.currentTarget.value);
 
 		if (inputValue < 1 || inputValue > 14 || isNaN(inputValue)) {
-			// If the value is negative, greater than 14, or not a number, we prevent the change
+			// If the value is negative, greater than 14, or not a number prevent the change
 			event.currentTarget.value = '';
 		}
 	}
@@ -214,16 +213,99 @@
 	.invalid {
 		border: 1px solid #ff4b4b;
 	}
-
 	@media (max-width: 768px) {
-		.stats-sort-form {
-			align-items: flex-end;
-			gap: 0.675rem;
+		.stats-widget {
+			width: 100%;
+			padding: 1rem;
+			box-sizing: border-box;
 		}
-		
+
+		.stats-sort-form {
+			display: flex;
+			flex-direction: column;
+			gap: 1rem;
+			width: 100%;
+			align-items: stretch;
+		}
+
+		label {
+			display: flex;
+			flex-direction: column;
+			width: 100%;
+			font-size: 0.875rem;
+			line-height: 1.25rem;
+			gap: 0.25rem;
+		}
+
 		input {
 			width: 100%;
-			margin-top: 0.25rem;
+			padding: 0.75rem;
+			box-sizing: border-box;
+			background-color: var(--form-sub-background-color);
+			color: var(--input-text-color);
+			border: 1px solid #ccc;
+			border-radius: 0.5rem;
+			font-size: 16px; /* Prevent iOS zoom */
+			margin-top: 0;
+		}
+
+		.button-container {
+			width: 100%;
+			margin: 1.5rem 0;
+			display: flex;
+			justify-content: center;
+		}
+
+		.submit-button {
+			width: 100%;
+			max-width: 200px;
+			padding: 0.875rem 1rem;
+			font-size: 1rem;
+			border: none;
+			border-radius: 0.5rem;
+			color: #fff;
+			background-color: var(--primary-color);
+			cursor: pointer;
+			touch-action: manipulation;
+		}
+
+		.submit-button:hover {
+			opacity: 0.9;
+		}
+
+		.submit-button:disabled {
+			background-color: var(--button-disabled-background-color);
+			cursor: not-allowed;
+		}
+
+		.invalid {
+			border: 1px solid #ff4b4b;
+			background-color: rgba(255, 75, 75, 0.1);
+		}
+	}
+
+	/* Extra small mobile devices */
+	@media (max-width: 360px) {
+		.stats-widget {
+			padding: 0.75rem;
+		}
+
+		.stats-sort-form {
+			gap: 0.75rem;
+		}
+
+		input {
+			padding: 0.625rem;
+			font-size: 16px;
+		}
+
+		label {
+			font-size: 0.8rem;
+		}
+
+		.submit-button {
+			padding: 0.75rem 1rem;
+			font-size: 0.9rem;
 		}
 	}
 </style>

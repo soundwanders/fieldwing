@@ -1,470 +1,802 @@
 <script lang="ts">
+	import { onMount, onDestroy } from 'svelte';
 	import { page } from '$app/stores';
+	import { goto } from '$app/navigation';
 	import { theme } from '$lib/stores/theme';
-	import { capitalizeFirstChar } from '$lib/utils/capitalizeFirstChar';
-	import { onMount } from 'svelte';
-	import TeamStatsWidget from '../../components/TeamStatsWidget.svelte';
-	import '../../styles/main.css';
+	import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
+	import ErrorMessage from '$lib/components/ErrorMessage.svelte';
+	import FormField from '$lib/components/FormField.svelte';
+	import TeamStatsTable from '$lib/components/TeamStatsTable.svelte';
+	import type { TeamStat } from '$lib/types/api';
+	import ExportButton from '$lib/components/ExportButton.svelte';
 
-	export let data: { teamData?: any };
-	const { teamData } = data;
+	export let data: {
+		teamData?: { teamStatsData: TeamStat[]; total: number };
+		searchParams?: Record<string, string>;
+		error?: string;
+	} = {};
 
-	const statTypeDisplayNames: Record<string, string> = {
-		firstDowns: 'First Downs',
-		fourthDownConversions: 'Fourth Down Conversions',
-		fourthDowns: 'Fourth Downs',
-		fumblesLost: 'Fumbles Lost',
-		fumblesRecovered: 'Fumbles Recovered',
-		games: 'Games',
-		interceptions: 'Interceptions',
-		interceptionTDs: 'Interception TDs',
-		interceptionYards: 'Interception Yards',
-		kickReturns: 'Kick Returns',
-		kickReturnTDs: 'Kick Return TDs',
-		kickReturnYards: 'Kick Return Yards',
-		netPassingYards: 'Net Passing Yards',
-		passAttempts: 'Pass Attempts',
-		passCompletions: 'Pass Completions',
-		passesIntercepted: 'Passes Intercepted',
-		passingTDs: 'Passing TDs',
-		penalties: 'Penalties',
-		penaltyYards: 'Penalty Yards',
-		possessionTime: 'Possession Time',
-		puntReturns: 'Punt Returns',
-		puntReturnTDs: 'Punt Return TDs',
-		puntReturnYards: 'Punt Return Yards',
-		qbHurries: 'QB Hurries',
-		rushingAttempts: 'Rushing Attempts',
-		rushingTDs: 'Rushing TDs',
-		rushingYards: 'Rushing Yards',
-		sacks: 'Sacks',
-		tackles: 'Tackles',
-		tacklesForLoss: 'Tackles for Loss',
-		thirdDowns: 'Third Downs',
-		thirdDownConversions: 'Third Down Conversions',
-		totalFumbles: 'Total Fumbles',
-		totalPenaltiesYards: 'Total Penalty Yards',
-		totalYards: 'Total Yards',
-		turnovers: 'Turnovers',
-		yardsPerPass: 'Yards Per Pass',
-		yardsPerRushAttempt: 'Yards Per Rush Attempt'
+	// Component state
+	let teamStats: TeamStat[] = [];
+	let isLoading = false;
+	let error: string | null = null;
+	let totalItems = 0;
+	let isInitialized = false;
+
+	// Form state
+	let searchParams = {
+		year: '',
+		team: '',
+		conference: '',
+		startWeek: '',
+		endWeek: ''
 	};
 
-	// Define types for team stats
-	interface TeamStat {
-		team: string;
-		conference: string;
-		startWeek: number;
-		endWeek: number;
-		statName: string;
-		statValue: string;
+	// Form validation
+	let formErrors: Record<string, string> = {};
+
+	// Reactive variables for export functionality (similar to games route)
+	$: hasResults = teamStats.length > 0;
+	$: exportData = teamStats; // The data we want to export
+	$: exportFilename = (() => {
+		let filename = `team-stats-${searchParams.year}`;
+		if (searchParams.team) filename += `-${searchParams.team.replace(/\s+/g, '-')}`;
+		if (searchParams.conference) filename += `-${searchParams.conference}`;
+		if (searchParams.startWeek && searchParams.endWeek) {
+			filename += `-weeks-${searchParams.startWeek}-${searchParams.endWeek}`;
+		} else if (searchParams.startWeek) {
+			filename += `-week-${searchParams.startWeek}+`;
+		} else if (searchParams.endWeek) {
+			filename += `-week-1-${searchParams.endWeek}`;
+		}
+		return filename;
+	})();
+
+	// Initialize from server data or URL parameters
+	function initializeFromData(): void {
+		if (typeof window === 'undefined') return;
+
+		const urlParams = new URLSearchParams(window.location.search);
+
+		searchParams = {
+			year: urlParams.get('year') || data.searchParams?.year || new Date().getFullYear().toString(),
+			team: urlParams.get('team') || data.searchParams?.team || '',
+			conference: urlParams.get('conference') || data.searchParams?.conference || '',
+			startWeek: urlParams.get('startWeek') || data.searchParams?.startWeek || '',
+			endWeek: urlParams.get('endWeek') || data.searchParams?.endWeek || ''
+		};
+
+		// If we have server data, use it
+		if (data.teamData?.teamStatsData) {
+			teamStats = data.teamData.teamStatsData;
+			totalItems = data.teamData.total;
+		}
 	}
 
-	// Define types for team data
-	interface TeamData {
-		teamStatsData: TeamStat[];
-	}
+	// Form validation function
+	function validateForm(): boolean {
+		formErrors = {};
 
-	let pageSize: number = 18;
-	let pageTitle: string = '';
-
-	$: totalItems = teamData ? teamData.total : 0;
-	$: totalPages = Math.ceil(totalItems / pageSize);
-	$: currentPage = selectedStat === '' ? Number($page.url.searchParams.get('skip')) / pageSize : 0;
-
-	$: year = $page.url.searchParams.get('year') || '';
-	$: team = $page.url.searchParams.get('team') || '';
-	$: conference = $page.url.searchParams.get('conference') || '';
-	$: startWeek = $page.url.searchParams.get('startWeek') || '';
-	$: endWeek = $page.url.searchParams.get('endWeek') || '';
-
-	let sortOrder: 'asc' | 'desc' = 'desc';
-	let sortBy: keyof TeamStat = 'team';
-	let selectedStat: string | number = '';
-
-	// Ascending/Descending sort function for teamStatsData
-	function sortTeamStatsData(teamStatsData: TeamStat[]): TeamStat[] {
-		return teamStatsData.sort((a, b) => {
-			const valueA = a[selectedStat as keyof TeamStat];
-			const valueB = b[selectedStat as keyof TeamStat];
-
-			// Convert the values to strings before comparison
-			const stringA = String(valueA);
-			const stringB = String(valueB);
-
-			if (stringA < stringB) return sortOrder === 'asc' ? -1 : 1;
-			if (stringA > stringB) return sortOrder === 'asc' ? 1 : -1;
-			return 0;
-		});
-	}
-
-	function toggleSortOrder(event: Event & { currentTarget: HTMLSelectElement }) {
-		const column = event.currentTarget.value;
-		sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
-		selectedStat = column;
-		sortBy = column as keyof TeamStat;
-
-		// Update the sortedTeamStatsData based on the new sort order
-		sortedTeamStatsData = sortTeamStatsData(teamData?.teamStatsData || []);
-		console.log('Sorted Data:', sortedTeamStatsData);
-	}
-
-	$: sortedTeamStatsData = sortTeamStatsData(teamData?.teamStatsData || []);
-
-	let filteredTeamStatsData: TeamStat[] = [];
-
-	$: filteredTeamStatsData =
-		selectedStat === ''
-			? teamData?.teamStatsData.slice()
-			: teamData?.teamStatsData.filter(
-					(stat: { statName: string | number }) => stat.statName === selectedStat
-			  );
-
-	onMount(() => {
-		let formattedTeamName = team ? capitalizeFirstChar(team) : '';
-		let formattedConference = conference ? `${conference.toUpperCase()}` : '';
-		// Build the title based on the presence of each parameter
-		if (team && !conference) {
-			pageTitle += `${formattedTeamName}`;
-		} else if (!team && conference) {
-			pageTitle += `${formattedConference}`;
-		} else if (team && conference) {
-			pageTitle += `${formattedTeamName} - ${formattedConference}`;
+		if (!searchParams.year) {
+			formErrors.year = 'Year is required';
+			return false;
 		}
 
-		if (year) pageTitle += ` - ${year}`;
-		if (startWeek) pageTitle += ` - Week ${startWeek}`;
-		if (endWeek) pageTitle += ` to ${endWeek}`;
+		const year = parseInt(searchParams.year);
+		const currentYear = new Date().getFullYear();
+		if (isNaN(year) || year < 1900 || year > currentYear + 1) {
+			formErrors.year = `Year must be between 1900 and ${currentYear + 1}`;
+			return false;
+		}
+
+		if (searchParams.startWeek) {
+			const week = parseInt(searchParams.startWeek);
+			if (isNaN(week) || week < 1 || week > 14) {
+				formErrors.startWeek = 'Start week must be between 1 and 14';
+				return false;
+			}
+		}
+
+		if (searchParams.endWeek) {
+			const week = parseInt(searchParams.endWeek);
+			if (isNaN(week) || week < 1 || week > 14) {
+				formErrors.endWeek = 'End week must be between 1 and 14';
+				return false;
+			}
+		}
+
+		if (searchParams.startWeek && searchParams.endWeek) {
+			const start = parseInt(searchParams.startWeek);
+			const end = parseInt(searchParams.endWeek);
+			if (start > end) {
+				formErrors.endWeek = 'End week must be greater than or equal to start week';
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	// API call function
+	async function fetchTeamStats(): Promise<void> {
+		if (!validateForm()) {
+			teamStats = [];
+			totalItems = 0;
+			return;
+		}
+
+		isLoading = true;
+		error = null;
+
+		try {
+			const params = new URLSearchParams();
+			params.set('year', searchParams.year);
+
+			if (searchParams.team) params.set('team', searchParams.team);
+			if (searchParams.conference) params.set('conference', searchParams.conference);
+			if (searchParams.startWeek) params.set('startWeek', searchParams.startWeek);
+			if (searchParams.endWeek) params.set('endWeek', searchParams.endWeek);
+
+			const response = await fetch(`/api/team-stats?${params.toString()}`);
+
+			if (!response.ok) {
+				const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+				throw new Error(errorData.error || `HTTP ${response.status}`);
+			}
+
+			const result = await response.json();
+
+			if (result.data && Array.isArray(result.data)) {
+				teamStats = result.data;
+				totalItems = result.data.length;
+
+				if (teamStats.length === 0 && searchParams.year) {
+					error = 'No team statistics found for your search criteria. Try adjusting your filters.';
+				}
+			} else {
+				throw new Error('Invalid response format');
+			}
+		} catch (err) {
+			error = err instanceof Error ? err.message : 'Failed to fetch team stats';
+			teamStats = [];
+			totalItems = 0;
+		} finally {
+			isLoading = false;
+		}
+	}
+
+	// Handle form field changes
+	function handleFieldChange(event: CustomEvent<{ value: string | number }>, field: string): void {
+		searchParams = {
+			...searchParams,
+			[field]: event.detail.value
+		};
+
+		// Clear errors for this field
+		if (formErrors[field]) {
+			const newErrors = { ...formErrors };
+			delete newErrors[field];
+			formErrors = newErrors;
+		}
+	}
+
+	// Handle form submission
+	function handleSearch(): void {
+		if (!validateForm()) {
+			return;
+		}
+
+		// Update URL and trigger search
+		const url = new URL(window.location.href);
+		Object.entries(searchParams).forEach(([key, value]) => {
+			if (value && value !== '') {
+				url.searchParams.set(key, String(value));
+			} else {
+				url.searchParams.delete(key);
+			}
+		});
+
+		goto(url.pathname + url.search, { replaceState: true });
+		fetchTeamStats();
+	}
+
+	// Initialize on mount
+	onMount(() => {
+		initializeFromData();
+		isInitialized = true;
+	});
+
+	// Cleanup
+	onDestroy(() => {
+		// Any cleanup needed
 	});
 </script>
 
-<div class="stats-wrapper" class:light={!$theme} class:dark={$theme}>
-	<section class="stats-section">
-		{#if sortedTeamStatsData && sortedTeamStatsData.length > 0}
-			<div class="header-image-wrapper">
-				<img class="teams-image" src="/teams.png" alt="Team Stats" aria-hidden="true" />
-				<h1 class="main-title" class:light={!$theme} class:dark={$theme}>
-					{pageTitle}
-				</h1>
-			</div>
+<svelte:head>
+	<title>Team Statistics - Fieldwing</title>
+	<meta
+		name="description"
+		content="Search college football team statistics by year, team, conference, and week range."
+	/>
+</svelte:head>
 
-			<div class="stat-search-widget">
-				<TeamStatsWidget />
+<div class="wrapper" class:light={!$theme} class:dark={$theme}>
+	<div class="container">
+		<!-- Header Section -->
+		<div class="header-section">
+			<div class="header-content">
+				<img class="header-icon" src="/teamstats.png" alt="Team Stats" />
+				<h1 class="page-title">Team Statistics</h1>
 			</div>
+		</div>
 
-			<div class="sorting-controls" class:light={!$theme} class:dark={$theme}>
-				<label for="sortSelect">Sort By:</label>
-				<select id="statSelect" bind:value={selectedStat} on:change={toggleSortOrder}>
-					<option value="">All Stats</option>
-					{#each Object.entries(statTypeDisplayNames) as [stat, displayName]}
-						<option value={stat}>{displayName}</option>
-					{/each}
-				</select>
-			</div>
+		<!-- Search Form -->
+		<div class="search-section">
+			<div class="search-card">
+				<div class="search-header">
+					<h2 class="search-title">🔍 Search Team Stats</h2>
+					<p class="search-subtitle">Find team statistics by customizing your search criteria</p>
+				</div>
 
-			<div class="team-stats-container">
-				{#each filteredTeamStatsData.slice(currentPage * pageSize, (currentPage + 1) * pageSize) as teamStats}
-					<div class="team-stat-card">
-						<div class="card-header">
-							<h3 class="card-team">
-								{teamStats.team}
-							</h3>
-							<p class="card-conference">
-								{teamStats.conference}
-							</p>
-						</div>
-						<div class="card-body">
-							<p class="card-stat-name">
-								{statTypeDisplayNames[teamStats.statName]}
-							</p>
-							<p class="card-stat-value">
-								{teamStats.statValue}
-							</p>
+				<form on:submit|preventDefault={handleSearch} class="search-form">
+					<div class="form-grid">
+						<!-- Year -->
+						<FormField
+							label="Year"
+							type="number"
+							value={searchParams.year}
+							error={formErrors.year}
+							placeholder="2023"
+							min="1900"
+							max={new Date().getFullYear() + 1}
+							on:change={(e) => handleFieldChange(e, 'year')}
+						/>
+
+						<!-- Team -->
+						<FormField
+							label="Team"
+							type="text"
+							value={searchParams.team}
+							placeholder="e.g., Auburn"
+							on:change={(e) => handleFieldChange(e, 'team')}
+						/>
+
+						<!-- Conference -->
+						<FormField
+							label="Conference"
+							type="text"
+							value={searchParams.conference}
+							placeholder="e.g., SEC"
+							on:change={(e) => handleFieldChange(e, 'conference')}
+						/>
+
+						<!-- Start Week -->
+						<FormField
+							label="Start Week"
+							type="number"
+							value={searchParams.startWeek}
+							error={formErrors.startWeek}
+							placeholder="1"
+							min="1"
+							max="14"
+							on:change={(e) => handleFieldChange(e, 'startWeek')}
+						/>
+
+						<!-- End Week -->
+						<FormField
+							label="End Week"
+							type="number"
+							value={searchParams.endWeek}
+							error={formErrors.endWeek}
+							placeholder="14"
+							min="1"
+							max="14"
+							on:change={(e) => handleFieldChange(e, 'endWeek')}
+						/>
+
+						<!-- Search Button -->
+						<div class="form-actions">
+							<button
+								type="submit"
+								class="btn btn-primary"
+								disabled={isLoading || Object.keys(formErrors).length > 0}
+							>
+								{#if isLoading}
+									<span class="btn-spinner" />
+									Searching...
+								{:else}
+									🔍 Search Stats
+								{/if}
+							</button>
+
+							<!-- Export Button -->
+							{#if hasResults}
+								<div class="export-container">
+									<ExportButton
+										data={exportData}
+										type="team-stats"
+										variant="outline"
+										size="medium"
+										filename={exportFilename}
+										showCount={true}
+									/>
+								</div>
+							{/if}
 						</div>
 					</div>
-				{/each}
-			</div>
 
-			<!-- Add pagination controls using $page -->
-			<div class="pagination" class:light={!$theme} class:dark={$theme} role="navigation">
-				{#each Array(totalPages) as _, idx}
-					<a
-						href="?limit={pageSize}&skip={pageSize * idx}"
-						class="pagination-item {currentPage === idx ? 'active' : ''}"
-						aria-label="Page number {currentPage}"
-					>
-						{idx + 1}
-					</a>
-				{/each}
+					<!-- Form Validation Summary -->
+					{#if Object.keys(formErrors).length > 0}
+						<div class="validation-summary">
+							<div class="validation-header">
+								<span class="validation-icon">⚠️</span>
+								<span class="validation-text">Please fix the following errors:</span>
+							</div>
+							<ul class="validation-list">
+								{#each Object.entries(formErrors) as [field, error]}
+									<li>{field}: {error}</li>
+								{/each}
+							</ul>
+						</div>
+					{/if}
+				</form>
 			</div>
-		{:else}
-			<div class="error-wrapper">
-				<p class="no-data-message">
-					No team stats data available,
-					<a
-						class="link"
-						class:light={!$theme}
-						class:dark={$theme}
-						href="/teams"
-						role="button"
-						aria-label="Return to Team Search page"
-					>
-						click here to try a different search,
-					</a>
-					or
-					<a
-						class="link"
-						class:light={!$theme}
-						class:dark={$theme}
-						href="/"
-						role="button"
-						aria-label="Return to Home page"
-					>
-						return to the home page.
-					</a>
-				</p>
+		</div>
+
+		<!-- Results Section -->
+		<div class="results-section">
+			<div class="results-card">
+				<!-- Results Header -->
+				<div class="results-header">
+					<div class="results-title-section">
+						<h2 class="results-title">
+							📈 Search Results
+							{#if teamStats.length > 0}
+								<span class="results-count">({teamStats.length} records)</span>
+							{/if}
+						</h2>
+						{#if searchParams.year && isInitialized}
+							<p class="results-subtitle">
+								Showing team statistics for {searchParams.year}
+								{#if searchParams.team}• {searchParams.team}{/if}
+								{#if searchParams.conference}• {searchParams.conference}{/if}
+							</p>
+						{/if}
+					</div>
+
+					{#if teamStats.length > 0}
+						<div class="results-actions">
+							<div class="export-container">
+								<ExportButton
+									data={exportData}
+									type="team-stats"
+									variant="primary"
+									size="small"
+									filename={exportFilename}
+									showCount={false}
+								/>
+							</div>
+						</div>
+					{/if}
+				</div>
+
+				<!-- Results Content -->
+				<div class="results-content">
+					{#if error}
+						<div class="error-state">
+							<div class="error-icon">❌</div>
+							<div class="error-content">
+								<h3>Search Error</h3>
+								<p>{error}</p>
+								<button class="btn btn-primary" on:click={fetchTeamStats}> 🔄 Try Again </button>
+							</div>
+						</div>
+					{:else if isLoading}
+						<div class="loading-state">
+							<LoadingSpinner size="large" text="Searching team statistics..." />
+						</div>
+					{:else if !searchParams.year}
+						<div class="empty-state">
+							<div class="empty-icon">🏈</div>
+							<div class="empty-content">
+								<h3>Ready to Search</h3>
+								<p>Enter a year above to start searching for team statistics.</p>
+							</div>
+						</div>
+					{:else if teamStats.length === 0 && isInitialized}
+						<div class="empty-state">
+							<div class="empty-icon">📊</div>
+							<div class="empty-content">
+								<h3>No Statistics Found</h3>
+								<p>No team statistics match your search criteria.</p>
+								<small
+									>Try adjusting your search parameters or check if data exists for the selected
+									year.</small
+								>
+							</div>
+						</div>
+					{:else if teamStats.length > 0}
+						<!-- Team Stats Table -->
+						<div class="table-section">
+							<TeamStatsTable stats={teamStats} sortable={true} />
+						</div>
+					{/if}
+				</div>
 			</div>
-		{/if}
-	</section>
+		</div>
+	</div>
 </div>
 
-<style module>
+<style>
 	.light {
-		--background-color: #f9f9f9;
-		--text-color: #1a202c;
-		--stat-name-color: #005ebb;
-		--table-border: #d6d6d6;
-		--subtle-text-color: #777;
+		--bg-primary: #ffffff;
+		--bg-secondary: #f8fafc;
+		--bg-tertiary: #f1f5f9;
+		--text-primary: #1e293b;
+		--text-secondary: #64748b;
+		--text-accent: #dc2626;
+		--border-primary: #e2e8f0;
+		--border-secondary: #cbd5e1;
+		--shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+		--shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+		--shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+		--accent-blue: #3b82f6;
+		--accent-green: #10b981;
+		--accent-orange: #f59e0b;
+		--accent-red: #ef4444;
 	}
 
 	.dark {
-		--background-color: #1a202c;
-		--text-color: #f9f9f9;
-		--stat-name-color: #bfc1ff;
-		--table-border: #444e64;
-		--subtle-text-color: #777;
+		--bg-primary: #1e293b;
+		--bg-secondary: #334155;
+		--bg-tertiary: #475569;
+		--text-primary: #f1f5f9;
+		--text-secondary: #cbd5e1;
+		--text-accent: #f87171;
+		--border-primary: #475569;
+		--border-secondary: #64748b;
+		--shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+		--shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+		--shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+		--accent-blue: #60a5fa;
+		--accent-green: #34d399;
+		--accent-orange: #fbbf24;
+		--accent-red: #f87171;
 	}
 
-	.stats-wrapper {
+	.wrapper {
 		min-height: 100vh;
-		width: 100%;
-		display: flex;
-		align-items: baseline;
-		justify-content: center;
-		background-color: var(--background-color);
-		background-image: var(--background-image);
+		background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+	}
+
+	.container {
+		max-width: 1400px;
+		margin: 0 auto;
+		padding: 2rem 1rem;
+	}
+
+	/* Header Styles */
+	.header-section {
+		text-align: center;
+		margin-bottom: 3rem;
+	}
+
+	.header-content {
+		max-width: 600px;
+		margin: 0 auto;
+	}
+
+	.header-icon {
+		width: 64px;
+		height: 64px;
+		margin-bottom: 1rem;
+		opacity: 0.9;
+	}
+
+	.page-title {
+		font-size: 2.5rem;
+		font-weight: 800;
+		color: var(--text-primary);
+		margin: 0 0 0.5rem 0;
+		line-height: 1.2;
+	}
+
+	/* Search Section */
+	.search-section {
+		margin-bottom: 3rem;
+	}
+
+	.search-card {
+		background: var(--bg-primary);
+		border-radius: 1rem;
+		box-shadow: var(--shadow-lg);
+		overflow: hidden;
+		border: 1px solid var(--border-primary);
+	}
+
+	.search-header {
+		background: linear-gradient(135deg, var(--accent-blue), var(--accent-green));
+		color: white;
+		padding: 2rem;
+		text-align: center;
+	}
+
+	.search-title {
+		font-size: 1.5rem;
+		font-weight: 700;
+		margin: 0 0 0.5rem 0;
+	}
+
+	.search-subtitle {
 		margin: 0;
-		padding: 0;
+		opacity: 0.9;
+		font-size: 1rem;
 	}
 
-	.stats-section {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		flex-direction: column;
-		width: 100vw;
-		color: var(--text-color);
+	.search-form {
+		padding: 2rem;
 	}
 
-	.sorting-controls {
-		margin-bottom: 1.5rem;
-	}
-
-	label {
-		margin-right: 0.75rem;
-		font-weight: bold;
-	}
-
-	select {
-		padding: 8px;
-		border: 1px solid #ccc;
-		border-radius: 5px;
-		background-color: var(--background-color);
-		color: var(--text-color);
-		cursor: pointer;
-	}
-
-	.header-image-wrapper {
-		display: flex;
-		justify-content: center;
-		align-items: center;
+	.form-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+		gap: 1.5rem;
 		margin-bottom: 2rem;
 	}
 
-	.teams-image {
-		height: auto;
-		width: 4.675%;
-		margin-right: 0.75rem;
-		margin-bottom: 1rem;
-	}
-
-	.main-title {
-		max-inline-size: 50ch;
-		text-wrap: balance;
-		text-align: center;
-		font-size: 2.25rem;
-		line-height: 2.5rem;
-	}
-
-	.team-stats-container {
+	.form-actions {
+		grid-column: 1 / -1;
 		display: flex;
-		flex-wrap: wrap;
-		justify-content: flex-start;
 		gap: 1rem;
-		width: 90%;
-	}
-
-	.team-stat-card {
-		background-color: var(--background-color);
-		border: 1px solid var(--table-border);
-		border-radius: 8px;
-		padding: 1.5rem;
-		width: calc(16.666% - 1rem);
-		box-sizing: border-box;
-		transition: transform 0.3s ease, background-color 0.3s ease;
-		overflow: hidden;
-	}
-
-	.team-stat-card:hover {
-		transform: scale(1.03);
-	}
-
-	.card-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: baseline;
-	}
-
-	.card-header h3 {
-		margin: 0;
-		font-size: 0.75rem;
-		font-weight: bold;
-		color: var(--subtle-text-color);
-		transition: color 0.3s ease;
-	}
-
-	.card-header p {
-		margin: 0;
-		font-size: 0.75rem;
-		color: var(--subtle-text-color);
-	}
-
-	.card-body {
-		font-size: 1.1rem;
-		font-weight: 500;
-		color: var(--stat-name-color);
-	}
-
-	.card-stat-value {
-		display: inline;
-		font-size: 3rem;
-		font-weight: bold;
-		color: var(--text-color);
-	}
-
-	.error-wrapper {
-		min-height: 100vh;
-		width: 100%;
-		display: flex;
-		align-items: baseline;
 		justify-content: center;
-		background-color: var(--background-color);
-		background-image: none;
-		margin: 0;
-		padding: 0;
+		flex-wrap: wrap;
 	}
 
-	.no-data-message {
-		font-size: 1.125rem;
-		line-height: 1.75rem;
-		color: var(--text-color);
-		background-color: var(--background-color);
-		background-image: none;
-	}
-
-	.pagination {
+	/* Button Styles */
+	.btn {
+		padding: 0.75rem 1.5rem;
+		border: none;
+		border-radius: 0.5rem;
+		font-size: 0.875rem;
+		font-weight: 600;
+		cursor: pointer;
+		transition: all 0.2s ease;
 		display: flex;
-		max-width: 80%;
-		list-style: none;
-		padding: 0;
-		margin: 2rem 0;
-		overflow-x: auto;
-	}
-
-	.pagination a {
-		color: var(--text-color);
+		align-items: center;
+		gap: 0.5rem;
 		text-decoration: none;
 	}
 
-	.pagination-item {
-		margin: 0 0.3rem;
-		padding: 0.5rem 0.75rem;
-		border-radius: 0.25rem;
-		cursor: pointer;
-		background-color: var(--background-color);
-		transition: background-color 0.3s ease;
+	.btn:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+		transform: none;
 	}
 
-	.pagination-item.active {
-		background-color: #0051a8;
-		color: #fff;
+	.btn-primary {
+		background: var(--accent-blue);
+		color: white;
 	}
 
-	.pagination-item:hover {
-		background-color: #555;
+	.btn-primary:hover:not(:disabled) {
+		background: var(--accent-blue);
+		transform: translateY(-2px);
+		box-shadow: var(--shadow-md);
 	}
 
-	@media (max-width: 768px) {
-		.stats-wrapper {
-			min-height: 100%;
-			width: 100%;
-			margin: 0;
-			padding: 0;
-		}
-
-		.stats-section {
-			flex-direction: column;
-			gap: 0;
-			min-height: 100%;
-			width: 90%;
-			margin-top: 0.25rem;
-		}
-
-		.header-image-wrapper {
-			width: 90%;
-			margin-bottom: 1rem;
-		}
-
-		.teams-image {
-			display: none;
-		}
-
-		.team-stat-card {
-			padding: 1rem;
-			width: 100%;
-		}
-
-		.main-title {
-			font-size: 1.25rem;
-			line-height: 1.75rem;
-			margin-left: -1rem;
-		}
-
-		.sorting-controls {
-			margin: 0.5rem 0 1rem 1rem;
-		}
-
-		.pagination {
-			margin: 1rem 0 4rem 0;
-		}
+	.btn-spinner {
+		width: 1rem;
+		height: 1rem;
+		border: 2px solid currentColor;
+		border-right-color: transparent;
+		border-radius: 50%;
+		animation: spin 0.8s linear infinite;
 	}
 
-	@keyframes fadeIn {
-		from {
-			opacity: 0;
-		}
+	@keyframes spin {
 		to {
-			opacity: 1;
+			transform: rotate(360deg);
+		}
+	}
+
+	/* Validation Styles */
+	.validation-summary {
+		background: var(--accent-red);
+		color: white;
+		border-radius: 0.75rem;
+		padding: 1.5rem;
+		margin-top: 1.5rem;
+	}
+
+	.validation-header {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		margin-bottom: 1rem;
+	}
+
+	.validation-icon {
+		font-size: 1.25rem;
+	}
+
+	.validation-text {
+		font-weight: 600;
+	}
+
+	.validation-list {
+		margin: 0;
+		padding-left: 1.5rem;
+	}
+
+	.validation-list li {
+		margin: 0.25rem 0;
+	}
+
+	/* Results Section */
+	.results-section {
+		margin-bottom: 3rem;
+	}
+
+	.results-card {
+		background: var(--bg-primary);
+		border-radius: 1rem;
+		box-shadow: var(--shadow-lg);
+		overflow: hidden;
+		border: 1px solid var(--border-primary);
+	}
+
+	.results-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-start;
+		padding: 2rem;
+		background: var(--bg-secondary);
+		border-bottom: 1px solid var(--border-primary);
+	}
+
+	.results-title-section {
+		flex: 1;
+	}
+
+	.results-title {
+		font-size: 1.5rem;
+		font-weight: 700;
+		color: var(--text-primary);
+		margin: 0 0 0.5rem 0;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.results-count {
+		font-size: 1rem;
+		font-weight: 500;
+		color: var(--text-secondary);
+	}
+
+	.results-subtitle {
+		color: var(--text-secondary);
+		margin: 0;
+		font-size: 0.875rem;
+	}
+
+	.results-actions {
+		flex-shrink: 0;
+	}
+
+	.results-content {
+		padding: 2rem;
+	}
+
+	/* State Styles */
+	.loading-state,
+	.empty-state,
+	.error-state {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding: 4rem 2rem;
+		text-align: center;
+	}
+
+	.empty-icon,
+	.error-icon {
+		font-size: 4rem;
+		margin-bottom: 1rem;
+		opacity: 0.6;
+	}
+
+	.empty-content h3,
+	.error-content h3 {
+		color: var(--text-primary);
+		margin: 0 0 0.5rem 0;
+		font-size: 1.5rem;
+		font-weight: 600;
+	}
+
+	.empty-content p,
+	.error-content p {
+		color: var(--text-secondary);
+		margin: 0 0 1rem 0;
+		font-size: 1.125rem;
+		line-height: 1.5;
+	}
+
+	.empty-content small {
+		color: var(--text-secondary);
+		opacity: 0.8;
+		font-size: 0.875rem;
+		display: block;
+		margin-top: 0.5rem;
+	}
+
+	.table-section {
+		margin-bottom: 2rem;
+	}
+
+	/* Responsive Design */
+	@media (max-width: 768px) {
+		.container {
+			padding: 1rem 0.5rem;
+		}
+
+		.page-title {
+			font-size: 2rem;
+		}
+
+		.header-icon {
+			width: 48px;
+			height: 48px;
+		}
+
+		.form-grid {
+			grid-template-columns: 1fr;
+			gap: 1rem;
+		}
+
+		.search-header,
+		.search-form {
+			padding: 1.5rem;
+		}
+
+		.results-header {
+			padding: 1.5rem;
+			flex-direction: column;
+			gap: 1rem;
+			align-items: stretch;
+		}
+
+		.results-content {
+			padding: 1.5rem;
+		}
+
+		.form-actions {
+			flex-direction: column;
+			align-items: stretch;
+		}
+
+		.btn {
+			justify-content: center;
+		}
+	}
+
+	@media (max-width: 480px) {
+		.search-title {
+			font-size: 1.25rem;
+		}
+
+		.results-title {
+			font-size: 1.25rem;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 0.25rem;
+		}
+
+		.loading-state,
+		.empty-state,
+		.error-state {
+			padding: 3rem 1rem;
 		}
 	}
 </style>

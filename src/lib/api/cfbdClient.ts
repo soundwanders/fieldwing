@@ -1,4 +1,4 @@
-// src/lib/api/cfbdClient.ts 
+// src/lib/api/cfbdClient.ts
 import { CFBD_API_KEY } from '$env/static/private';
 import { error } from '@sveltejs/kit';
 
@@ -239,12 +239,17 @@ class CFBDApiClient {
 		if (!params.search_term || params.search_term.trim().length < 2) {
 			throw new Error('Search term is required and must be at least 2 characters');
 		}
-		
+
 		// Use shorter cache time for player searches since they're more dynamic
-		return this.request('/player/search', params, { 
-			validateResponse: false,
-			cache: true
-		}, isPlayer);
+		return this.request(
+			'/player/search',
+			params,
+			{
+				validateResponse: false,
+				cache: true
+			},
+			isPlayer
+		);
 	}
 
 	async getTeamStats(params: TeamStatsSearchParams): Promise<TeamStat[]> {

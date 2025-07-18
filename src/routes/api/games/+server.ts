@@ -94,8 +94,8 @@ export const GET: RequestHandler = async ({ url }) => {
 		const statusCode = errorMessage.includes('400')
 			? 400
 			: errorMessage.includes('404')
-			? 404
-			: 500;
+				? 404
+				: 500;
 
 		return json(
 			{

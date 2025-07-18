@@ -577,7 +577,9 @@
 
 	.game-card:hover {
 		transform: translateY(-4px);
-		box-shadow: var(--shadow-lg), 0 20px 25px -5px rgb(0 0 0 / 0.1);
+		box-shadow:
+			var(--shadow-lg),
+			0 20px 25px -5px rgb(0 0 0 / 0.1);
 	}
 
 	.game-card.recent {

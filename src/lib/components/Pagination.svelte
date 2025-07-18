@@ -61,11 +61,16 @@
 </script>
 
 {#if totalPages > 1}
-	<nav class="pagination" class:light={!$theme} class:dark={$theme} aria-label="Pagination Navigation">
+	<nav
+		class="pagination"
+		class:light={!$theme}
+		class:dark={$theme}
+		aria-label="Pagination Navigation"
+	>
 		<div class="pagination-info">
 			<span class="pagination-text">
-				Showing <strong>{startItem.toLocaleString()}</strong> to 
-				<strong>{endItem.toLocaleString()}</strong> of 
+				Showing <strong>{startItem.toLocaleString()}</strong> to
+				<strong>{endItem.toLocaleString()}</strong> of
 				<strong>{totalItems.toLocaleString()}</strong> results
 			</span>
 		</div>

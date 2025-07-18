@@ -54,7 +54,7 @@ export const GET: RequestHandler = async () => {
 					? [
 							!checks.apiKeyConfigured && 'Set CFBD_API_KEY environment variable',
 							!checks.upstreamApiAccessible && 'Check API key permissions and network connectivity'
-					  ].filter(Boolean)
+						].filter(Boolean)
 					: []
 			},
 			{

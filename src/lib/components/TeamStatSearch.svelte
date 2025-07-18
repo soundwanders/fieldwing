@@ -89,10 +89,10 @@
 			startWeek && endWeek
 				? `Week ${startWeek}-${endWeek}`
 				: startWeek
-				? `From week ${startWeek}`
-				: endWeek
-				? `Through week ${endWeek}`
-				: 'Full season',
+					? `From week ${startWeek}`
+					: endWeek
+						? `Through week ${endWeek}`
+						: 'Full season',
 		seasonType: seasonType.charAt(0).toUpperCase() + seasonType.slice(1),
 		categories: selectedCategories.length > 0 ? selectedCategories.join(', ') : 'All categories'
 	};
@@ -1184,7 +1184,9 @@
 
 	.submit-button:hover:not(:disabled) {
 		transform: translateY(-3px);
-		box-shadow: var(--shadow-lg), 0 10px 20px rgba(236, 72, 153, 0.3);
+		box-shadow:
+			var(--shadow-lg),
+			0 10px 20px rgba(236, 72, 153, 0.3);
 	}
 
 	.submit-button:disabled {

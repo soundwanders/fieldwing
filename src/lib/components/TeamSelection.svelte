@@ -376,7 +376,7 @@
 								href={selectedTeamsArray.length > 0
 									? `/games?teams=${selectedTeamsArray.join(
 											','
-									  )}&year=${selectedYear}&week=${$selectedWeek}`
+										)}&year=${selectedYear}&week=${$selectedWeek}`
 									: '#'}
 								data-sveltekit-prefetch
 								class="submit-link"
@@ -1061,7 +1061,9 @@
 
 	.submit-button:hover:not(:disabled) {
 		transform: translateY(-3px);
-		box-shadow: var(--shadow-lg), 0 10px 20px rgba(59, 130, 246, 0.3);
+		box-shadow:
+			var(--shadow-lg),
+			0 10px 20px rgba(59, 130, 246, 0.3);
 	}
 
 	.submit-button:disabled {

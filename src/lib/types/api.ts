@@ -98,8 +98,8 @@ export interface PlayerStatsSearchParams {
 	year: number;
 	team?: string;
 	conference?: string;
-	startWeek?: number; 
-	endWeek?: number; 
+	startWeek?: number;
+	endWeek?: number;
 	seasonType?: 'regular' | 'postseason' | 'both';
 	category?: PlayerStatCategory;
 }
@@ -302,8 +302,16 @@ export function validateAPIResponse<T>(
 // Helper function to validate player stat category
 export function isValidPlayerStatCategory(category: string): category is PlayerStatCategory {
 	const validCategories: PlayerStatCategory[] = [
-		'passing', 'rushing', 'receiving', 'defense', 'kicking',
-		'punting', 'kickReturns', 'puntReturns', 'interceptions', 'fumbles'
+		'passing',
+		'rushing',
+		'receiving',
+		'defense',
+		'kicking',
+		'punting',
+		'kickReturns',
+		'puntReturns',
+		'interceptions',
+		'fumbles'
 	];
 	return validCategories.includes(category as PlayerStatCategory);
 }

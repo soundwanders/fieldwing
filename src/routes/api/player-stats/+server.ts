@@ -33,7 +33,7 @@ export const GET: RequestHandler = async ({ url }) => {
 
 		// For player-specific searches, we'll search across multiple years if no year is specified
 		const isPlayerSpecificSearch = playerNameParam && playerNameParam.trim();
-		
+
 		// Validate required parameters - year is only required if NOT searching for a specific player
 		if (!yearParam && !isPlayerSpecificSearch) {
 			return json(
@@ -73,7 +73,9 @@ export const GET: RequestHandler = async ({ url }) => {
 			for (let y = currentYear; y >= startSearchYear; y--) {
 				yearsToSearch.push(y);
 			}
-			console.log(`🔍 Searching for player "${playerNameParam}" across years: ${startSearchYear}-${currentYear} (${yearsToSearch.length} years)`);
+			console.log(
+				`🔍 Searching for player "${playerNameParam}" across years: ${startSearchYear}-${currentYear} (${yearsToSearch.length} years)`
+			);
 		} else if (year) {
 			yearsToSearch.push(year);
 		}
@@ -119,8 +121,16 @@ export const GET: RequestHandler = async ({ url }) => {
 				if (categoryParam && categoryParam.trim()) {
 					// Validate category against allowed values
 					const validCategories: PlayerStatCategory[] = [
-						'passing', 'rushing', 'receiving', 'defense', 'kicking', 
-						'punting', 'kickReturns', 'puntReturns', 'interceptions', 'fumbles'
+						'passing',
+						'rushing',
+						'receiving',
+						'defense',
+						'kicking',
+						'punting',
+						'kickReturns',
+						'puntReturns',
+						'interceptions',
+						'fumbles'
 					];
 					const category = categoryParam.trim() as PlayerStatCategory;
 					if (validCategories.includes(category)) {
@@ -132,22 +142,25 @@ export const GET: RequestHandler = async ({ url }) => {
 
 				// Call CFBD API using our client
 				const yearStats = await cfbdApi.getPlayerStats(cfbdParams);
-				
+
 				// If searching for a specific player, filter results by player name
 				let filteredStats = yearStats;
 				if (isPlayerSpecificSearch) {
 					const searchName = playerNameParam.toLowerCase().trim();
-					filteredStats = yearStats.filter(stat => 
-						stat.player && stat.player.toLowerCase().includes(searchName)
+					filteredStats = yearStats.filter(
+						(stat) => stat.player && stat.player.toLowerCase().includes(searchName)
 					);
-					console.log(`🎯 Found ${filteredStats.length} stats for "${playerNameParam}" in ${searchYear}`);
+					console.log(
+						`🎯 Found ${filteredStats.length} stats for "${playerNameParam}" in ${searchYear}`
+					);
 				}
 
 				allPlayerStats.push(...filteredStats);
-
 			} catch (error) {
 				console.error(`❌ Error fetching stats for year ${searchYear}:`, error);
-				searchErrors.push(`Year ${searchYear}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+				searchErrors.push(
+					`Year ${searchYear}: ${error instanceof Error ? error.message : 'Unknown error'}`
+				);
 				// Continue searching other years even if one fails
 			}
 		}
@@ -156,11 +169,15 @@ export const GET: RequestHandler = async ({ url }) => {
 
 		// Remove duplicates (same player, same year, same category)
 		const uniqueStats = allPlayerStats.filter((stat, index, arr) => {
-			return index === arr.findIndex(s => 
-				s.player === stat.player && 
-				s.year === stat.year && 
-				s.category === stat.category &&
-				s.team === stat.team
+			return (
+				index ===
+				arr.findIndex(
+					(s) =>
+						s.player === stat.player &&
+						s.year === stat.year &&
+						s.category === stat.category &&
+						s.team === stat.team
+				)
 			);
 		});
 
@@ -180,7 +197,9 @@ export const GET: RequestHandler = async ({ url }) => {
 		const total = uniqueStats.length;
 		const paginatedStats = uniqueStats.slice(skip, skip + limit);
 
-		console.log(`📄 Returning ${paginatedStats.length} stats (page ${Math.floor(skip / limit) + 1})`);
+		console.log(
+			`📄 Returning ${paginatedStats.length} stats (page ${Math.floor(skip / limit) + 1})`
+		);
 
 		// Include search info in response
 		const response: any = {
@@ -203,11 +222,14 @@ export const GET: RequestHandler = async ({ url }) => {
 				playerName: playerNameParam,
 				yearsSearched: yearsToSearch,
 				totalYearsSearched: yearsToSearch.length,
-				statsFoundByYear: yearsToSearch.reduce((acc, year) => {
-					const yearCount = allPlayerStats.filter(s => s.year === year).length;
-					if (yearCount > 0) acc[year] = yearCount;
-					return acc;
-				}, {} as Record<number, number>)
+				statsFoundByYear: yearsToSearch.reduce(
+					(acc, year) => {
+						const yearCount = allPlayerStats.filter((s) => s.year === year).length;
+						if (yearCount > 0) acc[year] = yearCount;
+						return acc;
+					},
+					{} as Record<number, number>
+				)
 			};
 		}
 
@@ -217,12 +239,11 @@ export const GET: RequestHandler = async ({ url }) => {
 		}
 
 		return json(response);
-
 	} catch (error) {
 		console.error('❌ Player stats API error:', error);
-		
+
 		const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-		
+
 		return json(
 			{
 				success: false,

@@ -102,42 +102,46 @@
 		// Convert year to string and handle both string/number types
 		const yearStr = String(year || '').trim();
 		const hasYear = yearStr && !isNaN(Number(yearStr)) && Number(yearStr) > 0;
-		
+
 		const hasSelectedPlayer = selectedPlayer && selectedPlayer.name;
 		const hasTypedPlayer = playerSearchQuery && String(playerSearchQuery).trim().length >= 2;
-		
+
 		console.log('📊 Validation flags:', {
 			hasYear,
 			hasSelectedPlayer,
 			hasTypedPlayer,
 			yearStr
 		});
-		
+
 		// Must have either year OR player selection OR typed player name
 		const hasValidSearchCriteria = hasYear || hasSelectedPlayer || hasTypedPlayer;
-		
+
 		// Week range validation (if provided) - also handle number/string conversion
 		const hasValidWeekRange = (() => {
 			const startWeekNum = startWeek ? Number(startWeek) : null;
 			const endWeekNum = endWeek ? Number(endWeek) : null;
-			
+
 			if (!startWeekNum && !endWeekNum) return true;
-			
+
 			if (startWeekNum && endWeekNum) {
-				return startWeekNum >= 1 && startWeekNum <= 20 && 
-						endWeekNum >= 1 && endWeekNum <= 20 && 
-						startWeekNum <= endWeekNum;
+				return (
+					startWeekNum >= 1 &&
+					startWeekNum <= 20 &&
+					endWeekNum >= 1 &&
+					endWeekNum <= 20 &&
+					startWeekNum <= endWeekNum
+				);
 			}
-			
+
 			if (startWeekNum) return startWeekNum >= 1 && startWeekNum <= 20;
 			if (endWeekNum) return endWeekNum >= 1 && endWeekNum <= 20;
-			
+
 			return true;
 		})();
-		
+
 		const isValid = hasValidSearchCriteria && hasValidWeekRange;
 		console.log('✅ Form is valid:', isValid);
-		
+
 		return isValid;
 	})();
 
@@ -172,7 +176,7 @@
 			}
 
 			const result = await response.json();
-			
+
 			if (result.success && Array.isArray(result.data)) {
 				playerSearchResults = result.data;
 				if (playerSearchResults.length === 0) {
@@ -189,14 +193,14 @@
 			isSearchingPlayers = false;
 		}
 	}
-	
+
 	// Handle player selection
 	function selectPlayer(player: Player): void {
 		selectedPlayer = player;
 		team = player.team;
 		showPlayerSearch = false;
 		playerSearchQuery = player.name;
-		
+
 		console.log(`🎯 Selected player: ${player.name} from ${player.team}`);
 	}
 
@@ -213,12 +217,12 @@
 	function handlePlayerSearchInput(event: Event): void {
 		const target = event.target as HTMLInputElement;
 		playerSearchQuery = target.value;
-		
+
 		// Clear previous timeout
 		if (playerSearchTimeout) {
 			clearTimeout(playerSearchTimeout);
 		}
-		
+
 		// Debounce search
 		if (playerSearchQuery.trim().length >= 2) {
 			showPlayerSearch = true;
@@ -276,7 +280,7 @@
 	// Simple validation function
 	function validateData() {
 		const errors: Record<string, string> = {};
-		
+
 		if (year && String(year).trim()) {
 			const yearNum = Number(year);
 			if (isNaN(yearNum) || yearNum < 1900 || yearNum > currentYear + 1) {
@@ -351,9 +355,9 @@
 
 		const queryString = urlParams.join('&');
 		const finalURL = `/player-stats?${queryString}`;
-		
+
 		console.log('🔗 Generated URL:', finalURL);
-		
+
 		return finalURL;
 	}
 
@@ -375,7 +379,7 @@
 		// Clean up all subscriptions
 		unsubscribers.forEach((unsub) => unsub());
 		unsubscribers = [];
-		
+
 		// Clear player search timeout
 		if (playerSearchTimeout) {
 			clearTimeout(playerSearchTimeout);
@@ -407,19 +411,23 @@
 						<h2 class="panel-title">
 							🔍 Search Configuration
 							{#if selectedCategory || selectedPlayer}
-								<span class="panel-count">({selectedCategory ? 'Category' : ''}{selectedCategory && selectedPlayer ? ' & ' : ''}{selectedPlayer ? 'Player' : ''} Selected)</span>
+								<span class="panel-count"
+									>({selectedCategory ? 'Category' : ''}{selectedCategory && selectedPlayer
+										? ' & '
+										: ''}{selectedPlayer ? 'Player' : ''} Selected)</span
+								>
 							{/if}
 						</h2>
-						<p class="panel-subtitle">
-							Choose search criteria to find specific player statistics
-						</p>
+						<p class="panel-subtitle">Choose search criteria to find specific player statistics</p>
 					</div>
 
 					<!-- Controls Section -->
 					<div class="controls-section">
 						<!-- Player Name Search -->
 						<div class="player-search-container">
-							<label for="player-search-input" class="control-label">🎯 Search by Player Name (Optional)</label>
+							<label for="player-search-input" class="control-label"
+								>🎯 Search by Player Name (Optional)</label
+							>
 							<input
 								type="text"
 								class="control-input search-input"
@@ -446,7 +454,8 @@
 										<span class="selected-player-name">{selectedPlayer.name}</span>
 										<span class="selected-player-details">
 											{selectedPlayer.position} • {selectedPlayer.team}
-											{#if selectedPlayer.jersey} • #{selectedPlayer.jersey}{/if}
+											{#if selectedPlayer.jersey}
+												• #{selectedPlayer.jersey}{/if}
 										</span>
 									</div>
 									<button
@@ -474,7 +483,9 @@
 									{:else if playerSearchResults.length > 0}
 										<div class="player-search-results">
 											<div class="player-search-header">
-												Found {playerSearchResults.length} player{playerSearchResults.length !== 1 ? 's' : ''}:
+												Found {playerSearchResults.length} player{playerSearchResults.length !== 1
+													? 's'
+													: ''}:
 											</div>
 											{#each playerSearchResults.slice(0, 8) as player}
 												<button
@@ -486,7 +497,8 @@
 														<span class="player-result-name">{player.name}</span>
 														<span class="player-result-details">
 															{player.position} • {player.team}
-															{#if player.jersey} • #{player.jersey}{/if}
+															{#if player.jersey}
+																• #{player.jersey}{/if}
 														</span>
 													</div>
 												</button>
@@ -506,7 +518,10 @@
 						<div class="control-row">
 							<div class="control-group">
 								<label for="year-input" class="control-label">
-									📅 Year {selectedPlayer || (playerSearchQuery && playerSearchQuery.trim().length >= 2) ? '(Optional)' : '(Required)'}
+									📅 Year {selectedPlayer ||
+									(playerSearchQuery && playerSearchQuery.trim().length >= 2)
+										? '(Optional)'
+										: '(Required)'}
 								</label>
 								<input
 									type="number"
@@ -515,8 +530,14 @@
 									bind:value={year}
 									min={1900}
 									max={currentYear + 1}
-									placeholder={selectedPlayer || (playerSearchQuery && playerSearchQuery.trim().length >= 2) ? "All years" : yearString}
-									required={!(selectedPlayer || (playerSearchQuery && playerSearchQuery.trim().length >= 2))}
+									placeholder={selectedPlayer ||
+									(playerSearchQuery && playerSearchQuery.trim().length >= 2)
+										? 'All years'
+										: yearString}
+									required={!(
+										selectedPlayer ||
+										(playerSearchQuery && playerSearchQuery.trim().length >= 2)
+									)}
 								/>
 								{#if formErrors.year}
 									<span class="error-text">{formErrors.year}</span>
@@ -536,7 +557,9 @@
 						<!-- Team and Conference -->
 						<div class="control-row">
 							<div class="control-group">
-								<label for="team-input" class="control-label"> 🏈 Team {selectedPlayer ? '(Auto-filled)' : '(Optional)'} </label>
+								<label for="team-input" class="control-label">
+									🏈 Team {selectedPlayer ? '(Auto-filled)' : '(Optional)'}
+								</label>
 								<input
 									type="text"
 									class="control-input"
@@ -812,7 +835,8 @@
 									Fill in the search parameters to analyze player statistics
 								</p>
 								<small class="empty-hint">
-									💡 Try searching for a specific player like "Ricky Williams" or filter by team and category
+									💡 Try searching for a specific player like "Ricky Williams" or filter by team and
+									category
 								</small>
 							</div>
 						{/if}
@@ -835,8 +859,8 @@
 									{:else if year}
 										Search player statistics for {year}
 										{#if selectedCategory}
-											in the {categoryOptions.find((cat) => cat.value === selectedCategory)?.label ||
-												selectedCategory} category
+											in the {categoryOptions.find((cat) => cat.value === selectedCategory)
+												?.label || selectedCategory} category
 										{/if}
 										{#if team}
 											for {team}
@@ -1765,7 +1789,9 @@
 
 	.submit-button:hover:not(:disabled) {
 		transform: translateY(-3px);
-		box-shadow: var(--shadow-lg), 0 10px 20px rgba(139, 92, 246, 0.3);
+		box-shadow:
+			var(--shadow-lg),
+			0 10px 20px rgba(139, 92, 246, 0.3);
 	}
 
 	.submit-button:disabled {

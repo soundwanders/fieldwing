@@ -32,7 +32,7 @@
 				// Convert to numbers for proper numeric sorting
 				const aNum = parseFloat(String(aVal).replace(/,/g, ''));
 				const bNum = parseFloat(String(bVal).replace(/,/g, ''));
-				
+
 				if (!isNaN(aNum) && !isNaN(bNum)) {
 					aVal = aNum;
 					bVal = bNum;
@@ -74,13 +74,13 @@
 
 	function formatCategoryName(category: string): string {
 		if (!category) return '';
-		
+
 		// Handle camelCase categories
 		const formatted = category
 			.replace(/([A-Z])/g, ' $1') // Add space before capital letters
-			.replace(/^./, str => str.toUpperCase()) // Capitalize first letter
+			.replace(/^./, (str) => str.toUpperCase()) // Capitalize first letter
 			.trim();
-		
+
 		return formatted;
 	}
 
@@ -207,7 +207,10 @@
 							<td class="stat-type-col" title={stat.statType || 'Unknown Stat'}>
 								{stat.statType || 'Unknown Stat'}
 							</td>
-							<td class="stat-value value-col text-right" title="Value: {formatStatValue(stat.stat)}">
+							<td
+								class="stat-value value-col text-right"
+								title="Value: {formatStatValue(stat.stat)}"
+							>
 								{formatStatValue(stat.stat)}
 							</td>
 						</tr>
@@ -490,11 +493,11 @@
 			box-shadow: none;
 			border: 1px solid #000;
 		}
-		
+
 		.stat-row:hover {
 			background: transparent;
 		}
-		
+
 		.sort-button {
 			color: #000;
 		}

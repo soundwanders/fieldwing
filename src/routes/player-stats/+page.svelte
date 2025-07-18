@@ -36,7 +36,7 @@
 	// Pagination
 	const pageSize = 50; // Use larger page size for better performance
 	let currentPage = 0;
-	
+
 	// Debug flag to help identify reactive issues
 	let isUserTyping = false;
 	let typingTimeout: ReturnType<typeof setTimeout>;
@@ -108,7 +108,7 @@
 
 		// Only initialize if searchParams are currently empty (prevent overriding user input)
 		const isCurrentlyEmpty = !searchParams.year && !searchParams.team && !searchParams.playerName;
-		
+
 		if (isCurrentlyEmpty) {
 			// Initialize search params from URL or data - don't default year to current year
 			searchParams = {
@@ -121,7 +121,7 @@
 				seasonType: urlParams.get('seasonType') || data.searchParams?.seasonType || 'regular',
 				playerName: urlParams.get('playerName') || data.searchParams?.playerName || ''
 			};
-			
+
 			console.log('🔄 Initialized searchParams from URL:', searchParams);
 		} else {
 			console.log('⏭️ Skipping URL initialization - user has input data');
@@ -132,9 +132,10 @@
 		currentPage = Math.floor(skip / pageSize);
 
 		// If we have meaningful search parameters, do initial search
-		const hasValidSearchCriteria = (searchParams.year && isValidYear(searchParams.year)) || 
-										(searchParams.playerName && searchParams.playerName.trim());
-		
+		const hasValidSearchCriteria =
+			(searchParams.year && isValidYear(searchParams.year)) ||
+			(searchParams.playerName && searchParams.playerName.trim());
+
 		if (hasValidSearchCriteria) {
 			fetchPlayerStats();
 		}
@@ -145,7 +146,7 @@
 		formErrors = {};
 
 		const isPlayerSpecificSearch = searchParams.playerName && searchParams.playerName.trim();
-		
+
 		// Year is only required if NOT searching for a specific player
 		if (!searchParams.year && !isPlayerSpecificSearch) {
 			formErrors.year = 'Year is required when not searching for a specific player';
@@ -200,52 +201,52 @@
 
 	// Player search functionality
 	async function searchPlayers(): Promise<void> {
-	if (!playerSearchQuery || playerSearchQuery.trim().length < 2) {
-		playerSearchResults = [];
-		return;
-	}
-
-	isSearchingPlayers = true;
-	playerSearchError = null;
-
-	try {
-		const params = new URLSearchParams();
-		params.set('searchTerm', playerSearchQuery.trim()); 
-
-		// Add optional filters if available
-		if (searchParams?.team && searchParams.team.trim()) {
-			params.set('team', searchParams.team.trim());
+		if (!playerSearchQuery || playerSearchQuery.trim().length < 2) {
+			playerSearchResults = [];
+			return;
 		}
 
-		if (searchParams?.year && String(searchParams.year).trim()) {
-			params.set('year', String(searchParams.year).trim());
-		}
+		isSearchingPlayers = true;
+		playerSearchError = null;
 
-		const response = await fetch(`/api/player-search?${params.toString()}`);
+		try {
+			const params = new URLSearchParams();
+			params.set('searchTerm', playerSearchQuery.trim());
 
-		if (!response.ok) {
-			const errorData = await response.json().catch(() => ({ error: 'Network error' }));
-			throw new Error(errorData.error || `HTTP ${response.status}`);
-		}
-
-		const result = await response.json();
-		
-		if (result.success && Array.isArray(result.data)) {
-			playerSearchResults = result.data;
-			if (playerSearchResults.length === 0) {
-				playerSearchError = `No players found matching "${playerSearchQuery}"`;
+			// Add optional filters if available
+			if (searchParams?.team && searchParams.team.trim()) {
+				params.set('team', searchParams.team.trim());
 			}
-		} else {
-			throw new Error(result.error || 'Invalid response format');
+
+			if (searchParams?.year && String(searchParams.year).trim()) {
+				params.set('year', String(searchParams.year).trim());
+			}
+
+			const response = await fetch(`/api/player-search?${params.toString()}`);
+
+			if (!response.ok) {
+				const errorData = await response.json().catch(() => ({ error: 'Network error' }));
+				throw new Error(errorData.error || `HTTP ${response.status}`);
+			}
+
+			const result = await response.json();
+
+			if (result.success && Array.isArray(result.data)) {
+				playerSearchResults = result.data;
+				if (playerSearchResults.length === 0) {
+					playerSearchError = `No players found matching "${playerSearchQuery}"`;
+				}
+			} else {
+				throw new Error(result.error || 'Invalid response format');
+			}
+		} catch (err) {
+			console.error('❌ Player search error:', err);
+			playerSearchError = err instanceof Error ? err.message : 'Failed to search players';
+			playerSearchResults = [];
+		} finally {
+			isSearchingPlayers = false;
 		}
-	} catch (err) {
-		console.error('❌ Player search error:', err);
-		playerSearchError = err instanceof Error ? err.message : 'Failed to search players';
-		playerSearchResults = [];
-	} finally {
-		isSearchingPlayers = false;
 	}
-}
 
 	// Handle player selection
 	function selectPlayer(player: Player): void {
@@ -254,10 +255,10 @@
 		searchParams.playerName = player.name;
 		showPlayerSearch = false;
 		playerSearchQuery = player.name;
-		
+
 		console.log(`🎯 Selected player: ${player.name} from ${player.team}`);
 		console.log(`📝 Updated searchParams:`, searchParams);
-		
+
 		// Automatically trigger search when player is selected
 		setTimeout(() => {
 			handleSearch();
@@ -271,15 +272,15 @@
 		playerSearchQuery = '';
 		playerSearchResults = [];
 		showPlayerSearch = false;
-		
+
 		console.log('🧹 Cleared player selection, updated searchParams:', searchParams);
 	}
 
-	// Debounced player search 
+	// Debounced player search
 	let playerSearchTimeout: ReturnType<typeof setTimeout>;
 	function handlePlayerSearchInput(event: Event | CustomEvent<{ value: string }>): void {
 		let newValue: string;
-		
+
 		// Handle both direct input events and FormField custom events
 		if (event instanceof CustomEvent && event.detail && typeof event.detail.value === 'string') {
 			// Custom event from FormField component
@@ -291,14 +292,14 @@
 			console.warn('Unexpected event type in handlePlayerSearchInput:', event);
 			return;
 		}
-		
+
 		playerSearchQuery = newValue;
-		
+
 		// Clear previous timeout
 		if (playerSearchTimeout) {
 			clearTimeout(playerSearchTimeout);
 		}
-		
+
 		// Debounce search
 		if (playerSearchQuery.trim().length >= 2) {
 			showPlayerSearch = true;
@@ -324,7 +325,7 @@
 
 		try {
 			const params = new URLSearchParams();
-			
+
 			// Add year only if provided
 			if (searchParams.year && String(searchParams.year).trim()) {
 				params.set('year', searchParams.year);
@@ -343,23 +344,23 @@
 					params.set('team', normalizedTeam);
 				}
 			}
-			
+
 			if (searchParams.conference && searchParams.conference.trim()) {
 				params.set('conference', searchParams.conference.trim());
 			}
-			
+
 			if (searchParams.startWeek && searchParams.startWeek.trim()) {
 				params.set('startWeek', searchParams.startWeek.trim());
 			}
-			
+
 			if (searchParams.endWeek && searchParams.endWeek.trim()) {
 				params.set('endWeek', searchParams.endWeek.trim());
 			}
-			
+
 			if (searchParams.category && searchParams.category.trim()) {
 				params.set('category', searchParams.category.trim());
 			}
-			
+
 			if (searchParams.seasonType && searchParams.seasonType !== 'regular') {
 				params.set('seasonType', searchParams.seasonType);
 			}
@@ -369,7 +370,7 @@
 			params.set('skip', (currentPage * pageSize).toString());
 
 			console.log('🔍 Fetching player stats with params:', params.toString());
-			
+
 			const response = await fetch(`/api/player-stats?${params.toString()}`);
 
 			if (!response.ok) {
@@ -386,7 +387,8 @@
 				searchInfo = result.searchInfo || null;
 
 				if (playerStats.length === 0) {
-					error = 'No player statistics found for your search criteria. Try adjusting your filters or searching for a different player.';
+					error =
+						'No player statistics found for your search criteria. Try adjusting your filters or searching for a different player.';
 				} else {
 					error = null;
 				}
@@ -405,16 +407,19 @@
 	}
 
 	// Handle form field changes
-	function handleFieldChange(event: CustomEvent<{ value: string | number }> | Event, field: string): void {
+	function handleFieldChange(
+		event: CustomEvent<{ value: string | number }> | Event,
+		field: string
+	): void {
 		let newValue: string | number;
-		
+
 		// Set typing flag to prevent reactive interference
 		isUserTyping = true;
 		clearTimeout(typingTimeout);
 		typingTimeout = setTimeout(() => {
 			isUserTyping = false;
 		}, 1000);
-		
+
 		// Handle different event types
 		if (event instanceof CustomEvent && event.detail && 'value' in event.detail) {
 			// Custom event from FormField component
@@ -430,9 +435,9 @@
 
 		// Convert to string for consistency
 		const stringValue = String(newValue);
-		
+
 		console.log(`📝 Field change: ${field} = "${stringValue}"`);
-		
+
 		searchParams = {
 			...searchParams,
 			[field]: stringValue
@@ -444,7 +449,7 @@
 			delete newErrors[field];
 			formErrors = newErrors;
 		}
-		
+
 		console.log('📋 Updated searchParams:', searchParams);
 	}
 
@@ -459,7 +464,7 @@
 
 		// Update URL
 		updateUrl();
-		
+
 		// Fetch data
 		fetchPlayerStats();
 	}
@@ -469,7 +474,7 @@
 		if (typeof window === 'undefined') return;
 
 		const url = new URL(window.location.href);
-		
+
 		// Clear existing search params
 		url.searchParams.forEach((_, key) => {
 			url.searchParams.delete(key);
@@ -539,15 +544,14 @@
 		const urlPlayerName = urlParams.get('playerName') || '';
 		const urlTeam = urlParams.get('team') || '';
 		const urlCategory = urlParams.get('category') || '';
-		
+
 		// Check if this is a significant URL change (not just user typing)
-		const isSignificantChange = (
+		const isSignificantChange =
 			(urlYear !== searchParams.year && urlYear !== '') ||
 			(urlPlayerName !== searchParams.playerName && urlPlayerName !== '') ||
 			(urlTeam !== searchParams.team && urlTeam !== '') ||
-			(urlCategory !== searchParams.category && urlCategory !== '')
-		);
-		
+			(urlCategory !== searchParams.category && urlCategory !== '');
+
 		// Only reinitialize for significant changes (like back/forward navigation)
 		if (isSignificantChange) {
 			console.log('🔄 Significant URL change detected, reinitializing...');
@@ -571,9 +575,7 @@
 			<div class="header-content">
 				<img class="header-icon" src="/playerstats.png" alt="Player Stats" />
 				<h1 class="page-title">Player Statistics</h1>
-				<p class="page-subtitle">
-					Search player stats across college football
-				</p>
+				<p class="page-subtitle">Search player stats across college football</p>
 			</div>
 		</div>
 
@@ -598,7 +600,7 @@
 								placeholder="e.g., Bo Jackson, Cam Newton, Ricky Williams"
 								on:change={handlePlayerSearchInput}
 							/>
-							
+
 							{#if selectedPlayer}
 								<div class="selected-player-badge">
 									<div class="selected-player-info">
@@ -632,7 +634,9 @@
 									{:else if playerSearchResults.length > 0}
 										<div class="player-search-results">
 											<div class="player-search-header">
-												Found {playerSearchResults.length} player{playerSearchResults.length !== 1 ? 's' : ''}:
+												Found {playerSearchResults.length} player{playerSearchResults.length !== 1
+													? 's'
+													: ''}:
 											</div>
 											{#each playerSearchResults.slice(0, 10) as player}
 												<button
@@ -644,7 +648,8 @@
 														<span class="player-result-name">{player.name}</span>
 														<span class="player-result-details">
 															{player.position} • {player.team}
-															{#if player.jersey} • #{player.jersey}{/if}
+															{#if player.jersey}
+																• #{player.jersey}{/if}
 														</span>
 													</div>
 												</button>
@@ -662,12 +667,14 @@
 
 						<!-- Year (Optional when searching by player) -->
 						<FormField
-							label={searchParams.playerName ? "Year (Optional)" : "Year *"}
+							label={searchParams.playerName ? 'Year (Optional)' : 'Year *'}
 							type="number"
 							value={searchParams.year}
 							required={!searchParams.playerName}
 							error={formErrors.year}
-							placeholder={searchParams.playerName ? "All years" : new Date().getFullYear().toString()}
+							placeholder={searchParams.playerName
+								? 'All years'
+								: new Date().getFullYear().toString()}
 							min="1900"
 							max={new Date().getFullYear() + 1}
 							on:change={(e) => handleFieldChange(e, 'year')}
@@ -743,7 +750,9 @@
 							<button
 								type="submit"
 								class="btn btn-primary"
-								disabled={isLoading || Object.keys(formErrors).length > 0 || (!searchParams.year && !searchParams.playerName)}
+								disabled={isLoading ||
+									Object.keys(formErrors).length > 0 ||
+									(!searchParams.year && !searchParams.playerName)}
 							>
 								{#if isLoading}
 									<span class="btn-spinner" />
@@ -814,12 +823,15 @@
 								{#if searchParams.playerName}
 									Showing statistics for <strong>{searchParams.playerName}</strong>
 									{#if searchInfo && searchInfo.yearsSearched}
-										across {searchInfo.totalYearsSearched} years ({Math.min(...searchInfo.yearsSearched)}-{Math.max(...searchInfo.yearsSearched)})
+										across {searchInfo.totalYearsSearched} years ({Math.min(
+											...searchInfo.yearsSearched
+										)}-{Math.max(...searchInfo.yearsSearched)})
 									{/if}
 								{:else if searchParams.year}
 									Showing player statistics for <strong>{searchParams.year}</strong>
 								{/if}
-								{#if searchParams.team && !selectedPlayer}• <strong>{searchParams.team}</strong>{/if}
+								{#if searchParams.team && !selectedPlayer}• <strong>{searchParams.team}</strong
+									>{/if}
 								{#if searchParams.conference}• <strong>{searchParams.conference}</strong>{/if}
 								{#if searchParams.category}• <strong>{searchParams.category}</strong>{/if}
 								{#if searchParams.startWeek && searchParams.endWeek}
@@ -830,16 +842,18 @@
 									• Week <strong>1-{searchParams.endWeek}</strong>
 								{/if}
 								{#if searchParams.seasonType !== 'regular'}
-									• <strong>{seasonTypes.find(t => t.value === searchParams.seasonType)?.label}</strong>
+									• <strong
+										>{seasonTypes.find((t) => t.value === searchParams.seasonType)?.label}</strong
+									>
 								{/if}
 							</p>
 						{/if}
-						
+
 						<!-- Search Info Display -->
 						{#if searchInfo && searchInfo.statsFoundByYear}
 							<div class="search-info-summary">
 								<p class="search-info-text">
-									📊 Found stats in years: 
+									📊 Found stats in years:
 									{Object.entries(searchInfo.statsFoundByYear)
 										.sort(([a], [b]) => parseInt(b) - parseInt(a))
 										.map(([year, count]) => `${year} (${count})`)
@@ -871,16 +885,16 @@
 							<div class="error-content">
 								<h3>Search Error</h3>
 								<p>{error}</p>
-								<button class="btn btn-primary" on:click={fetchPlayerStats}>
-									🔄 Try Again
-								</button>
+								<button class="btn btn-primary" on:click={fetchPlayerStats}> 🔄 Try Again </button>
 							</div>
 						</div>
 					{:else if isLoading}
 						<div class="loading-state">
 							<LoadingSpinner size="large" text="Searching player statistics..." />
 							{#if searchParams.playerName && !searchParams.year}
-								<p class="loading-hint">Searching across multiple years for {searchParams.playerName}...</p>
+								<p class="loading-hint">
+									Searching across multiple years for {searchParams.playerName}...
+								</p>
 							{/if}
 						</div>
 					{:else if !searchParams.year && !searchParams.playerName}
@@ -899,13 +913,17 @@
 								<p>No player statistics match your current search criteria.</p>
 								<small>
 									{#if searchParams.playerName}
-										Try searching for a different spelling of "{searchParams.playerName}" or make sure the name is correct.
+										Try searching for a different spelling of "{searchParams.playerName}" or make
+										sure the name is correct.
 										<br />
 										<strong>Examples:</strong> "Bo Jackson", "Ricky Williams"
 									{:else}
-										Try adjusting your search parameters. For Auburn passing stats weeks 4-8 in 2023:
+										Try adjusting your search parameters. For Auburn passing stats weeks 4-8 in
+										2023:
 										<br />
-										<strong>Year:</strong> 2023, <strong>Team:</strong> Auburn, <strong>Category:</strong> passing, 
+										<strong>Year:</strong> 2023, <strong>Team:</strong> Auburn,
+										<strong>Category:</strong>
+										passing,
 										<strong>Start Week:</strong> 4, <strong>End Week:</strong> 8
 									{/if}
 								</small>
@@ -920,9 +938,9 @@
 						<!-- Pagination -->
 						{#if totalResults > pageSize}
 							<div class="pagination-section">
-								<Pagination 
-									totalItems={totalResults} 
-									{pageSize} 
+								<Pagination
+									totalItems={totalResults}
+									{pageSize}
 									{currentPage}
 									maxVisiblePages={7}
 									on:pageChange={(e) => handlePageChange(e.detail)}
@@ -1459,7 +1477,7 @@
 		.page-title {
 			font-size: 2rem;
 		}
-		
+
 		.header-icon {
 			width: 48px;
 			height: 48px;

@@ -409,7 +409,7 @@
 													<div class="detail-row">
 														<span class="detail-label">🏆</span>
 														<span class="detail-value">
-															{gameResult.conferenceGame ?? gameResult.conference_game
+															{(gameResult.conferenceGame ?? gameResult.conference_game)
 																? 'Conference Game'
 																: 'Non-Conference Game'}
 														</span>
@@ -657,7 +657,9 @@
 
 	.game-card:hover {
 		transform: translateY(-4px);
-		box-shadow: var(--shadow-lg), 0 20px 25px -5px rgb(0 0 0 / 0.1);
+		box-shadow:
+			var(--shadow-lg),
+			0 20px 25px -5px rgb(0 0 0 / 0.1);
 	}
 
 	/* ========================================

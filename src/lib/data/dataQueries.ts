@@ -64,7 +64,7 @@ export const playerStatsQueries = {
 			`playerStats:byCategory:${category}:${year}:${team || 'all'}`,
 			() =>
 				internalApi.getPlayerStats({
-					year,
+					year: Number(year),
 					category: category as any,
 					team: team || undefined
 				}),
@@ -78,7 +78,7 @@ export const playerStatsQueries = {
 		createQuery(
 			`playerStats:topPerformers:${category}:${year}:${limit}`,
 			async () => {
-				const data = await internalApi.getPlayerStats({ year, category: category as any });
+				const data = await internalApi.getPlayerStats({ year: Number(year), category: category as any });
 				return data.sort((a, b) => Number(b.stat) - Number(a.stat)).slice(0, limit);
 			},
 			{

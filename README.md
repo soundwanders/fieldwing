@@ -17,25 +17,25 @@
 
 **Mobile-First Design** — Fully responsive interface optimized for all devices with progressive enhancement
 
-### 📊 **Statistics and Logistics**
+### **Statistics and Logistics**
 - **Player Analytics** — Search by category (passing, rushing, receiving, defense, kicking)
 - **Team Performance** — Conference comparisons and seasonal trends
 - **Head-to-Head Matchups** — Historical rivalry analysis with custom date ranges
 - **CSV Export** — Download data for offline analysis
 
-### 🎯 **Smart Search & Filtering**
+### **Smart Search & Filtering**
 - **Advanced Form Validation** — Real-time error checking and input sanitization  
 - **URL Synchronization** — Shareable links with embedded search parameters
 - **Intelligent Caching** — Lightning-fast repeat searches with 5-minute cache TTL
 - **Pagination** — Efficient data loading for large result sets
 
-### 👷 **Fancy Architecture**
+### **Fancy-Pants Stadium**
 - **Type-Safe Development** — Full TypeScript coverage with runtime validation
 - **Smart Data Provider** — Automatic retries, rate limiting, and error boundaries
 - **Component Library** — Reusable UI components with accessibility features
 - **Progressive Enhancement** — Works without JavaScript for basic functionality
 
-### 🎨 **User Experience**
+### **User Experience**
 - **Dark/Light Theme** — System preference detection with manual override
 - **Mobile-Optimized** — Touch-friendly interface with responsive breakpoints
 - **Loading States** — Skeleton screens and progress indicators
@@ -43,7 +43,7 @@
 
 ## 🛠️ Quick Start
 
-**Prerequisites:** Node.js 16+ and npm
+**Prerequisites:** Node.js 18+ and npm
 
 ```bash
 # Clone and setup
@@ -56,7 +56,7 @@ npm run dev
 # → Open http://localhost:5173
 ```
 
-## 📊 **API Integration**
+## **API Integration**
 
 Fieldwing integrates with the [College Football Database API](https://collegefootballdata.com/) to provide:
 
@@ -67,7 +67,7 @@ Fieldwing integrates with the [College Football Database API](https://collegefoo
 
 The app implements intelligent **rate limiting** and **caching** to ensure optimal performance while respecting API limits.
 
-## 🎯 **Development Principles**
+## **Development Principles**
 
 - **Mobile-First Responsive Design** — Progressive enhancement from mobile to desktop
 - **Accessibility by Default** — WCAG 2.1 compliance with keyboard navigation
@@ -75,9 +75,9 @@ The app implements intelligent **rate limiting** and **caching** to ensure optim
 - **Error Resilience** — Error boundaries with user-friendly fallbacks
 - **Type Safety** — Runtime validation with TypeScript type guards
 
-## 🤝 **Contributing**
+## **Contributing**
 
-Contributions are always welcome. Here's how you could get started:
+Contributions are welcome. Get started:
 
 ```bash
 # 1. Fork the repository and clone your fork
@@ -96,13 +96,6 @@ git commit -m 'feat: add amazing feature with real fun tests'
 # 5. Push and create a Pull Request
 git push origin feature/amazing-feature
 ```
-
-**Code Quality (We're Doing Our Best!):**
-- ✅ Type safety with TypeScript
-- ✅ Component testing with Vitest  
-- ✅ Accessibility compliance (WCAG 2.1)
-- ✅ Mobile-responsive design
-- ✅ Error boundary implementation
 
 ## 🙏 **Acknowledgments**
 

@@ -13,7 +13,6 @@ export const GET: RequestHandler = async () => {
 			environment: process.env.NODE_ENV || 'unknown',
 			timestamp: new Date().toISOString(),
 			apiKeyConfigured: !!CFBD_API_KEY,
-			apiKeyLength: CFBD_API_KEY ? CFBD_API_KEY.length : 0,
 			nodeVersion: process.version,
 			upstreamApiAccessible: false,
 			upstreamApiMessage: 'Not tested'

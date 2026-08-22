@@ -17,6 +17,7 @@
 		"@sveltejs/adapter-auto": "^3.2.5",
 		"@sveltejs/kit": "^2.9.0",
 		"@sveltejs/vite-plugin-svelte": "^3.1.2",
+		"@types/node": "^26.2.0",
 		"postcss-html": "^1.7.0",
 		"prettier": "^3.3.3",
 		"prettier-plugin-svelte": "^3.2.7",
